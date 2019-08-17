@@ -23,7 +23,9 @@
         </el-row>
         <!-- 总览地图 -->
         <el-row>
-          
+          <el-col :span="20" :offset="2">
+            <div id="mapChart" style="height:400px"></div>
+          </el-col>
         </el-row>
       </el-tab-pane>
       <!-- 详细列表tab -->
@@ -75,14 +77,21 @@
                 <el-table-column prop="version" label="终端版本"></el-table-column>
                 <el-table-column prop="ability" width="150" label="终端能力"></el-table-column>
                 <el-table-column prop="container" label="容器版本"></el-table-column>
-                <el-table-column prop="status" label="终端状态"></el-table-column>
+                <el-table-column prop="status" label="终端状态">
+                   <template slot-scope="scope">
+                     <span v-if="scope.row.status==='1'" style="color:#67c23a">正常</span>
+                     <span v-if="scope.row.status==='0'" style="color:red">离线</span>
+                     <span v-if="scope.row.status!=='0'&&scope.row.status!=='1'" style="color:orange">未确认</span>
+                     </template>
+                </el-table-column>
                 <el-table-column prop="attribution" width="150" label="归属地"></el-table-column>
-                <el-table-column prop="options" label="操作" width="180">
-                  <!-- <template slot-scope="scope">
-                   <el-button @click="setPosition(scope.row)" type="text" size="medium">设置人员</el-button>
-                    <el-button @click="editPosition(scope.row)" type="text" size="medium">编辑</el-button>
-                    <el-button @click="delPosition(scope.row)" type="text" size="medium">删除</el-button> 
-                  </template>-->
+                <el-table-column prop="options" label="操作" width="200">
+                  <template slot-scope="scope">
+                    <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
+                    <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
+                    <el-button @click="updateRow(scope.row)" type="text" size="medium">升级</el-button>
+                    <el-button @click="pairRow(scope.row)" type="text" size="medium">对时</el-button>  
+                  </template>
                 </el-table-column>
               </el-table>
               <el-row style="margin:20px 0px">
@@ -105,16 +114,9 @@
                     type="warning"
                     round
                     size="small"
-                    icon="el-icon-edit"
-                    @click="editRow()"
-                  >编辑</el-button>
-                  <el-button
-                    type="danger"
-                    round
-                    size="small"
-                    icon="el-icon-delete"
-                    @click="delRow()"
-                  >删除</el-button>
+                    icon="el-icon-upload2"
+                    @click="importRows()"
+                  >批量导入</el-button>
                 </el-button-group>
                 <el-pagination
                   background
@@ -189,6 +191,8 @@
   </div>
 </template>
 <script>
+import "../../node_modules/echarts/map/js/china.js";
+const geoCoordMap = {};
 export default {
   name: "terminalManege",
   data() {
@@ -244,7 +248,7 @@ export default {
           count: "236,495",
           percent: "98%",
           icon: "fa fa-long-arrow-up",
-          color:"blue"
+          color: "blue"
         },
         {
           title: "在线终端总数",
@@ -253,7 +257,7 @@ export default {
           count: "235,964",
           percent: "98%",
           icon: "fa fa-long-arrow-up",
-          color:"green"
+          color: "green"
         },
         {
           title: "活跃用户",
@@ -262,7 +266,7 @@ export default {
           count: "6,956",
           percent: "98%",
           icon: "fa fa-long-arrow-up",
-          color:"greenAll"
+          color: "greenAll"
         },
         {
           title: "应用总数",
@@ -271,16 +275,45 @@ export default {
           count: "3,235",
           percent: "98%",
           icon: "fa fa-long-arrow-up",
-          color:"orange"
+          color: "orange"
         }
       ],
+      mapData: [
+        { name: "河北", value: 102 },
+        { name: "山西", value: 81 },
+        { name: "内蒙古", value: 47 },
+        { name: "辽宁", value: 67 },
+        { name: "黑龙江", value: 123 },
+        { name: "江苏", value: 92 },
+        { name: "浙江", value: 114 },
+        { name: "安徽", value: 109 },
+        { name: "福建", value: 116 },
+        { name: "江西", value: 91 },
+        { name: "山东", value: 119 },
+        { name: "河南", value: 137 },
+        { name: "湖北", value: 116 },
+        { name: "湖南", value: 114 },
+        { name: "四川", value: 125 },
+        { name: "贵州", value: 62 },
+        { name: "云南", value: 83 },
+        { name: "西藏", value: 9 },
+        { name: "陕西", value: 80 },
+        { name: "甘肃", value: 56 },
+        { name: "青海", value: 10 },
+        { name: "宁夏", value: 18 },
+        { name: "新疆", value: 180 },
+        { name: "广东", value: 123 },
+        { name: "广西", value: 59 },
+        { name: "海南", value: 14 }
+      ],
+
       tableData: [
         {
           id: "MathCAD",
           version: "1.0",
           ability: "test1",
           container: "test1",
-          status: "0",
+          status: "1",
           attribution: "北京"
         },
         {
@@ -296,7 +329,7 @@ export default {
           version: "1.2",
           ability: "test3",
           container: "test3",
-          status: "0",
+          status: "",
           attribution: "北京"
         },
         {
@@ -304,7 +337,7 @@ export default {
           version: "1.4",
           ability: "test4",
           container: "test4",
-          status: "0",
+          status: "1",
           attribution: "北京"
         },
         {
@@ -320,7 +353,7 @@ export default {
           version: "2.0",
           ability: "test2",
           container: "test2",
-          status: "0",
+          status: "",
           attribution: "北京"
         },
         {
@@ -328,7 +361,7 @@ export default {
           version: "1.2",
           ability: "test3",
           container: "test3",
-          status: "0",
+          status: "",
           attribution: "北京"
         },
         {
@@ -404,6 +437,7 @@ export default {
   },
   mounted() {
     this.tableSize = this.tableData.length;
+    this.drawMap();
   },
   methods: {
     search(page) {
@@ -428,6 +462,209 @@ export default {
       this.selectedRow = row;
       console.info(row);
     },
+    //获取地图数据
+    getMapData(){
+
+    },
+    drawMap() {
+      let myChart = this.$echarts.init(document.getElementById("mapChart"));
+      myChart.showLoading();
+      let mapFeatures = this.$echarts.getMap("china").geoJson.features;
+      myChart.hideLoading();
+      mapFeatures.forEach(function(v) {
+        // 地区名称
+        let name = v.properties.name;
+        // 地区经纬度
+        geoCoordMap[name] = v.properties.cp;
+      });
+      let option = {
+        tooltip: {
+          padding: 0,
+          enterable: true,
+          transitionDuration: 1,
+          textStyle: {
+            color: "#000",
+            decoration: "none"
+          },
+          alwaysShowContent:true,
+          formatter: function(params) {
+            var tipHtml = '';
+            if(params.value!==undefined&&!Number.isNaN(params.value)){
+            tipHtml = '<div style="width:200px;height:80px;background:rgba(22,80,158,0.8);border:1px solid rgba(7,166,255,0.7)">'
+            +'<div style="width:90%;height:30px;line-height:30px;border-bottom:2px solid rgba(7,166,255,0.7);padding-left:15px">'
+            +'<i style="display:inline-block;width:8px;height:8px;background:#16d6ff;border-radius:40px;"></i>'
+            +'<span style="margin-left:10px;color:#fff;font-size:14px;">'+params.name+'</span>'
+            +'</div>'
+            +'<div style="padding:15px 5px">'
+            +'<p style="color:#fff;font-size:12px;">'+'<i style="display:inline-block;width:10px;height:10px;background:#16d6ff;border-radius:40px;margin:0 8px"></i>'
+            +'总数：'+'<span style="color:#11ee7d;margin:0 6px;">'+params.value+'</span>'+'个'+'</p>'
+            +'</div>'+'</div>';
+            }else{
+            tipHtml = '<div style="width:200px;height:80px;background:rgba(22,80,158,0.8);border:1px solid rgba(7,166,255,0.7)">'
+            +'<div style="width:90%;height:30px;line-height:30px;border-bottom:2px solid rgba(7,166,255,0.7);padding-left:15px">'
+            +'<i style="display:inline-block;width:8px;height:8px;background:#16d6ff;border-radius:40px;"></i>'
+            +'<span style="margin-left:10px;color:#fff;font-size:14px;">'+params.name+'</span>'
+            +'</div>'
+            +'<div style="padding:15px 5px">'
+            +'<p style="color:#fff;font-size:12px;">'+'<i style="display:inline-block;width:10px;height:10px;background:#16d6ff;border-radius:40px;margin:0 8px"></i>'
+            +'总数：'+'<span style="color:#11ee7d;margin:0 6px;">---</span>'+'个'+'</p>'
+            +'</div>'+'</div>';
+            }
+            return tipHtml;
+          }
+        },
+        visualMap: {
+          show: true,
+          min: 0,
+          max: 200,
+          left: "10%",
+          top: "bottom",
+          calculable: true,
+          seriesIndex: [1],
+          inRange: {
+            color: ["#04387b", "#467bc0"] // 蓝绿
+          }
+        },
+        geo: {
+          show: true,
+          map: "china",
+          zoom:1.2,
+          label: {
+            normal: {
+              show: false
+            },
+            emphasis: {
+              show: false
+            }
+          },
+          roam: true,
+          itemStyle: {
+            normal: {
+              areaColor: "#023677",
+              borderColor: "#1180c7"
+            },
+            emphasis: {
+              areaColor: "#4499d0"
+            }
+          }
+        },
+        series: [
+          {
+            name: "散点",
+            type: "scatter",
+            coordinateSystem: "geo",
+            data: this.convertData(this.mapData),
+            symbolSize: function(val) {
+              return val[2] / 10;
+            },
+            label: {
+              normal: {
+                formatter: "{b}",
+                position: "right",
+                show: true
+              },
+              emphasis: {
+                show: true
+              }
+            },
+            itemStyle: {
+              normal: {
+                color: "#fff"
+              }
+            }
+          },
+          {
+            type: "map",
+            map: "china",
+            geoIndex: 0,
+            aspectScale: 0.85, //长宽比
+            showLegendSymbol: false, // 存在legend时显示
+            label: {
+              normal: {
+                show: true
+              },
+              emphasis: {
+                show: false,
+                textStyle: {
+                  color: "#fff"
+                }
+              }
+            },
+            roam: true,
+            itemStyle: {
+              normal: {
+                areaColor: "#031525",
+                borderColor: "#3B5077"
+              },
+              emphasis: {
+                areaColor: "#2B91B7"
+              }
+            },
+            animation: false,
+            data: this.mapData
+          },
+          {
+            name: "点",
+            type: "scatter",
+            coordinateSystem: "geo",
+            zlevel: 6
+          },
+          {
+            name: "Top 5",
+            type: "effectScatter",
+            coordinateSystem: "geo",
+            data: this.convertData(
+              this.mapData
+                .sort(function(a, b) {
+                  return b.value - a.value;
+                })
+                .slice(0, 5)
+            ),
+            symbolSize: function(val) {
+              return val[2] / 10;
+            },
+            showEffectOn: "render",
+            rippleEffect: {
+              brushType: "stroke"
+            },
+            hoverAnimation: true,
+            label: {
+              normal: {
+                formatter: "{b}",
+                position: "left",
+                show: false
+              }
+            },
+            itemStyle: {
+              normal: {
+                color: "yellow",
+                shadowBlur: 10,
+                shadowColor: "yellow"
+              }
+            },
+            zlevel: 1
+          }
+        ]
+      };
+      myChart.setOption(option);
+      myChart.resize();  
+    },
+    convertData(data) {
+      let res = [];
+      for (let i = 0; i < data.length; i++) {
+        if (geoCoordMap[data[i].name] !== undefined) {
+          let geoCoord = geoCoordMap[data[i].name];
+          if (geoCoord) {
+            res.push({
+              name: data[i].name,
+              value: geoCoord.concat(data[i].value)
+            });
+          }
+        }
+      }
+      return res;
+    },
+    //新增
     add(formName) {
       this.dialogTitle = "新增终端";
       this.$nextTick(() => {
@@ -435,14 +672,9 @@ export default {
       });
       this.dialogFormVisible = true;
     },
-    editRow() {
-      if (this.selectedRow.length === 0 || this.selectedRow.length > 1) {
-        this.$message({
-          message: "请选择单条数据进行编辑",
-          type: "warning"
-        });
-      } else {
-        //获取当前数据内容
+    //编辑
+    editRow(row) {
+      //获取当前数据内容
         // this.$axios.post('',{
         //   id:this.selectedRow[0].id,'
         // }).then((res)=>{
@@ -451,25 +683,12 @@ export default {
         //   console.log(err);
         // });
         this.dialogTitle = "编辑终端";
-        this.dialogForm = this.selectedRow[0];
+        this.dialogForm = row;
         this.dialogFormVisible = true;
-        // this.$axios.post('',{
-        //   id:this.selectedRow[0].id,'
-        // }).then((res)=>{
-        //   this.search(page);
-        // }).catch((err)=>{
-        //   console.log(err);
-        // });
-      }
     },
-    delRow() {
-      if (this.selectedRow.length === 0) {
-        this.$message({
-          message: "请选择数据进行删除",
-          type: "warning"
-        });
-      } else {
-        this.$confirm("是否确定删除该终端?", "提示", {
+    //删除
+    delRow(row) {
+      this.$confirm("是否确定删除该终端?", "提示", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
@@ -497,8 +716,20 @@ export default {
               message: "已取消删除"
             });
           });
-      }
     },
+    //升级
+    updateRow(row){
+
+    },
+    //对时
+    pairRow(row){
+
+    },
+    //批量导入
+    importRows(){
+
+    },
+    //提交新增/编辑
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
@@ -521,7 +752,8 @@ export default {
         }
       });
     },
-    handleClick() {},
+    //tab点击事件
+    handleClick(){},
     handleSizeChange(val) {
       this.tableLimit = val;
       this.search(1);
@@ -539,7 +771,6 @@ export default {
   overflow: auto;
 }
 .pull-right {
-  
   color: #ffffff;
   font-size: 10px;
   font-weight: 600;
@@ -561,12 +792,31 @@ export default {
   font-weight: 600;
   float: right;
 }
-.el-card__header .blue{background-color: #1c84c6;}
-.el-card__header .green{background-color: #23c6c8;}
-.el-card__header .greenAll{background-color: #1ab394;}
-.el-card__header .orange{background-color: rgba(240, 155, 119, 1);}
-.el-card__body .blue{color: #1c84c6;}
-.el-card__body .green{color: #23c6c8;}
-.el-card__body .greenAll{color: #1ab394;}
-.el-card__body .orange{color: rgba(240, 155, 119, 1);}
+.el-card__header .blue {
+  background-color: #1c84c6;
+}
+.el-card__header .green {
+  background-color: #23c6c8;
+}
+.el-card__header .greenAll {
+  background-color: #1ab394;
+}
+.el-card__header .orange {
+  background-color: rgba(240, 155, 119, 1);
+}
+.el-card__body .blue {
+  color: #1c84c6;
+}
+.el-card__body .green {
+  color: #23c6c8;
+}
+.el-card__body .greenAll {
+  color: #1ab394;
+}
+.el-card__body .orange {
+  color: rgba(240, 155, 119, 1);
+}
+.tooltipDiv{
+  
+}
 </style>
