@@ -5,6 +5,8 @@ import homePage from '../pages/homePage.vue'
 import terminalManege from '../pages/terminalManege'
 import applicationManege from '../pages/applicationManege'
 import containerManege from '../pages/containerManege'
+import appList from '../pages/appList'
+import alarmPush from '../pages/alarmPush'
 
 Vue.use(Router)
 
@@ -16,7 +18,7 @@ export default new Router({
       component:main,
       children:[
         {
-          path:'terminalManege',
+          path:'',
           name:'terminalManege',
           component:terminalManege,
           meta:{
@@ -34,6 +36,16 @@ export default new Router({
           path:'containerManege',
           name:'containerManege',
           component:containerManege
+        },
+        {
+          path:'appList',
+          name:'appList',
+          component:appList
+        },
+        {
+          path:'alarmPush',
+          name:'alarmPush',
+          component:alarmPush
         }
       ]
     },

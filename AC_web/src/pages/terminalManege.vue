@@ -363,46 +363,6 @@ export default {
           container: "test3",
           status: "",
           attribution: "北京"
-        },
-        {
-          id: "MathCAD",
-          version: "1.4",
-          ability: "test4",
-          container: "test4",
-          status: "0",
-          attribution: "北京"
-        },
-        {
-          id: "MathCAD",
-          version: "1.0",
-          ability: "test1",
-          container: "test1",
-          status: "0",
-          attribution: "北京"
-        },
-        {
-          id: "MathCAD",
-          version: "2.0",
-          ability: "test2",
-          container: "test2",
-          status: "0",
-          attribution: "北京"
-        },
-        {
-          id: "MathCAD",
-          version: "1.2",
-          ability: "test3",
-          container: "test3",
-          status: "0",
-          attribution: "北京"
-        },
-        {
-          id: "MathCAD",
-          version: "1.4",
-          ability: "test4",
-          container: "test4",
-          status: "0",
-          attribution: "北京"
         }
       ],
       dialogTitle: "新增",
@@ -694,12 +654,8 @@ export default {
           type: "warning"
         })
           .then(() => {
-            let ids = [];
-            this.selectedRow.forEach(item => {
-              ids.push(item.id);
-            });
             // this.$axios.post('',{
-            //   ids:ids,'
+            //   id:row.id,'
             // }).then((res)=>{
             //   this.search(page);
             // }).catch((err)=>{

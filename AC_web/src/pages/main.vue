@@ -4,7 +4,7 @@
       <el-header class="header">
         <el-row>
           <el-col :span="1" :offset="1">
-            <img src="../assets/logo.png" height="50" width="50" />
+            <img src="../assets/img/logo.png" height="50" width="50" />
           </el-col>
           <el-col :span="4">
             <h1>AC物联管理系统</h1>
@@ -77,7 +77,7 @@
             </el-breadcrumb-item>
             <el-breadcrumb-item>{{currentTitle}}</el-breadcrumb-item>
           </el-breadcrumb>
-          <router-view />
+          <router-view :to="{ path:'/'}"/>
         </el-main>
       </el-container>
     </el-container>
@@ -94,7 +94,7 @@ export default {
         {
           title: "终端管理",
           index: "1",
-          url: "/terminalManege",
+          url: "/",
           icon: "fa fa-television"
         },
         {
@@ -109,8 +109,8 @@ export default {
           url: "/applicationManege",
           icon: "fa fa-th-large"
         },
-        { title: "应用商店", index: "4", url: "/", icon: "el-icon-s-goods" },
-        { title: "告警推送", index: "5", url: "/", icon: "fa fa-warning" },
+        { title: "应用商店", index: "4", url: "/appList", icon: "el-icon-s-goods" },
+        { title: "告警推送", index: "5", url: "/alarmPush", icon: "fa fa-warning" },
         { title: "系统管理", index: "6", url: "/", icon: "fa fa-cog" }
       ]
     };

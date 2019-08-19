@@ -1,6 +1,6 @@
 <!--容器管理-->
 <template>
-  <div id="terminalManege">
+  <div id="containerManage">
     <el-row>
       <el-form :inline="true" :model="searchItem" ref="searchItem">
         <el-form-item label="容器名称">
@@ -39,19 +39,19 @@
             :data="tableData"
             border
             size="medium"
-            class="terminalTable"
+            class="containerTable"
             @selection-change="getRowDatas"
           >
             <el-table-column type="selection" width="55"></el-table-column>
             <el-table-column type="index" width="50" label="序号"></el-table-column>
             <el-table-column prop="name" width="150" label="容器名称"></el-table-column>
             <el-table-column prop="version" label="版本"></el-table-column>
-            <el-table-column prop="createTime" width="150" label="发布时间"></el-table-column>
-            <el-table-column prop="factory" width="120" label="厂商"></el-table-column>
+            <el-table-column prop="createTime" width="100" label="发布时间"></el-table-column>
+            <el-table-column prop="factory" label="厂商"></el-table-column>
             <el-table-column prop="terminal" label="适用终端"></el-table-column>
             <el-table-column prop="status" label="容器状态"></el-table-column>
             <el-table-column prop="instructions" width="150" label="功能说明"></el-table-column>
-            <el-table-column prop="options" label="操作" width="180">
+            <el-table-column prop="options" label="操作">
               <template slot-scope="scope">
                 <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
                 <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
@@ -143,7 +143,7 @@
 </template>
 <script>
 export default {
-  name: "terminalManege",
+  name: "containerManage",
   data() {
     return {
       tableSize: 0,
@@ -185,69 +185,6 @@ export default {
         ]
       },
       tableData: [
-        {
-          name: "MathCAD",
-          version: "1.0",
-          createTime: "2019-08-01",
-          factory: "厂商1",
-          terminal: "终端1",
-          status: "在线",
-          instructions: "测试用例"
-        },
-        {
-          name: "MathCAD",
-          version: "1.0",
-          createTime: "2019-08-01",
-          factory: "厂商1",
-          terminal: "终端1",
-          status: "在线",
-          instructions: "测试用例"
-        },
-        {
-          name: "MathCAD",
-          version: "1.0",
-          createTime: "2019-08-01",
-          factory: "厂商1",
-          terminal: "终端1",
-          status: "在线",
-          instructions: "测试用例"
-        },
-        {
-          name: "MathCAD",
-          version: "1.0",
-          createTime: "2019-08-01",
-          factory: "厂商1",
-          terminal: "终端1",
-          status: "在线",
-          instructions: "测试用例"
-        },
-        {
-          name: "MathCAD",
-          version: "1.0",
-          createTime: "2019-08-01",
-          factory: "厂商1",
-          terminal: "终端1",
-          status: "在线",
-          instructions: "测试用例"
-        },
-        {
-          name: "MathCAD",
-          version: "1.0",
-          createTime: "2019-08-01",
-          factory: "厂商1",
-          terminal: "终端1",
-          status: "在线",
-          instructions: "测试用例"
-        },
-        {
-          name: "MathCAD",
-          version: "1.0",
-          createTime: "2019-08-01",
-          factory: "厂商1",
-          terminal: "终端1",
-          status: "在线",
-          instructions: "测试用例"
-        },
         {
           name: "MathCAD",
           version: "1.0",
@@ -352,13 +289,13 @@ export default {
       });
       this.dialogFormVisible = true;
     },
-    editRow() {
-      if (this.selectedRow.length === 0 || this.selectedRow.length > 1) {
-        this.$message({
-          message: "请选择单条数据进行编辑",
-          type: "warning"
-        });
-      } else {
+    editRow(row) {
+      // if (this.selectedRow.length === 0 || this.selectedRow.length > 1) {
+      //   this.$message({
+      //     message: "请选择单条数据进行编辑",
+      //     type: "warning"
+      //   });
+      // } else {
         //获取当前数据内容
         // this.$axios.post('',{
         //   id:this.selectedRow[0].id,'
@@ -367,25 +304,18 @@ export default {
         // }).catch((err)=>{
         //   console.log(err);
         // });
-        this.dialogTitle = "编辑容器";
-        this.dialogForm = this.selectedRow[0];
+        this.dialogTitle = "编辑终端";
+        this.dialogForm = row;
         this.dialogFormVisible = true;
-        // this.$axios.post('',{
-        //   id:this.selectedRow[0].id,'
-        // }).then((res)=>{
-        //   this.search(page);
-        // }).catch((err)=>{
-        //   console.log(err);
-        // });
-      }
+      // }
     },
-    delRow() {
-      if (this.selectedRow.length === 0) {
-        this.$message({
-          message: "请选择数据进行删除",
-          type: "warning"
-        });
-      } else {
+    delRow(row) {
+      // if (this.selectedRow.length === 0) {
+      //   this.$message({
+      //     message: "请选择数据进行删除",
+      //     type: "warning"
+      //   });
+      // } else {
         this.$confirm("是否确定删除该容器?", "提示", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
@@ -393,11 +323,8 @@ export default {
         })
           .then(() => {
             let ids = [];
-            this.selectedRow.forEach(item => {
-              ids.push(item.id);
-            });
             // this.$axios.post('',{
-            //   ids:ids,'
+            //   id:row.id,'
             // }).then((res)=>{
             //   this.search(page);
             // }).catch((err)=>{
@@ -415,7 +342,7 @@ export default {
               message: "已取消删除"
             });
           });
-      }
+      // }
     },
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
@@ -451,7 +378,7 @@ export default {
 </script>
 
 <style scoped>
-.terminalTable {
+.containerTable {
   max-height: 500px;
   overflow: auto;
 }

@@ -1,6 +1,6 @@
 <!--微应用管理-->
 <template>
-  <div id="terminalManege">
+  <div id="applicationManage">
     <el-row>
       <el-form :inline="true" :model="searchItem" ref="searchItem">
         <el-form-item label="所属终端">
@@ -32,7 +32,7 @@
             :data="tableData"
             border
             size="medium"
-            class="terminalTable"
+            class="applicationTable"
             @selection-change="getRowDatas"
           >
             <el-table-column type="selection" width="55"></el-table-column>
@@ -44,7 +44,7 @@
             <el-table-column prop="createTime" width="120" label="发布时间"></el-table-column>
             <el-table-column prop="containerType" width="120" label="容器类型"></el-table-column>
             <el-table-column prop="containerVersion" label="容器版本"></el-table-column>
-            <el-table-column prop="options" label="操作" width="180">
+            <el-table-column prop="options" label="操作">
               <template slot-scope="scope">
                 <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
                 <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
@@ -142,7 +142,7 @@
 </template>
 <script>
 export default {
-  name: "terminalManege",
+  name: "applicationManage",
   data() {
     return {
       tableSize: 0,
@@ -201,51 +201,6 @@ export default {
         ]
       },
       tableData: [
-        {
-          name: "应用1",
-          type: "类型1",
-          factory: "厂商1",
-          version: "1.0",
-          createTime: "2019-08-10",
-          containerType: "容器类型1",
-          containerVersion: "1.0"
-        },
-        {
-          name: "应用1",
-          type: "类型1",
-          factory: "厂商1",
-          version: "1.0",
-          createTime: "2019-08-10",
-          containerType: "容器类型1",
-          containerVersion: "1.0"
-        },
-        {
-          name: "应用1",
-          type: "类型1",
-          factory: "厂商1",
-          version: "1.0",
-          createTime: "2019-08-10",
-          containerType: "容器类型1",
-          containerVersion: "1.0"
-        },
-        {
-          name: "应用1",
-          type: "类型1",
-          factory: "厂商1",
-          version: "1.0",
-          createTime: "2019-08-10",
-          containerType: "容器类型1",
-          containerVersion: "1.0"
-        },
-        {
-          name: "应用1",
-          type: "类型1",
-          factory: "厂商1",
-          version: "1.0",
-          createTime: "2019-08-10",
-          containerType: "容器类型1",
-          containerVersion: "1.0"
-        },
         {
           name: "应用1",
           type: "类型1",
@@ -367,13 +322,7 @@ export default {
       });
       this.dialogFormVisible = true;
     },
-    editRow() {
-      if (this.selectedRow.length === 0 || this.selectedRow.length > 1) {
-        this.$message({
-          message: "请选择单条数据进行编辑",
-          type: "warning"
-        });
-      } else {
+    editRow(row) {
         //获取当前数据内容
         // this.$axios.post('',{
         //   id:this.selectedRow[0].id,'
@@ -383,7 +332,7 @@ export default {
         //   console.log(err);
         // });
         this.dialogTitle = "编辑应用";
-        this.dialogForm = this.selectedRow[0];
+        this.dialogForm = row;
         this.dialogFormVisible = true;
         // this.$axios.post('',{
         //   id:this.selectedRow[0].id,'
@@ -392,27 +341,16 @@ export default {
         // }).catch((err)=>{
         //   console.log(err);
         // });
-      }
     },
-    delRow() {
-      if (this.selectedRow.length === 0) {
-        this.$message({
-          message: "请选择数据进行删除",
-          type: "warning"
-        });
-      } else {
+    delRow(row) {
         this.$confirm("是否确定删除该应用?", "提示", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
         })
           .then(() => {
-            let ids = [];
-            this.selectedRow.forEach(item => {
-              ids.push(item.id);
-            });
             // this.$axios.post('',{
-            //   ids:ids,'
+            //   id:row.id,'
             // }).then((res)=>{
             //   this.search(page);
             // }).catch((err)=>{
@@ -429,7 +367,6 @@ export default {
               message: "已取消删除"
             });
           });
-      }
     },
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
@@ -465,7 +402,7 @@ export default {
 </script>
 
 <style scoped>
-.terminalTable {
+.applicationTable {
   max-height: 500px;
   overflow: auto;
 }
