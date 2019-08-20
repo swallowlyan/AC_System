@@ -185,9 +185,9 @@
                     <i class="el-icon-location"></i>
                     <span>分类一</span>
                   </template>
-                    <el-menu-item index="1-1">选项1</el-menu-item>
-                    <el-menu-item index="1-2">选项2</el-menu-item>
-                    <el-menu-item index="1-3">选项3</el-menu-item>
+                  <el-menu-item index="1-1">选项1</el-menu-item>
+                  <el-menu-item index="1-2">选项2</el-menu-item>
+                  <el-menu-item index="1-3">选项3</el-menu-item>
                 </el-submenu>
                 <el-menu-item index="2">
                   <i class="el-icon-menu"></i>
@@ -217,6 +217,7 @@
             </el-header>
             <el-main>
               <el-row style="max-height: 500px;">
+                <!-- 文件服务循环 -->
                 <el-col
                   :span="4"
                   :offset="1"
@@ -243,18 +244,33 @@
                     </el-row>
                   </el-card>
                 </el-col>
+                <!-- 新增服务 -->
+                <el-col :span="4" :offset="1" style="padding:5px">
+                  <el-card class="box-card fileCard" :body-style="{padding:'30px'}">
+                    <el-row style="height:80px;text-align:center;">
+                      <el-upload action :limit="1">
+                        <el-button type="text">
+                          <i class="el-icon-circle-plus-outline" style="font-size:50px"></i>
+                        </el-button>
+                      </el-upload>
+                    </el-row>
+                    <el-row>
+                      <h5>添加新服务</h5>
+                    </el-row>
+                  </el-card>
+                </el-col>
               </el-row>
-               <el-row style="text-align: center;margin-top:10px;">
-                  <el-pagination
-                    @size-change="fileSizeChange"
-                    @current-change="fileCurrentChange"
-                    :current-page="fileCurrentPage"
-                    :page-sizes="[5, 10, 15]"
-                    :page-size="filePageSize"
-                    layout="total, prev, pager, next, jumper"
-                    :total="fileTotal"
-                  ></el-pagination>
-                </el-row>
+              <el-row style="text-align: center;margin-top:10px;">
+                <el-pagination
+                  @size-change="fileSizeChange"
+                  @current-change="fileCurrentChange"
+                  :current-page="fileCurrentPage"
+                  :page-sizes="[5, 10, 15]"
+                  :page-size="filePageSize"
+                  layout="total, prev, pager, next, jumper"
+                  :total="fileTotal"
+                ></el-pagination>
+              </el-row>
             </el-main>
           </el-container>
         </el-container>
@@ -426,7 +442,7 @@ export default {
     },
     initPage() {
       this.total = this.appList.length;
-      this.fileTotal=this.fileList.length;
+      this.fileTotal = this.fileList.length;
       // this.menuId=sessionStorage.getItem('menuId');
       // this.username=sessionStorage.getItem('username');
       // this.getAreaType();this.getIndustryType();this.getPayType();
@@ -516,9 +532,7 @@ export default {
     },
     ////////////////////////////文件
     //查找文件
-    searchFile() {
-
-    },
+    searchFile() {},
     fileSizeChange(val) {
       this.filePageSize = val;
       this.fileParam = {

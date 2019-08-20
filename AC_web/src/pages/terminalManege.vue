@@ -75,18 +75,25 @@
                 <el-table-column type="index" width="50" label="序号"></el-table-column>
                 <el-table-column prop="id" width="150" label="终端ID">
                   <template slot-scope="scope">
-                    <el-button @click="detailRow(scope.row)" type="text" size="medium">{{scope.row.id}}</el-button>
+                    <el-button
+                      @click="detailRow(scope.row)"
+                      type="text"
+                      size="medium"
+                    >{{scope.row.id}}</el-button>
                   </template>
-                  </el-table-column>
+                </el-table-column>
                 <el-table-column prop="version" label="终端版本"></el-table-column>
                 <el-table-column prop="ability" width="150" label="终端能力"></el-table-column>
                 <el-table-column prop="container" label="容器版本"></el-table-column>
                 <el-table-column prop="status" label="终端状态">
-                   <template slot-scope="scope">
-                     <span v-if="scope.row.status==='1'" style="color:#67c23a">正常</span>
-                     <span v-if="scope.row.status==='0'" style="color:red">离线</span>
-                     <span v-if="scope.row.status!=='0'&&scope.row.status!=='1'" style="color:orange">未确认</span>
-                     </template>
+                  <template slot-scope="scope">
+                    <span v-if="scope.row.status==='1'" style="color:#67c23a">正常</span>
+                    <span v-if="scope.row.status==='0'" style="color:red">离线</span>
+                    <span
+                      v-if="scope.row.status!=='0'&&scope.row.status!=='1'"
+                      style="color:orange"
+                    >未确认</span>
+                  </template>
                 </el-table-column>
                 <el-table-column prop="attribution" width="150" label="归属地"></el-table-column>
                 <el-table-column prop="options" label="操作" width="200">
@@ -94,12 +101,12 @@
                     <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
                     <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
                     <el-button @click="updateRow(scope.row)" type="text" size="medium">升级</el-button>
-                    <el-button @click="pairRow(scope.row)" type="text" size="medium">对时</el-button>  
+                    <el-button @click="pairRow(scope.row)" type="text" size="medium">对时</el-button>
                   </template>
                 </el-table-column>
               </el-table>
               <el-row style="margin:20px 0px">
-                <el-button-group>
+                <el-button-group style="float:left">
                   <el-button
                     type="success"
                     round
@@ -114,14 +121,10 @@
                     icon="el-icon-plus"
                     @click="add('dialogForm')"
                   >新增</el-button>
-                  <el-button
-                    type="warning"
-                    round
-                    size="small"
-                    icon="el-icon-upload2"
-                    @click="importRows()"
-                  >批量导入</el-button>
                 </el-button-group>
+                <el-upload  action="" :limit="1"  style="float:left">
+                  <el-button type="warning" round size="small" icon="el-icon-upload2">批量导入</el-button>
+                </el-upload>
                 <el-pagination
                   background
                   @size-change="handleSizeChange"
@@ -310,7 +313,6 @@ export default {
         { name: "广西", value: 59 },
         { name: "海南", value: 14 }
       ],
-
       tableData: [
         {
           id: "MathCAD",
@@ -394,7 +396,7 @@ export default {
           { required: true, message: "请输入容器版本", trigger: "change" }
         ],
         ascription: [
-          { required: true, message: "请输入终端归属地", trigger: "change" }
+          { required: true, message: "请选择终端归属地", trigger: "change" }
         ]
       }
     };
@@ -427,9 +429,7 @@ export default {
       console.info(row);
     },
     //获取地图数据
-    getMapData(){
-
-    },
+    getMapData() {},
     drawMap() {
       let myChart = this.$echarts.init(document.getElementById("mapChart"));
       myChart.showLoading();
@@ -450,29 +450,47 @@ export default {
             color: "#000",
             decoration: "none"
           },
-          alwaysShowContent:true,
+          // alwaysShowContent:true,
           formatter: function(params) {
-            var tipHtml = '';
-            if(params.value!==undefined&&!Number.isNaN(params.value)){
-            tipHtml = '<div style="width:200px;height:80px;background:rgba(22,80,158,0.8);border:1px solid rgba(7,166,255,0.7)">'
-            +'<div style="width:90%;height:30px;line-height:30px;border-bottom:2px solid rgba(7,166,255,0.7);padding-left:15px">'
-            +'<i style="display:inline-block;width:8px;height:8px;background:#16d6ff;border-radius:40px;"></i>'
-            +'<span style="margin-left:10px;color:#fff;font-size:14px;">'+params.name+'</span>'
-            +'</div>'
-            +'<div style="padding:15px 5px">'
-            +'<p style="color:#fff;font-size:12px;">'+'<i style="display:inline-block;width:10px;height:10px;background:#16d6ff;border-radius:40px;margin:0 8px"></i>'
-            +'总数：'+'<span style="color:#11ee7d;margin:0 6px;">'+params.value+'</span>'+'个'+'</p>'
-            +'</div>'+'</div>';
-            }else{
-            tipHtml = '<div style="width:200px;height:80px;background:rgba(22,80,158,0.8);border:1px solid rgba(7,166,255,0.7)">'
-            +'<div style="width:90%;height:30px;line-height:30px;border-bottom:2px solid rgba(7,166,255,0.7);padding-left:15px">'
-            +'<i style="display:inline-block;width:8px;height:8px;background:#16d6ff;border-radius:40px;"></i>'
-            +'<span style="margin-left:10px;color:#fff;font-size:14px;">'+params.name+'</span>'
-            +'</div>'
-            +'<div style="padding:15px 5px">'
-            +'<p style="color:#fff;font-size:12px;">'+'<i style="display:inline-block;width:10px;height:10px;background:#16d6ff;border-radius:40px;margin:0 8px"></i>'
-            +'总数：'+'<span style="color:#11ee7d;margin:0 6px;">---</span>'+'个'+'</p>'
-            +'</div>'+'</div>';
+            var tipHtml = "";
+            if (params.value !== undefined && !Number.isNaN(params.value)) {
+              tipHtml =
+                '<div style="width:200px;height:80px;background:rgba(22,80,158,0.8);border:1px solid rgba(7,166,255,0.7)">' +
+                '<div style="width:90%;height:30px;line-height:30px;border-bottom:2px solid rgba(7,166,255,0.7);padding-left:15px">' +
+                '<i style="display:inline-block;width:8px;height:8px;background:#16d6ff;border-radius:40px;"></i>' +
+                '<span style="margin-left:10px;color:#fff;font-size:14px;">' +
+                params.name +
+                "</span>" +
+                "</div>" +
+                '<div style="padding:15px 5px">' +
+                '<p style="color:#fff;font-size:12px;">' +
+                '<i style="display:inline-block;width:10px;height:10px;background:#16d6ff;border-radius:40px;margin:0 8px"></i>' +
+                "总数：" +
+                '<span style="color:#11ee7d;margin:0 6px;">' +
+                params.value +
+                "</span>" +
+                "个" +
+                "</p>" +
+                "</div>" +
+                "</div>";
+            } else {
+              tipHtml =
+                '<div style="width:200px;height:80px;background:rgba(22,80,158,0.8);border:1px solid rgba(7,166,255,0.7)">' +
+                '<div style="width:90%;height:30px;line-height:30px;border-bottom:2px solid rgba(7,166,255,0.7);padding-left:15px">' +
+                '<i style="display:inline-block;width:8px;height:8px;background:#16d6ff;border-radius:40px;"></i>' +
+                '<span style="margin-left:10px;color:#fff;font-size:14px;">' +
+                params.name +
+                "</span>" +
+                "</div>" +
+                '<div style="padding:15px 5px">' +
+                '<p style="color:#fff;font-size:12px;">' +
+                '<i style="display:inline-block;width:10px;height:10px;background:#16d6ff;border-radius:40px;margin:0 8px"></i>' +
+                "总数：" +
+                '<span style="color:#11ee7d;margin:0 6px;">---</span>' +
+                "个" +
+                "</p>" +
+                "</div>" +
+                "</div>";
             }
             return tipHtml;
           }
@@ -492,7 +510,7 @@ export default {
         geo: {
           show: true,
           map: "china",
-          zoom:1.2,
+          zoom: 1.2,
           label: {
             normal: {
               show: false
@@ -611,7 +629,7 @@ export default {
         ]
       };
       myChart.setOption(option);
-      myChart.resize();  
+      myChart.resize();
     },
     convertData(data) {
       let res = [];
@@ -629,10 +647,10 @@ export default {
       return res;
     },
     //查看
-    detailRow(row){
-        this.dialogTitle = "终端详细信息";
-        this.dialogForm = row;
-        this.dialogFormVisible = true;
+    detailRow(row) {
+      this.dialogTitle = "终端详细信息";
+      this.dialogForm = row;
+      this.dialogFormVisible = true;
     },
     //新增
     add(formName) {
@@ -645,56 +663,50 @@ export default {
     //编辑
     editRow(row) {
       //获取当前数据内容
-        // this.$axios.post('',{
-        //   id:this.selectedRow[0].id,'
-        // }).then((res)=>{
-        //   this.search(page);
-        // }).catch((err)=>{
-        //   console.log(err);
-        // });
-        this.dialogTitle = "编辑终端";
-        this.dialogForm = row;
-        this.dialogFormVisible = true;
+      // this.$axios.post('',{
+      //   id:this.selectedRow[0].id,'
+      // }).then((res)=>{
+      //   this.search(page);
+      // }).catch((err)=>{
+      //   console.log(err);
+      // });
+      this.dialogTitle = "编辑终端";
+      this.dialogForm = row;
+      this.dialogFormVisible = true;
     },
     //删除
     delRow(row) {
       this.$confirm("是否确定删除该终端?", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
-          .then(() => {
-            // this.$axios.post('',{
-            //   id:row.id,'
-            // }).then((res)=>{
-            //   this.search(page);
-            // }).catch((err)=>{
-            //   console.log(err);
-            // });
-            this.$message({
-              type: "success",
-              message: "删除成功!"
-            });
-          })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消删除"
-            });
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          // this.$axios.post('',{
+          //   id:row.id,'
+          // }).then((res)=>{
+          //   this.search(page);
+          // }).catch((err)=>{
+          //   console.log(err);
+          // });
+          this.$message({
+            type: "success",
+            message: "删除成功!"
           });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
     },
     //升级
-    updateRow(row){
-
-    },
+    updateRow(row) {},
     //对时
-    pairRow(row){
-
-    },
+    pairRow(row) {},
     //批量导入
-    importRows(){
-
-    },
+    importRows() {},
     //提交新增/编辑
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
@@ -719,7 +731,7 @@ export default {
       });
     },
     //tab点击事件
-    handleClick(){},
+    handleClick() {},
     handleSizeChange(val) {
       this.tableLimit = val;
       this.search(1);
@@ -782,7 +794,6 @@ export default {
 .el-card__body .orange {
   color: rgba(240, 155, 119, 1);
 }
-.tooltipDiv{
-  
+.tooltipDiv {
 }
 </style>
