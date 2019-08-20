@@ -73,7 +73,11 @@
               >
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column type="index" width="50" label="序号"></el-table-column>
-                <el-table-column prop="id" width="150" label="终端ID"></el-table-column>
+                <el-table-column prop="id" width="150" label="终端ID">
+                  <template slot-scope="scope">
+                    <el-button @click="detailRow(scope.row)" type="text" size="medium">{{scope.row.id}}</el-button>
+                  </template>
+                  </el-table-column>
                 <el-table-column prop="version" label="终端版本"></el-table-column>
                 <el-table-column prop="ability" width="150" label="终端能力"></el-table-column>
                 <el-table-column prop="container" label="容器版本"></el-table-column>
@@ -624,13 +628,19 @@ export default {
       }
       return res;
     },
+    //查看
+    detailRow(row){
+        this.dialogTitle = "终端详细信息";
+        this.dialogForm = row;
+        this.dialogFormVisible = true;
+    },
     //新增
     add(formName) {
       this.dialogTitle = "新增终端";
+      this.dialogFormVisible = true;
       this.$nextTick(() => {
         this.$refs[formName].resetFields();
       });
-      this.dialogFormVisible = true;
     },
     //编辑
     editRow(row) {

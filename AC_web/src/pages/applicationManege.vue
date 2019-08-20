@@ -317,10 +317,10 @@ export default {
     },
     add(formName) {
       this.dialogTitle = "新增应用";
+      this.dialogFormVisible = true;
       this.$nextTick(() => {
         this.$refs[formName].resetFields();
       });
-      this.dialogFormVisible = true;
     },
     editRow(row) {
         //获取当前数据内容

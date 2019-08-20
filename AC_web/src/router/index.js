@@ -8,6 +8,9 @@ import containerManege from '../pages/containerManege'
 import appList from '../pages/appList'
 import alarmPush from '../pages/alarmPush'
 
+import userManage from '../pages/system/userManage'
+import tenantManage from '../pages/system/tenantManage'
+
 Vue.use(Router)
 
 export default new Router({
@@ -46,6 +49,16 @@ export default new Router({
           path:'alarmPush',
           name:'alarmPush',
           component:alarmPush
+        },
+        {
+          path:'userManage',
+          name:'userManage',
+          component:userManage
+        },
+        {
+          path:'tenantManage',
+          name:'tenantManage',
+          component:tenantManage
         }
       ]
     },

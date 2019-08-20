@@ -284,10 +284,10 @@ export default {
     },
     add(formName) {
       this.dialogTitle = "新增容器";
+      this.dialogFormVisible = true;
       this.$nextTick(() => {
         this.$refs[formName].resetFields();
       });
-      this.dialogFormVisible = true;
     },
     editRow(row) {
       // if (this.selectedRow.length === 0 || this.selectedRow.length > 1) {

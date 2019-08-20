@@ -57,7 +57,11 @@
                 active-text-color="#0b54c1"
               >
                 <div v-for="(button, index) in buttons" :key="index">
-                  <router-link :to="button.url" @click.native="changeTitle(button)">
+                  <router-link
+                    v-if="!button.ifChild"
+                    :to="button.url"
+                    @click.native="changeTitle(button)"
+                  >
                     <el-menu-item :index="button.index" :key="index">
                       <span slot="title">
                         <i :class="button.icon" aria-hidden="true"></i>
@@ -65,6 +69,24 @@
                       </span>
                     </el-menu-item>
                   </router-link>
+                  <el-submenu  v-if="button.ifChild" :index="button.index" class="childMenu">
+                  <template slot="title">
+                    <i :class="button.icon"></i>
+                    <span>{{button.title}}</span>
+                  </template>
+                  <div v-for="(child,childIndex) in button.child" :key="childIndex">
+                  <router-link
+                    v-if="button.ifChild"
+                    :to="child.url"
+                    @click.native="changeTitle(button,childIndex)"
+                  >
+                    <el-menu-item :index="button.index+child.index">
+                     <i :class="child.icon" aria-hidden="true"></i>
+                     {{child.title}}
+                     </el-menu-item>
+                      </router-link>
+                  </div>
+                  </el-submenu>
                 </div>
               </el-menu>
             </el-col>
@@ -76,8 +98,9 @@
               <i class="fa fa-home" aria-hidden="true" style="font-size:25px;color:rgb(75,131,178)"></i>
             </el-breadcrumb-item>
             <el-breadcrumb-item>{{currentTitle}}</el-breadcrumb-item>
+             <el-breadcrumb-item v-if="ifChildTitle">{{childTitle}}</el-breadcrumb-item>
           </el-breadcrumb>
-          <router-view :to="{ path:'/'}"/>
+          <router-view :to="{ path:'/'}" />
         </el-main>
       </el-container>
     </el-container>
@@ -90,28 +113,68 @@ export default {
   data() {
     return {
       currentTitle: "终端管理",
+      ifChildTitle:false,
+      childTitle:"",
       buttons: [
         {
           title: "终端管理",
           index: "1",
           url: "/",
+          ifChild: false,
           icon: "fa fa-television"
         },
         {
           title: "容器管理",
           index: "2",
           url: "/containerManege",
+          ifChild: false,
           icon: "fa fa-university"
         },
         {
           title: "微应用管理",
           index: "3",
           url: "/applicationManege",
+          ifChild: false,
           icon: "fa fa-th-large"
         },
-        { title: "应用商店", index: "4", url: "/appList", icon: "el-icon-s-goods" },
-        { title: "告警推送", index: "5", url: "/alarmPush", icon: "fa fa-warning" },
-        { title: "系统管理", index: "6", url: "/", icon: "fa fa-cog" }
+        {
+          title: "应用商店",
+          index: "4",
+          url: "/appList",
+          ifChild: false,
+          icon: "el-icon-s-goods"
+        },
+        {
+          title: "告警推送",
+          index: "5",
+          url: "/alarmPush",
+          ifChild: false,
+          icon: "fa fa-warning"
+        },
+        {
+          title: "系统管理",
+          index: "6",
+          url: "/",
+          ifChild: true,
+          icon: "fa fa-cog",
+          child:[
+            {title:"租户管理",
+            index:"1",
+            url:"/tenantManage",
+            icon:""
+            },
+            {title:"用户管理",
+            index:"2",
+            url:"/userManage",
+            icon:""
+            },
+            {title:"数据管理",
+            index:"3",
+            url:"",
+            icon:""
+            }
+          ]
+        }
       ]
     };
   },
@@ -121,8 +184,14 @@ export default {
       sessionStorage.clear();
       this.$router.push({ path: "/login" });
     },
-    changeTitle(e) {
-      this.currentTitle = e.title;
+    changeTitle(e,index) {
+      this.currentTitle=e.title;
+      if(index===undefined){
+        this.ifChildTitle=false;
+      }else{
+          this.ifChildTitle=true;
+          this.childTitle=e.child[index].title;
+      }
     },
     handleOpen(key, keyPath) {
       console.log(key, keyPath);
@@ -150,8 +219,11 @@ export default {
   color: #ffffff;
   cursor: pointer;
 }
-.el-menu-item {
+.el-menu-item,.childMenu span{
   font-size: 16px;
+}
+.childMenu .el-menu-item{
+  font-size: 14px;
 }
 .el-breadcrumb {
   line-height: 30px !important;
