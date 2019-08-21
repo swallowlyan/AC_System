@@ -37,7 +37,15 @@
           >
             <el-table-column type="selection" width="55"></el-table-column>
             <el-table-column type="index" width="50" label="序号"></el-table-column>
-            <el-table-column prop="name" width="120" label="应用名"></el-table-column>
+            <el-table-column prop="name" width="120" label="应用名">
+              <template slot-scope="scope">
+                    <el-button
+                      @click="detailRow(scope.row)"
+                      type="text"
+                      size="medium"
+                    >{{scope.row.name}}</el-button>
+                  </template>
+            </el-table-column>
             <el-table-column prop="type" label="应用类型"></el-table-column>
             <el-table-column prop="factory" width="150" label="应用厂商"></el-table-column>
             <el-table-column prop="version" label="应用版本"></el-table-column>
@@ -321,6 +329,11 @@ export default {
       this.$nextTick(() => {
         this.$refs[formName].resetFields();
       });
+    },
+    detailRow(row){
+        this.dialogTitle = "应用详细信息";
+        this.dialogForm = row;
+        this.dialogFormVisible = true;
     },
     editRow(row) {
         //获取当前数据内容

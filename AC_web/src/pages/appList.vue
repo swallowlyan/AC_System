@@ -66,9 +66,9 @@
                 <el-col :span="2">
                   <el-button type="text" @click="getSoft()">默认</el-button>
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-button type="text" @click="getSoft()">
-                    总销量
+                    下载量
                     <i class="el-icon-top"></i>
                   </el-button>
                 </el-col>
@@ -81,12 +81,6 @@
                 <el-col :span="2">
                   <el-button type="text" @click="getSoft()">
                     评分
-                    <i class="el-icon-top"></i>
-                  </el-button>
-                </el-col>
-                <el-col :span="2">
-                  <el-button type="text" @click="getSoft()">
-                    价格
                     <i class="el-icon-top"></i>
                   </el-button>
                 </el-col>

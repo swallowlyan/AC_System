@@ -44,7 +44,15 @@
           >
             <el-table-column type="selection" width="55"></el-table-column>
             <el-table-column type="index" width="50" label="序号"></el-table-column>
-            <el-table-column prop="name" width="150" label="容器名称"></el-table-column>
+            <el-table-column prop="name" width="150" label="容器名称">
+                  <template slot-scope="scope">
+                    <el-button
+                      @click="detailRow(scope.row)"
+                      type="text"
+                      size="medium"
+                    >{{scope.row.name}}</el-button>
+                  </template>
+            </el-table-column>
             <el-table-column prop="version" label="版本"></el-table-column>
             <el-table-column prop="createTime" width="100" label="发布时间"></el-table-column>
             <el-table-column prop="factory" label="厂商"></el-table-column>
@@ -288,6 +296,11 @@ export default {
       this.$nextTick(() => {
         this.$refs[formName].resetFields();
       });
+    },
+    detailRow(row){
+        this.dialogTitle = "容器详细信息";
+        this.dialogForm = row;
+        this.dialogFormVisible = true;
     },
     editRow(row) {
       // if (this.selectedRow.length === 0 || this.selectedRow.length > 1) {

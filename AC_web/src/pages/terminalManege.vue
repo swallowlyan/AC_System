@@ -454,6 +454,7 @@ export default {
           formatter: function(params) {
             var tipHtml = "";
             if (params.value !== undefined && !Number.isNaN(params.value)) {
+              if(typeof params.value==="object")params.value=params.value[2];
               tipHtml =
                 '<div style="width:200px;height:80px;background:rgba(22,80,158,0.8);border:1px solid rgba(7,166,255,0.7)">' +
                 '<div style="width:90%;height:30px;line-height:30px;border-bottom:2px solid rgba(7,166,255,0.7);padding-left:15px">' +
