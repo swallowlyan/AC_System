@@ -73,7 +73,7 @@
               >
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column type="index" width="50" label="序号"></el-table-column>
-                <el-table-column prop="id" width="150" label="终端ID">
+                <el-table-column prop="id" label="终端ID">
                   <template slot-scope="scope">
                     <el-button
                       @click="detailRow(scope.row)"
@@ -83,8 +83,8 @@
                   </template>
                 </el-table-column>
                 <el-table-column prop="version" label="终端版本"></el-table-column>
-                <el-table-column prop="ability" width="150" label="终端能力"></el-table-column>
-                <el-table-column prop="container" label="容器版本"></el-table-column>
+                <el-table-column prop="ability" label="终端能力"></el-table-column>
+                <el-table-column prop="container" label="运行容器"></el-table-column>
                 <el-table-column prop="status" label="终端状态">
                   <template slot-scope="scope">
                     <span v-if="scope.row.status==='1'" style="color:#67c23a">正常</span>
@@ -95,7 +95,8 @@
                     >未确认</span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="attribution" width="150" label="归属地"></el-table-column>
+                <el-table-column prop="ascription" label="归属地"></el-table-column>
+                <el-table-column prop="time" width="180" label="终端时间"></el-table-column>
                 <el-table-column prop="options" label="操作" width="200">
                   <template slot-scope="scope">
                     <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
@@ -122,7 +123,7 @@
                     @click="add('dialogForm')"
                   >新增</el-button>
                 </el-button-group>
-                <el-upload  action="" :limit="1"  style="float:left">
+                <el-upload action :limit="1" style="float:left">
                   <el-button type="warning" round size="small" icon="el-icon-upload2">批量导入</el-button>
                 </el-upload>
                 <el-pagination
@@ -142,53 +143,140 @@
         </el-row>
       </el-tab-pane>
     </el-tabs>
-
     <!-- 新增/编辑弹窗 -->
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible">
-      <el-form :model="dialogForm" :rules="dialogRules" ref="dialogForm" label-width="100px">
-        <el-form-item label="终端名称" prop="name">
-          <el-col :span="15">
-            <el-input v-model="dialogForm.name" placeholder="请输入终端名称"></el-input>
+      <el-form
+        :model="dialogForm"
+        :rules="dialogRules"
+        ref="dialogForm"
+        label-width="100px"
+        class="acForm"
+      >
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="终端ID" prop="name">
+              <span v-if="ifDialogDetail">{{dialogForm.id}}</span>
+              <el-input v-if="!ifDialogDetail" v-model="dialogForm.id" placeholder="请输入终端ID"></el-input>
+            </el-form-item>
           </el-col>
-        </el-form-item>
-        <el-form-item label="终端版本" prop="version">
-          <el-col :span="15">
-            <el-select v-model="dialogForm.version" placeholder="请选择终端版本" style="width:100%">
-              <el-option
-                v-for="item in versionArr.options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>
+          <el-col :span="12">
+            <el-form-item label="终端版本" prop="version">
+              <span v-if="ifDialogDetail">{{dialogForm.version}}</span>
+              <el-select
+                v-if="!ifDialogDetail"
+                v-model="dialogForm.version"
+                placeholder="请选择终端版本"
+                style="width:100%"
+              >
+                <el-option
+                  v-for="item in versionArr.options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
           </el-col>
-        </el-form-item>
-        <el-form-item label="终端能力" prop="ability">
-          <el-col :span="15">
-            <el-input v-model="dialogForm.ability" placeholder="请输入终端能力"></el-input>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="终端能力" prop="ability">
+              <span v-if="ifDialogDetail">{{dialogForm.ability}}</span>
+              <el-input v-if="!ifDialogDetail" v-model="dialogForm.ability" placeholder="请输入终端能力"></el-input>
+            </el-form-item>
           </el-col>
-        </el-form-item>
-        <el-form-item label="容器版本" prop="container">
-          <el-col :span="15">
-            <el-input v-model="dialogForm.container" placeholder="请输入容器版本"></el-input>
+          <el-col :span="12">
+            <el-form-item label="终端状态">
+              <span v-if="ifDialogDetail">{{dialogForm.status}}</span>
+              <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="0">离线</el-radio>
+              <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="1">在线</el-radio>
+            </el-form-item>
           </el-col>
-        </el-form-item>
-        <el-form-item label="终端归属地" prop="ascription">
-          <el-col :span="15">
-            <el-select v-model="dialogForm.ascription" placeholder="请选择终端归属地" style="width:100%">
-              <el-option
-                v-for="item in ascriptionArr.options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="终端归属地" prop="ascription">
+              <span v-if="ifDialogDetail">{{dialogForm.ascription}}</span>
+              <el-select
+                v-if="!ifDialogDetail"
+                v-model="dialogForm.ascription"
+                placeholder="请选择终端归属地"
+                style="width:100%"
+              >
+                <el-option
+                  v-for="item in ascriptionArr.options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
           </el-col>
-        </el-form-item>
-        <el-form-item label="终端状态">
-          <el-radio v-model="dialogForm.status" label="0">离线</el-radio>
-          <el-radio v-model="dialogForm.status" label="1">在线</el-radio>
-        </el-form-item>
+          <el-col :span="12">
+            <el-form-item label="终端时间">
+              <span>{{dialogForm.time}}</span>
+              <el-button v-if="!ifDialogDetail" type="primary" plain size="mini">对时</el-button>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24" style="height:100px">
+            <el-form-item label="容器" class="lineHeight">
+              <div class="list">
+                <div v-for="(item,index) in dialogForm.containerArr" :key="index">
+                  {{item}}
+                  <el-button
+                    v-if="!ifDialogDetail"
+                    type="danger"
+                    plain
+                    circle
+                    size="mini"
+                    icon="el-icon-delete"
+                  ></el-button>
+                </div>
+                <div>
+                  <el-button
+                    v-if="!ifDialogDetail"
+                    type="primary"
+                    plain
+                    circle
+                    size="mini"
+                    icon="el-icon-plus"
+                  ></el-button>
+                </div>
+              </div>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24" style="height:100px">
+            <el-form-item label="应用" class="lineHeight">
+              <div class="list">
+                <div v-for="(item,index) in dialogForm.appArr" :key="index">
+                  {{item}}
+                  <el-button
+                    v-if="!ifDialogDetail"
+                    type="danger"
+                    plain
+                    circle
+                    size="mini"
+                    icon="el-icon-delete"
+                  ></el-button>
+                </div>
+                <div>
+                  <el-button
+                    v-if="!ifDialogDetail"
+                    type="primary"
+                    plain
+                    circle
+                    size="mini"
+                    icon="el-icon-plus"
+                  ></el-button>
+                </div>
+              </div>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -207,6 +295,7 @@ export default {
       activeTab: "allView",
       tableSize: 0,
       tableLimit: 10,
+      ifDialogDetail: false,
       selectedRow: [],
       searchItem: {
         id: "",
@@ -320,7 +409,19 @@ export default {
           ability: "test1",
           container: "test1",
           status: "1",
-          attribution: "北京"
+          ascription: "北京",
+          time: "2019年8月19日 13:20:36",
+          appArr: [
+            "test",
+            "test",
+            "test",
+            "test",
+            "test",
+            "test",
+            "test",
+            "test"
+          ],
+          containerArr: ["test", "test", "test", "test", "test", "test"]
         },
         {
           id: "MathCAD",
@@ -328,7 +429,8 @@ export default {
           ability: "test2",
           container: "test2",
           status: "0",
-          attribution: "北京"
+          ascription: "北京",
+          time: "2019年8月19日 13:20:36"
         },
         {
           id: "MathCAD",
@@ -336,7 +438,8 @@ export default {
           ability: "test3",
           container: "test3",
           status: "",
-          attribution: "北京"
+          ascription: "北京",
+          time: "2019年8月19日 13:20:36"
         },
         {
           id: "MathCAD",
@@ -344,7 +447,8 @@ export default {
           ability: "test4",
           container: "test4",
           status: "1",
-          attribution: "北京"
+          ascription: "北京",
+          time: "2019年8月19日 13:20:36"
         },
         {
           id: "MathCAD",
@@ -352,7 +456,8 @@ export default {
           ability: "test1",
           container: "test1",
           status: "0",
-          attribution: "北京"
+          ascription: "北京",
+          time: "2019年8月19日 13:20:36"
         },
         {
           id: "MathCAD",
@@ -360,7 +465,8 @@ export default {
           ability: "test2",
           container: "test2",
           status: "",
-          attribution: "北京"
+          ascription: "北京",
+          time: "2019年8月19日 13:20:36"
         },
         {
           id: "MathCAD",
@@ -368,22 +474,25 @@ export default {
           ability: "test3",
           container: "test3",
           status: "",
-          attribution: "北京"
+          ascription: "北京",
+          time: "2019年8月19日 13:20:36"
         }
       ],
       dialogTitle: "新增",
       dialogFormVisible: false,
       dialogForm: {
-        name: "",
+        id: "",
         version: "",
         ability: "",
-        container: "",
+        time: "",
         status: "0",
-        ascription: ""
+        ascription: "",
+        appArr: [],
+        containerArr: []
       },
       dialogRules: {
-        name: [
-          { required: true, message: "请输入终端名称", trigger: "blur" },
+        id: [
+          { required: true, message: "请输入终端ID", trigger: "blur" },
           { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" }
         ],
         version: [
@@ -391,9 +500,6 @@ export default {
         ],
         ability: [
           { required: true, message: "请输入终端能力", trigger: "change" }
-        ],
-        container: [
-          { required: true, message: "请输入容器版本", trigger: "change" }
         ],
         ascription: [
           { required: true, message: "请选择终端归属地", trigger: "change" }
@@ -454,7 +560,8 @@ export default {
           formatter: function(params) {
             var tipHtml = "";
             if (params.value !== undefined && !Number.isNaN(params.value)) {
-              if(typeof params.value==="object")params.value=params.value[2];
+              if (typeof params.value === "object")
+                params.value = params.value[2];
               tipHtml =
                 '<div style="width:200px;height:80px;background:rgba(22,80,158,0.8);border:1px solid rgba(7,166,255,0.7)">' +
                 '<div style="width:90%;height:30px;line-height:30px;border-bottom:2px solid rgba(7,166,255,0.7);padding-left:15px">' +
@@ -520,7 +627,7 @@ export default {
               show: false
             }
           },
-          roam: true,
+          // roam: true,
           itemStyle: {
             normal: {
               areaColor: "#023677",
@@ -651,11 +758,14 @@ export default {
     detailRow(row) {
       this.dialogTitle = "终端详细信息";
       this.dialogForm = row;
+      this.ifDialogDetail = true;
       this.dialogFormVisible = true;
     },
     //新增
     add(formName) {
       this.dialogTitle = "新增终端";
+      this.ifDialogDetail = false;
+      this.dialogForm = {};
       this.dialogFormVisible = true;
       this.$nextTick(() => {
         this.$refs[formName].resetFields();
@@ -663,6 +773,7 @@ export default {
     },
     //编辑
     editRow(row) {
+      this.ifDialogDetail = false;
       //获取当前数据内容
       // this.$axios.post('',{
       //   id:this.selectedRow[0].id,'
@@ -795,6 +906,41 @@ export default {
 .el-card__body .orange {
   color: rgba(240, 155, 119, 1);
 }
-.tooltipDiv {
+.acForm .el-col {
+  border-color: rgb(151, 195, 221);
+  font-size: 14px;
+  padding: 0px;
+  border-width: 1px;
+  border-style: solid;
+  text-align: center;
+  line-height: 20px;
+}
+.acForm .el-form-item {
+  margin-bottom: 0px;
+}
+.list {
+  max-height: 100px;
+  overflow: auto;
+}
+.list div {
+  width: 150px;
+  margin: 0px 10px;
+  float: left;
+}
+.list button {
+  margin-left: 10px;
+}
+</style>
+<style>
+.acForm .el-form-item__label {
+  background-color: rgb(239, 243, 248) !important;
+  height: 100%;
+  text-align: center;
+}
+.acForm .el-form-item {
+  height: 100%;
+}
+.lineHeight .el-form-item__label {
+  line-height: 100px;
 }
 </style>
