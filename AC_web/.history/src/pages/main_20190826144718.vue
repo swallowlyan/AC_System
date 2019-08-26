@@ -236,8 +236,8 @@ export default {
   padding: 0px;
   border-width: 1px;
   border-style: solid;
-  /* text-align: center; */
-  /* line-height: 20px; */
+  text-align: center;
+  line-height: 20px;
 }
 .acForm .el-form-item {
   margin-bottom: 0px;
@@ -264,11 +264,5 @@ export default {
 }
 .lineHeight .el-form-item__label {
   line-height: 100px;
-}
-.acForm .el-textarea__inner{
-  height: 100%;
-}
-.acForm span{
-  margin-left: 30px;
 }
 </style>

@@ -1,23 +1,16 @@
-<!--容器管理-->
+<!--微应用管理-->
 <template>
-  <div id="containerManage">
+  <div id="applicationManage">
     <el-row>
       <el-form :inline="true" :model="searchItem" ref="searchItem">
-        <el-form-item label="容器名称">
-          <el-input v-model="searchItem.name" placeholder="请输入容器名称"></el-input>
+        <el-form-item label="所属终端">
+          <el-input v-model="searchItem.terminalId" placeholder="请输入终端ID"></el-input>
         </el-form-item>
-        <el-form-item label="适用终端">
-          <el-select v-model="searchItem.terminalId" :placeholder="terminalArr.title">
-            <el-option
-              v-for="item in terminalArr.options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
+        <el-form-item label="所属容器">
+          <el-input v-model="searchItem.container" placeholder="请输入终端ID"></el-input>
         </el-form-item>
-        <el-form-item label="容器状态">
-          <el-select v-model="searchItem.status" :placeholder="statusArr.status">
+        <el-form-item label="应用状态">
+          <el-select v-model="searchItem.status" :placeholder="statusArr.title">
             <el-option
               v-for="item in statusArr.options"
               :key="item.value"
@@ -39,13 +32,13 @@
             :data="tableData"
             border
             size="medium"
-            class="containerTable"
+            class="applicationTable"
             @selection-change="getRowDatas"
           >
             <el-table-column type="selection" width="55"></el-table-column>
             <el-table-column type="index" width="50" label="序号"></el-table-column>
-            <el-table-column prop="name" width="150" label="容器名称">
-                  <template slot-scope="scope">
+            <el-table-column prop="name" width="120" label="应用名">
+              <template slot-scope="scope">
                     <el-button
                       @click="detailRow(scope.row)"
                       type="text"
@@ -53,12 +46,12 @@
                     >{{scope.row.name}}</el-button>
                   </template>
             </el-table-column>
-            <el-table-column prop="version" label="版本"></el-table-column>
-            <el-table-column prop="createTime" width="100" label="发布时间"></el-table-column>
-            <el-table-column prop="factory" label="厂商"></el-table-column>
-            <el-table-column prop="terminal" label="适用终端"></el-table-column>
-            <el-table-column prop="status" label="容器状态"></el-table-column>
-            <el-table-column prop="instructions" width="150" label="功能说明"></el-table-column>
+            <el-table-column prop="type" label="应用类型"></el-table-column>
+            <el-table-column prop="factory" width="150" label="应用厂商"></el-table-column>
+            <el-table-column prop="version" label="应用版本"></el-table-column>
+            <el-table-column prop="createTime" width="120" label="发布时间"></el-table-column>
+            <el-table-column prop="containerType" width="120" label="容器类型"></el-table-column>
+            <el-table-column prop="containerVersion" label="容器版本"></el-table-column>
             <el-table-column prop="options" label="操作">
               <template slot-scope="scope">
                 <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
@@ -104,55 +97,49 @@
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible">
       <el-form :model="dialogForm" :rules="dialogRules" ref="dialogForm" label-width="100px" class="acForm">
         <el-col :span="24">
-          <el-form-item label="容器名称" prop="name">
-            <span v-if="ifDialogDetail">{{dialogForm.name}}</span>
-            <el-input v-if="!ifDialogDetail" v-model="dialogForm.name" placeholder="请输入容器名称"></el-input>
+        <el-form-item label="应用名称" prop="name">
+            <el-input v-model="dialogForm.name" placeholder="请输入应用名称"></el-input>
         </el-form-item>
-        </el-col>
-        <el-col :span="24">
-        <el-form-item label="容器版本" prop="version">
-          <span v-if="ifDialogDetail">{{dialogForm.version}}</span>
-            <el-input v-if="!ifDialogDetail" v-model="dialogForm.version" placeholder="请输入容器版本"></el-input>
-        </el-form-item>
-        </el-col>
-        
-        <el-col :span="24">
-        <el-form-item label="厂商" prop="factory">
-          <span v-if="ifDialogDetail">{{dialogForm.factory}}</span>
-            <el-input v-if="!ifDialogDetail" v-model="dialogForm.factory" placeholder="请输入厂商"></el-input>
-        </el-form-item>
-        </el-col>
-        <el-col :span="24">
-        <el-form-item label="容器状态">
-          <span v-if="ifDialogDetail">{{dialogForm.status}}</span>
-          <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="0">离线</el-radio>
-          <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="1">在线</el-radio>
-        </el-form-item>
-        </el-col>
-        <el-col :span="24" style="height:100px">
-        <el-form-item label="功能说明" class="lineHeight">
-          <span v-if="ifDialogDetail">{{dialogForm.instructions}}</span>
-          <el-input v-if="!ifDialogDetail" type="textarea" style="height:100px" v-model="dialogForm.instructions"></el-input>
-        </el-form-item>
-        </el-col>
-        <el-col :span="24">
-        <el-form-item label="适用终端" prop="terminal">
-          <span v-if="ifDialogDetail">{{dialogForm.terminal}}</span>
-            <el-select
-             v-if="!ifDialogDetail"
-              v-model="dialogForm.terminal"
-              :placeholder="terminalArr.title"
-              style="width:100%"
-            >
+         </el-col>
+        <el-form-item label="应用类型" prop="type">
+          <el-col :span="15">
+            <el-select v-model="dialogForm.type" :placeholder="appTypeArr.title" style="width:100%">
               <el-option
-                v-for="item in terminalArr.options"
+                v-for="item in appTypeArr.options"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"
               ></el-option>
             </el-select>
+          </el-col>
         </el-form-item>
-        </el-col>
+        <el-form-item label="应用厂商" prop="factory">
+          <el-col :span="15">
+            <el-input v-model="dialogForm.factory" placeholder="请输入应用厂商"></el-input>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="应用版本" prop="version">
+          <el-col :span="15">
+            <el-input v-model="dialogForm.version" placeholder="请输入应用版本"></el-input>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="容器类型" prop="containerType">
+          <el-col :span="15">
+            <el-select v-model="dialogForm.containerType" placeholder="请选择容器类型" style="width:100%">
+              <el-option
+                v-for="item in containerTypeArr.options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              ></el-option>
+            </el-select>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="容器版本" prop="containerVersion">
+          <el-col :span="15">
+            <el-input v-model="dialogForm.containerVersion" placeholder="请输入容器版本"></el-input>
+          </el-col>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -163,92 +150,118 @@
 </template>
 <script>
 export default {
-  name: "containerManage",
+  name: "applicationManage",
   data() {
     return {
       tableSize: 0,
       tableLimit: 10,
       selectedRow: [],
       searchItem: {
-        name: "",
         terminalId: "",
+        container: "",
         status: ""
       },
-      terminalArr: {
-        title: "请选择终端",
-        options: [
-          {
-            value: "1",
-            label: "终端1"
-          },
-          {
-            value: "2",
-            label: "终端2"
-          },
-          {
-            value: "3",
-            label: "终端3"
-          }
-        ]
-      },
       statusArr: {
-        title: "请选择容器状态",
+        title: "请选择应用状态",
         options: [
-          {
-            value: "0",
-            label: "离线"
-          },
           {
             value: "1",
             label: "在线"
+          },
+          {
+            value: "0",
+            label: "离线"
+          }
+        ]
+      },
+      appTypeArr: {
+        title: "请选择应用类型",
+        options: [
+          {
+            value: "1",
+            label: "类型1"
+          },
+          {
+            value: "2",
+            label: "类型2"
+          },
+          {
+            value: "3",
+            label: "类型3"
+          }
+        ]
+      },
+      containerTypeArr: {
+        title: "请选择容器类型",
+        options: [
+          {
+            value: "1",
+            label: "容器1"
+          },
+          {
+            value: "2",
+            label: "容器2"
+          },
+          {
+            value: "3",
+            label: "容器3"
           }
         ]
       },
       tableData: [
         {
-          name: "MathCAD",
-          version: "1.0",
-          createTime: "2019-08-01",
+          name: "应用1",
+          type: "类型1",
           factory: "厂商1",
-          terminal: "终端1",
-          status: "在线",
-          instructions: "测试用例"
+          version: "1.0",
+          createTime: "2019-08-10",
+          containerType: "容器类型1",
+          containerVersion: "1.0"
         },
         {
-          name: "MathCAD",
-          version: "1.0",
-          createTime: "2019-08-01",
+          name: "应用1",
+          type: "类型1",
           factory: "厂商1",
-          terminal: "终端1",
-          status: "在线",
-          instructions: "测试用例"
+          version: "1.0",
+          createTime: "2019-08-10",
+          containerType: "容器类型1",
+          containerVersion: "1.0"
         },
         {
-          name: "MathCAD",
-          version: "1.0",
-          createTime: "2019-08-01",
+          name: "应用1",
+          type: "类型1",
           factory: "厂商1",
-          terminal: "终端1",
-          status: "在线",
-          instructions: "测试用例"
+          version: "1.0",
+          createTime: "2019-08-10",
+          containerType: "容器类型1",
+          containerVersion: "1.0"
         },
         {
-          name: "MathCAD",
-          version: "1.0",
-          createTime: "2019-08-01",
+          name: "应用1",
+          type: "类型1",
           factory: "厂商1",
-          terminal: "终端1",
-          status: "在线",
-          instructions: "测试用例"
+          version: "1.0",
+          createTime: "2019-08-10",
+          containerType: "容器类型1",
+          containerVersion: "1.0"
         },
         {
-          name: "MathCAD",
-          version: "1.0",
-          createTime: "2019-08-01",
+          name: "应用1",
+          type: "类型1",
           factory: "厂商1",
-          terminal: "终端1",
-          status: "在线",
-          instructions: "测试用例"
+          version: "1.0",
+          createTime: "2019-08-10",
+          containerType: "容器类型1",
+          containerVersion: "1.0"
+        },
+        {
+          name: "应用1",
+          type: "类型1",
+          factory: "厂商1",
+          version: "1.0",
+          createTime: "2019-08-10",
+          containerType: "容器类型1",
+          containerVersion: "1.0"
         }
       ],
       dialogTitle: "新增",
@@ -256,23 +269,32 @@ export default {
       ifDialogDetail:false,
       dialogForm: {
         name: "",
-        version: "",
+        type: "",
         factory: "",
-        terminal: "",
-        status: "0",
-        instructions: ""
+        version: "",
+        containerType: "",
+        containerVersion: ""
       },
       dialogRules: {
         name: [
-          { required: true, message: "请输入容器名称", trigger: "blur" },
+          { required: true, message: "请输入应用名称", trigger: "blur" },
+          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" }
+        ],
+        type: [
+          { required: true, message: "请选择应用类型", trigger: "change" }
+        ],
+        factory: [
+          { required: true, message: "请输入应用厂商", trigger: "change" }
         ],
         version: [
-          { required: true, message: "请选择容器版本", trigger: "change" }
+          { required: true, message: "请输入应用版本", trigger: "change" }
         ],
-        terminal: [
-          { required: true, message: "请选择适用终端", trigger: "change" }
+        containerType: [
+          { required: true, message: "请输选择容器类型", trigger: "change" }
         ],
-        factory: [{ required: true, message: "请输入厂商", trigger: "change" }]
+        containerVersion: [
+          { required: true, message: "请输入容器版本", trigger: "change" }
+        ]
       }
     };
   },
@@ -303,27 +325,21 @@ export default {
       console.info(row);
     },
     add(formName) {
-      this.dialogTitle = "新增容器";
+      this.dialogTitle = "新增应用";
       this.ifDialogDetail=false;
-      this.dialogForm = {};
+      this.dialogForm={};
       this.dialogFormVisible = true;
       this.$nextTick(() => {
         this.$refs[formName].resetFields();
       });
     },
     detailRow(row){
-        this.dialogTitle = "容器详细信息";
+        this.dialogTitle = "应用详细信息";
         this.ifDialogDetail=true;
         this.dialogForm = row;
         this.dialogFormVisible = true;
     },
     editRow(row) {
-      // if (this.selectedRow.length === 0 || this.selectedRow.length > 1) {
-      //   this.$message({
-      //     message: "请选择单条数据进行编辑",
-      //     type: "warning"
-      //   });
-      // } else {
         //获取当前数据内容
         // this.$axios.post('',{
         //   id:this.selectedRow[0].id,'
@@ -332,26 +348,25 @@ export default {
         // }).catch((err)=>{
         //   console.log(err);
         // });
-        this.dialogTitle = "编辑终端";
-        this.ifDialogDetail=false;
+        this.dialogTitle = "编辑应用";
         this.dialogForm = row;
+        this.ifDialogDetail=false;
         this.dialogFormVisible = true;
-      // }
+        // this.$axios.post('',{
+        //   id:this.selectedRow[0].id,'
+        // }).then((res)=>{
+        //   this.search(page);
+        // }).catch((err)=>{
+        //   console.log(err);
+        // });
     },
     delRow(row) {
-      // if (this.selectedRow.length === 0) {
-      //   this.$message({
-      //     message: "请选择数据进行删除",
-      //     type: "warning"
-      //   });
-      // } else {
-        this.$confirm("是否确定删除该容器?", "提示", {
+        this.$confirm("是否确定删除该应用?", "提示", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
         })
           .then(() => {
-            let ids = [];
             // this.$axios.post('',{
             //   id:row.id,'
             // }).then((res)=>{
@@ -359,7 +374,6 @@ export default {
             // }).catch((err)=>{
             //   console.log(err);
             // });
-
             this.$message({
               type: "success",
               message: "删除成功!"
@@ -371,7 +385,6 @@ export default {
               message: "已取消删除"
             });
           });
-      // }
     },
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
@@ -407,7 +420,7 @@ export default {
 </script>
 
 <style scoped>
-.containerTable {
+.applicationTable {
   max-height: 500px;
   overflow: auto;
 }

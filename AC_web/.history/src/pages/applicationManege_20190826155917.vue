@@ -104,13 +104,13 @@
       >
         <el-col :span="24">
           <el-form-item label="应用名称" prop="name">
-            <span v-if="ifDialogDetail">{{dialogForm.name}}</span>
+            <span>{{dialogForm.name}}</span>
             <el-input v-if="!ifDialogDetail" v-model="dialogForm.name" placeholder="请输入应用名称"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item label="应用类型" prop="type">
-            <span v-if="ifDialogDetail">{{dialogForm.type}}</span>
+            <span>{{dialogForm.type}}</span>
             <el-select
               v-if="!ifDialogDetail"
               v-model="dialogForm.type"
@@ -128,19 +128,19 @@
         </el-col>
         <el-col :span="24">
           <el-form-item label="应用厂商" prop="factory">
-            <span v-if="ifDialogDetail">{{dialogForm.factory}}</span>
+            <span>{{dialogForm.factory}}</span>
             <el-input v-if="!ifDialogDetail" v-model="dialogForm.factory" placeholder="请输入应用厂商"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item label="应用版本" prop="version">
-            <span v-if="ifDialogDetail">{{dialogForm.version}}</span>
+            <span>{{dialogForm.version}}</span>
             <el-input v-if="!ifDialogDetail" v-model="dialogForm.version" placeholder="请输入应用版本"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item label="容器类型" prop="containerType">
-            <span v-if="ifDialogDetail">{{dialogForm.containerType}}</span>
+            <span>{{dialogForm.containerType}}</span>
             <el-select
               v-if="!ifDialogDetail"
               v-model="dialogForm.containerType"
@@ -158,7 +158,7 @@
         </el-col>
         <el-col :span="24">
           <el-form-item label="容器版本" prop="containerVersion">
-            <span v-if="ifDialogDetail">{{dialogForm.containerVersion}}</span>
+            <span>{{dialogForm.containerVersion}}</span>
             <el-input
               v-if="!ifDialogDetail"
               v-model="dialogForm.containerVersion"

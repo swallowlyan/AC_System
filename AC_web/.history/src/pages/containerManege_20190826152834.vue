@@ -265,6 +265,7 @@ export default {
       dialogRules: {
         name: [
           { required: true, message: "请输入容器名称", trigger: "blur" },
+          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" }
         ],
         version: [
           { required: true, message: "请选择容器版本", trigger: "change" }

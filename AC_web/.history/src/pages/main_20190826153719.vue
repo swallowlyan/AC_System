@@ -268,7 +268,4 @@ export default {
 .acForm .el-textarea__inner{
   height: 100%;
 }
-.acForm span{
-  margin-left: 30px;
-}
 </style>

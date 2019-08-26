@@ -926,8 +926,5 @@ export default {
 .list button {
   margin-left: 10px;
 }
-.acForm .el-col {
-  text-align: center;
-}
 </style>
 

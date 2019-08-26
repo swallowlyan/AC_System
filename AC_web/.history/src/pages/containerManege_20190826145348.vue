@@ -103,43 +103,19 @@
     <!-- 新增/编辑弹窗 -->
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible">
       <el-form :model="dialogForm" :rules="dialogRules" ref="dialogForm" label-width="100px" class="acForm">
-        <el-col :span="24">
-          <el-form-item label="容器名称" prop="name">
-            <span v-if="ifDialogDetail">{{dialogForm.name}}</span>
-            <el-input v-if="!ifDialogDetail" v-model="dialogForm.name" placeholder="请输入容器名称"></el-input>
+        <el-form-item label="容器名称" prop="name">
+          <el-col :span="24">
+            <el-input v-model="dialogForm.name" placeholder="请输入容器名称"></el-input>
+          </el-col>
         </el-form-item>
-        </el-col>
-        <el-col :span="24">
         <el-form-item label="容器版本" prop="version">
-          <span v-if="ifDialogDetail">{{dialogForm.version}}</span>
-            <el-input v-if="!ifDialogDetail" v-model="dialogForm.version" placeholder="请输入容器版本"></el-input>
+          <el-col :span="24">
+            <el-input v-model="dialogForm.version" placeholder="请输入容器版本"></el-input>
+          </el-col>
         </el-form-item>
-        </el-col>
-        
-        <el-col :span="24">
-        <el-form-item label="厂商" prop="factory">
-          <span v-if="ifDialogDetail">{{dialogForm.factory}}</span>
-            <el-input v-if="!ifDialogDetail" v-model="dialogForm.factory" placeholder="请输入厂商"></el-input>
-        </el-form-item>
-        </el-col>
-        <el-col :span="24">
-        <el-form-item label="容器状态">
-          <span v-if="ifDialogDetail">{{dialogForm.status}}</span>
-          <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="0">离线</el-radio>
-          <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="1">在线</el-radio>
-        </el-form-item>
-        </el-col>
-        <el-col :span="24" style="height:100px">
-        <el-form-item label="功能说明" class="lineHeight">
-          <span v-if="ifDialogDetail">{{dialogForm.instructions}}</span>
-          <el-input v-if="!ifDialogDetail" type="textarea" style="height:100px" v-model="dialogForm.instructions"></el-input>
-        </el-form-item>
-        </el-col>
-        <el-col :span="24">
         <el-form-item label="适用终端" prop="terminal">
-          <span v-if="ifDialogDetail">{{dialogForm.terminal}}</span>
+          <el-col :span="24">
             <el-select
-             v-if="!ifDialogDetail"
               v-model="dialogForm.terminal"
               :placeholder="terminalArr.title"
               style="width:100%"
@@ -151,6 +127,22 @@
                 :value="item.value"
               ></el-option>
             </el-select>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="厂商" prop="factory">
+          <el-col :span="24">
+            <el-input v-model="dialogForm.factory" placeholder="请输入厂商"></el-input>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="容器状态">
+          <el-col :span="24">
+          <el-radio v-model="dialogForm.status" label="0">离线</el-radio>
+          <el-radio v-model="dialogForm.status" label="1">在线</el-radio>
+          </el-col>
+        </el-form-item>
+        <el-col :span="24" style="height:100px">
+        <el-form-item label="功能说明" class="lineHeight">
+          <el-input type="textarea" v-model="dialogForm.instructions"></el-input>
         </el-form-item>
         </el-col>
       </el-form>
@@ -253,7 +245,6 @@ export default {
       ],
       dialogTitle: "新增",
       dialogFormVisible: false,
-      ifDialogDetail:false,
       dialogForm: {
         name: "",
         version: "",
@@ -265,6 +256,7 @@ export default {
       dialogRules: {
         name: [
           { required: true, message: "请输入容器名称", trigger: "blur" },
+          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" }
         ],
         version: [
           { required: true, message: "请选择容器版本", trigger: "change" }
@@ -304,8 +296,6 @@ export default {
     },
     add(formName) {
       this.dialogTitle = "新增容器";
-      this.ifDialogDetail=false;
-      this.dialogForm = {};
       this.dialogFormVisible = true;
       this.$nextTick(() => {
         this.$refs[formName].resetFields();
@@ -313,7 +303,6 @@ export default {
     },
     detailRow(row){
         this.dialogTitle = "容器详细信息";
-        this.ifDialogDetail=true;
         this.dialogForm = row;
         this.dialogFormVisible = true;
     },
@@ -333,7 +322,6 @@ export default {
         //   console.log(err);
         // });
         this.dialogTitle = "编辑终端";
-        this.ifDialogDetail=false;
         this.dialogForm = row;
         this.dialogFormVisible = true;
       // }

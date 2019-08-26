@@ -234,6 +234,7 @@
                     icon="el-icon-delete"
                   ></el-button>
                 </div>
+                <div>
                   <el-button
                     v-if="!ifDialogDetail"
                     type="primary"
@@ -242,6 +243,7 @@
                     size="mini"
                     icon="el-icon-plus"
                   ></el-button>
+                </div>
               </div>
             </el-form-item>
           </el-col>
@@ -261,6 +263,7 @@
                     icon="el-icon-delete"
                   ></el-button>
                 </div>
+                <div>
                   <el-button
                     v-if="!ifDialogDetail"
                     type="primary"
@@ -269,6 +272,7 @@
                     size="mini"
                     icon="el-icon-plus"
                   ></el-button>
+                </div>
               </div>
             </el-form-item>
           </el-col>
@@ -926,8 +930,17 @@ export default {
 .list button {
   margin-left: 10px;
 }
-.acForm .el-col {
+</style>
+<style>
+.acForm .el-form-item__label {
+  background-color: rgb(239, 243, 248) !important;
+  height: 100%;
   text-align: center;
 }
+.acForm .el-form-item {
+  height: 100%;
+}
+.lineHeight .el-form-item__label {
+  line-height: 100px;
+}
 </style>
-

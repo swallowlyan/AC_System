@@ -230,30 +230,6 @@ export default {
 }
 </style>
 <style>
-.acForm .el-col {
-  border-color: rgb(151, 195, 221);
-  font-size: 14px;
-  padding: 0px;
-  border-width: 1px;
-  border-style: solid;
-  /* text-align: center; */
-  /* line-height: 20px; */
-}
-.acForm .el-form-item {
-  margin-bottom: 0px;
-}
-.list {
-  max-height: 100px;
-  overflow: auto;
-}
-.list div {
-  width: 150px;
-  margin: 0px 10px;
-  float: left;
-}
-.list button {
-  margin-left: 10px;
-}
 .acForm .el-form-item__label {
   background-color: rgb(239, 243, 248) !important;
   height: 100%;
@@ -264,11 +240,5 @@ export default {
 }
 .lineHeight .el-form-item__label {
   line-height: 100px;
-}
-.acForm .el-textarea__inner{
-  height: 100%;
-}
-.acForm span{
-  margin-left: 30px;
 }
 </style>
