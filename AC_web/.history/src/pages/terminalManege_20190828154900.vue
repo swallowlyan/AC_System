@@ -326,7 +326,7 @@
             </el-header>
             <el-main>
               <!-- 文件服务/容器循环 -->
-              <el-row style="max-height: 300px;overflow:auto;">
+              <el-row style="max-height: 500px;">
                 <el-table
                   ref="multipleTable"
                   :data="fileList"
@@ -599,7 +599,7 @@ export default {
         { id: 3, fileName: "软件名4",count:50,time:"2019年8月20日" },
         { id: 4, fileName: "软件名5",count:50,time:"2019年8月20日" },
         { id: 5, fileName: "软件名6",count:50,time:"2019年8月20日" },
-        { id: 6, fileName: "软件名7",count:50,time:"2019年8月20日"}
+        { id: 6, fileName: "软件名7" ,count:50,time:"2019年8月20日"}
       ],
       searchFileItem: "",
       fileCurrentPage: 1,

@@ -145,96 +145,96 @@
     </el-tabs>
     <!-- 新增/编辑弹窗 -->
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible">
-      <el-row v-show="!ifAddDialog">
-        <el-form
-          :model="dialogForm"
-          :rules="dialogRules"
-          ref="dialogForm"
-          label-width="100px"
-          class="acForm"
-        >
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="终端ID" prop="name">
-                <span v-if="ifDialogDetail">{{dialogForm.id}}</span>
-                <el-input v-if="!ifDialogDetail" v-model="dialogForm.id" placeholder="请输入终端ID"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="终端版本" prop="version">
-                <span v-if="ifDialogDetail">{{dialogForm.version}}</span>
-                <el-select
-                  v-if="!ifDialogDetail"
-                  v-model="dialogForm.version"
-                  placeholder="请选择终端版本"
-                  style="width:100%"
-                >
-                  <el-option
-                    v-for="item in versionArr.options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="终端能力" prop="ability">
-                <span v-if="ifDialogDetail">{{dialogForm.ability}}</span>
-                <el-input v-if="!ifDialogDetail" v-model="dialogForm.ability" placeholder="请输入终端能力"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="终端状态">
-                <span v-if="ifDialogDetail">{{dialogForm.status}}</span>
-                <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="0">离线</el-radio>
-                <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="1">在线</el-radio>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="终端归属地" prop="ascription">
-                <span v-if="ifDialogDetail">{{dialogForm.ascription}}</span>
-                <el-select
-                  v-if="!ifDialogDetail"
-                  v-model="dialogForm.ascription"
-                  placeholder="请选择终端归属地"
-                  style="width:100%"
-                >
-                  <el-option
-                    v-for="item in ascriptionArr.options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="终端时间">
-                <span>{{dialogForm.time}}</span>
-                <el-button v-if="!ifDialogDetail" type="primary" plain size="mini">对时</el-button>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="24" style="height:100px">
-              <el-form-item label="容器" class="lineHeight">
-                <div class="list">
-                  <div v-for="(item,index) in dialogForm.containerArr" :key="index">
-                    {{item}}
-                    <el-button
-                      v-if="!ifDialogDetail"
-                      type="danger"
-                      plain
-                      circle
-                      size="mini"
-                      icon="el-icon-delete"
-                    ></el-button>
-                  </div>
+      <el-row>
+      <el-form
+        :model="dialogForm"
+        :rules="dialogRules"
+        ref="dialogForm"
+        label-width="100px"
+        class="acForm"
+      >
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="终端ID" prop="name">
+              <span v-if="ifDialogDetail">{{dialogForm.id}}</span>
+              <el-input v-if="!ifDialogDetail" v-model="dialogForm.id" placeholder="请输入终端ID"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="终端版本" prop="version">
+              <span v-if="ifDialogDetail">{{dialogForm.version}}</span>
+              <el-select
+                v-if="!ifDialogDetail"
+                v-model="dialogForm.version"
+                placeholder="请选择终端版本"
+                style="width:100%"
+              >
+                <el-option
+                  v-for="item in versionArr.options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="终端能力" prop="ability">
+              <span v-if="ifDialogDetail">{{dialogForm.ability}}</span>
+              <el-input v-if="!ifDialogDetail" v-model="dialogForm.ability" placeholder="请输入终端能力"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="终端状态">
+              <span v-if="ifDialogDetail">{{dialogForm.status}}</span>
+              <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="0">离线</el-radio>
+              <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="1">在线</el-radio>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="终端归属地" prop="ascription">
+              <span v-if="ifDialogDetail">{{dialogForm.ascription}}</span>
+              <el-select
+                v-if="!ifDialogDetail"
+                v-model="dialogForm.ascription"
+                placeholder="请选择终端归属地"
+                style="width:100%"
+              >
+                <el-option
+                  v-for="item in ascriptionArr.options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="终端时间">
+              <span>{{dialogForm.time}}</span>
+              <el-button v-if="!ifDialogDetail" type="primary" plain size="mini">对时</el-button>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24" style="height:100px">
+            <el-form-item label="容器" class="lineHeight">
+              <div class="list">
+                <div v-for="(item,index) in dialogForm.containerArr" :key="index">
+                  {{item}}
+                  <el-button
+                    v-if="!ifDialogDetail"
+                    type="danger"
+                    plain
+                    circle
+                    size="mini"
+                    icon="el-icon-delete"
+                  ></el-button>
+                </div>
                   <el-button
                     v-if="!ifDialogDetail"
                     type="primary"
@@ -242,27 +242,26 @@
                     circle
                     size="mini"
                     icon="el-icon-plus"
-                    @click="chooseFile('container')"
+                  ></el-button>
+              </div>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24" style="height:100px">
+            <el-form-item label="应用" class="lineHeight">
+              <div class="list">
+                <div v-for="(item,index) in dialogForm.appArr" :key="index">
+                  {{item}}
+                  <el-button
+                    v-if="!ifDialogDetail"
+                    type="danger"
+                    plain
+                    circle
+                    size="mini"
+                    icon="el-icon-delete"
                   ></el-button>
                 </div>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="24" style="height:100px">
-              <el-form-item label="应用" class="lineHeight">
-                <div class="list">
-                  <div v-for="(item,index) in dialogForm.appArr" :key="index">
-                    {{item}}
-                    <el-button
-                      v-if="!ifDialogDetail"
-                      type="danger"
-                      plain
-                      circle
-                      size="mini"
-                      icon="el-icon-delete"
-                    ></el-button>
-                  </div>
                   <el-button
                     v-if="!ifDialogDetail"
                     type="primary"
@@ -270,18 +269,21 @@
                     circle
                     size="mini"
                     icon="el-icon-plus"
-                    @click="chooseFile('app')"
                   ></el-button>
-                </div>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-form>
+              </div>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitForm('dialogForm')">确 定</el-button>
+      </div>
       </el-row>
       <!-- 新增服务/容器 -->
-      <el-row v-show="ifAddDialog">
-        <el-container>
-          <el-aside width="150px">
+      <el-row>
+         <el-container>
+          <el-aside width="200px">
             <el-row>
               <el-menu
                 default-active="1"
@@ -325,26 +327,34 @@
               </el-row>
             </el-header>
             <el-main>
-              <!-- 文件服务/容器循环 -->
-              <el-row style="max-height: 300px;overflow:auto;">
-                <el-table
-                  ref="multipleTable"
-                  :data="fileList"
-                  tooltip-effect="dark"
-                  style="width: 100%"
-                  @selection-change="handleSelectionChange"
+              <el-row style="max-height: 500px;">
+                <!-- 文件服务循环 -->
+                <el-col
+                  :span="4"
+                  :offset="1"
+                  v-for="(item,index) in fileList"
+                  :key="index"
+                  style="padding:5px"
                 >
-                  <el-table-column type="selection" width="55"></el-table-column>
-                  <el-table-column label="排序" width="60">
-                    <template>
-                      <!-- <template slot-scope="scope"> -->
-                      <img src="../assets/img/soft_demo1.jpg" height="60" width="100%" />
-                    </template>
-                  </el-table-column>
-                  <el-table-column prop="fileName" label="名称" width="80"></el-table-column>
-                  <el-table-column prop="count" label="下载量" width="80"></el-table-column>
-                  <el-table-column prop="time" label="上架时间" width="150"></el-table-column>
-                </el-table>
+                  <el-card class="box-card fileCard" :body-style="{padding:'10px'}">
+                    <el-row>
+                      <img src="../assets/img/soft_demo1.jpg" height="100%" width="100%" />
+                    </el-row>
+                    <el-row>
+                      <h5>{{item.fileName}}</h5>
+                    </el-row>
+                    <el-row>
+                      <el-col :span="11" :offset="13">
+                        <el-button type="text">
+                          <i class="el-icon-download"></i>
+                        </el-button>
+                        <el-button type="text">
+                          <i class="el-icon-delete-solid"></i>
+                        </el-button>
+                      </el-col>
+                    </el-row>
+                  </el-card>
+                </el-col>
               </el-row>
               <el-row style="text-align: center;margin-top:10px;">
                 <el-pagination
@@ -361,12 +371,6 @@
           </el-container>
         </el-container>
       </el-row>
-      <div slot="footer" class="dialog-footer">
-        <el-button v-show="!ifAddDialog" type="primary" @click="submitForm('dialogForm')">确 定</el-button>
-        <el-button v-show="!ifAddDialog" @click="dialogFormVisible = false">取 消</el-button>
-        <el-button v-show="ifAddDialog" type="primary" @click="submitFile()">安 装</el-button>
-        <el-button v-show="ifAddDialog" @click="ifAddDialog = false">取 消</el-button>
-      </div>
     </el-dialog>
   </div>
 </template>
@@ -380,7 +384,7 @@ export default {
       activeTab: "allView",
       tableSize: 0,
       tableLimit: 10,
-
+      ifDialogDetail: false,
       selectedRow: [],
       searchItem: {
         id: "",
@@ -565,8 +569,6 @@ export default {
       ],
       dialogTitle: "新增",
       dialogFormVisible: false,
-      ifDialogDetail: false,
-      ifAddDialog: false,
       dialogForm: {
         id: "",
         version: "",
@@ -591,25 +593,6 @@ export default {
         ascription: [
           { required: true, message: "请选择终端归属地", trigger: "change" }
         ]
-      },
-      fileList: [
-        { id: 0, fileName: "软件名1",count:50,time:"2019年8月20日" },
-        { id: 1, fileName: "软件名2",count:50,time:"2019年8月20日" },
-        { id: 2, fileName: "软件名3",count:50,time:"2019年8月20日" },
-        { id: 3, fileName: "软件名4",count:50,time:"2019年8月20日" },
-        { id: 4, fileName: "软件名5",count:50,time:"2019年8月20日" },
-        { id: 5, fileName: "软件名6",count:50,time:"2019年8月20日" },
-        { id: 6, fileName: "软件名7",count:50,time:"2019年8月20日"}
-      ],
-      searchFileItem: "",
-      fileCurrentPage: 1,
-      filePageSize: 10,
-      fileTotal: 0,
-      fileParam: {
-        current: 1,
-        size: 5,
-        sort: "id",
-        dir: "asc"
       }
     };
   },
@@ -869,7 +852,6 @@ export default {
     },
     //新增
     add(formName) {
-      this.ifAddDialog = false;
       this.dialogTitle = "新增终端";
       this.ifDialogDetail = false;
       this.dialogForm = {};
@@ -889,7 +871,6 @@ export default {
       // }).catch((err)=>{
       //   console.log(err);
       // });
-      this.ifAddDialog = false;
       this.dialogTitle = "编辑终端";
       this.dialogForm = row;
       this.dialogFormVisible = true;
@@ -950,10 +931,6 @@ export default {
         }
       });
     },
-    chooseFile(type) {
-      this.ifAddDialog = true;
-    },
-    submitFile() {},
     //tab点击事件
     handleClick() {},
     handleSizeChange(val) {
@@ -962,32 +939,6 @@ export default {
     },
     handleCurrentChange(val) {
       this.search(val);
-    },
-    searchFile() {},
-    fileSizeChange(val) {
-      this.filePageSize = val;
-      this.fileParam = {
-        current: 1,
-        size: val,
-        sort: "id",
-        dir: "asc"
-      };
-      this.searchFile("");
-    },
-    fileCurrentChange(val) {
-      this.fileParam = {
-        current: val,
-        size: this.filePageSize,
-        sort: "id",
-        dir: "asc"
-      };
-      this.searchFile("");
-    },
-    handleOpen(key, keyPath) {
-      console.log(key, keyPath);
-    },
-    handleClose(key, keyPath) {
-      console.log(key, keyPath);
     }
   }
 };

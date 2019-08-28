@@ -326,7 +326,7 @@
             </el-header>
             <el-main>
               <!-- 文件服务/容器循环 -->
-              <el-row style="max-height: 300px;overflow:auto;">
+              <el-row style="max-height: 500px;">
                 <el-table
                   ref="multipleTable"
                   :data="fileList"
@@ -336,9 +336,8 @@
                 >
                   <el-table-column type="selection" width="55"></el-table-column>
                   <el-table-column label="排序" width="60">
-                    <template>
-                      <!-- <template slot-scope="scope"> -->
-                      <img src="../assets/img/soft_demo1.jpg" height="60" width="100%" />
+                    <template slot-scope="scope"
+                    ><img src="../assets/img/soft_demo1.jpg" height="100%" width="100%" />
                     </template>
                   </el-table-column>
                   <el-table-column prop="fileName" label="名称" width="80"></el-table-column>
@@ -593,13 +592,13 @@ export default {
         ]
       },
       fileList: [
-        { id: 0, fileName: "软件名1",count:50,time:"2019年8月20日" },
-        { id: 1, fileName: "软件名2",count:50,time:"2019年8月20日" },
-        { id: 2, fileName: "软件名3",count:50,time:"2019年8月20日" },
-        { id: 3, fileName: "软件名4",count:50,time:"2019年8月20日" },
-        { id: 4, fileName: "软件名5",count:50,time:"2019年8月20日" },
-        { id: 5, fileName: "软件名6",count:50,time:"2019年8月20日" },
-        { id: 6, fileName: "软件名7",count:50,time:"2019年8月20日"}
+        { id: 0, fileName: "软件名1" },
+        { id: 1, fileName: "软件名2" },
+        { id: 2, fileName: "软件名3" },
+        { id: 3, fileName: "软件名4" },
+        { id: 4, fileName: "软件名5" },
+        { id: 5, fileName: "软件名6" },
+        { id: 6, fileName: "软件名7" }
       ],
       searchFileItem: "",
       fileCurrentPage: 1,

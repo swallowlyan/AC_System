@@ -326,7 +326,7 @@
             </el-header>
             <el-main>
               <!-- 文件服务/容器循环 -->
-              <el-row style="max-height: 300px;overflow:auto;">
+              <el-row style="max-height: 300px;">
                 <el-table
                   ref="multipleTable"
                   :data="fileList"
