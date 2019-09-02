@@ -280,7 +280,7 @@
       </el-row>
       <!-- 新增服务/容器 -->
       <el-row v-show="ifAddDialog">
-        <el-col :span="16" :offset="1">
+        <el-col :span="16">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
               <span>文件库</span>

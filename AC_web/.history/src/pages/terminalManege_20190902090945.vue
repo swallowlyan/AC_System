@@ -144,7 +144,7 @@
       </el-tab-pane>
     </el-tabs>
     <!-- 新增/编辑弹窗 -->
-    <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="75%">
+    <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible">
       <el-row v-show="!ifAddDialog">
         <el-form
           :model="dialogForm"
@@ -280,110 +280,93 @@
       </el-row>
       <!-- 新增服务/容器 -->
       <el-row v-show="ifAddDialog">
-        <el-col :span="16" :offset="1">
-          <el-card class="box-card">
-            <div slot="header" class="clearfix">
-              <span>文件库</span>
-            </div>
-            <div>
-              <el-container>
-                <el-aside width="150px">
-                  <el-row>
-                    <el-menu
-                      default-active="1"
-                      class="el-menu-vertical-demo"
-                      @open="handleOpen"
-                      @close="handleClose"
-                    >
-                      <el-submenu index="1">
-                        <template slot="title">
-                          <i class="el-icon-location"></i>
-                          <span>分类一</span>
-                        </template>
-                        <el-menu-item index="1-1">选项1</el-menu-item>
-                        <el-menu-item index="1-2">选项2</el-menu-item>
-                        <el-menu-item index="1-3">选项3</el-menu-item>
-                      </el-submenu>
-                      <el-menu-item index="2">
-                        <i class="el-icon-menu"></i>
-                        <span slot="title">分类二</span>
-                      </el-menu-item>
-                      <el-menu-item index="3">
-                        <i class="el-icon-document"></i>
-                        <span slot="title">分类三</span>
-                      </el-menu-item>
-                      <el-menu-item index="4">
-                        <i class="el-icon-setting"></i>
-                        <span slot="title">分类四</span>
-                      </el-menu-item>
-                    </el-menu>
-                  </el-row>
-                </el-aside>
-                <el-container>
-                  <el-header>
-                    <el-row>
-                      <el-col :span="16">
-                        <el-input v-model="searchFileItem" placeholder="请输入内容进行查询"></el-input>
-                      </el-col>
-                      <el-col :span="2" :offset="1">
-                        <el-button type="primary" icon="el-icon-search" @click="searchFile()">搜索</el-button>
-                      </el-col>
-                    </el-row>
-                  </el-header>
-                  <el-main>
-                    <!-- 文件服务/容器循环 -->
-                    <el-row style="max-height: 300px;overflow:auto;">
-                      <el-table
-                        ref="multipleTable"
-                        :data="fileList"
-                        tooltip-effect="dark"
-                        style="width: 100%"
-                        @selection-change="handleSelectionChange"
-                      >
-                        <el-table-column type="selection" width="55"></el-table-column>
-                        <el-table-column label="排序" width="60">
-                          <template>
-                            <!-- <template slot-scope="scope"> -->
-                            <img src="../assets/img/soft_demo1.jpg" height="60" width="100%" />
-                          </template>
-                        </el-table-column>
-                        <el-table-column prop="fileName" label="名称" width="100"></el-table-column>
-                        <el-table-column prop="count" label="下载量" width="100"></el-table-column>
-                        <el-table-column prop="time" label="上架时间" width="180"></el-table-column>
-                      </el-table>
-                    </el-row>
-                    <el-row style="text-align: center;margin-top:10px;">
-                      <el-pagination
-                        @size-change="fileSizeChange"
-                        @current-change="fileCurrentChange"
-                        :current-page="fileCurrentPage"
-                        :page-sizes="[5, 10, 15]"
-                        :page-size="filePageSize"
-                        layout="total, prev, pager, next, jumper"
-                        :total="fileTotal"
-                      ></el-pagination>
-                    </el-row>
-                  </el-main>
-                </el-container>
-              </el-container>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span="5" :offset="1">
-          <el-card class="box-card">
-            <div slot="header" class="clearfix">
-              <span>已选文件</span>
-            </div>
-            <div>
-              <ul>
-                <li v-for="(item,index) in fileSelectedList" :key="index">
-                  {{item.fileName}}
-                  <el-button type="text"><i class="el-icon-close"></i></el-button>
-                </li>
-              </ul>
-            </div>
-          </el-card>
-        </el-col>
+        <el-card class="box-card">
+  <div slot="header" class="clearfix">
+    <span>文件库</span>
+  </div>
+  <div>
+   <el-container>
+          <el-aside width="150px">
+            <el-row>
+              <el-menu
+                default-active="1"
+                class="el-menu-vertical-demo"
+                @open="handleOpen"
+                @close="handleClose"
+              >
+                <el-submenu index="1">
+                  <template slot="title">
+                    <i class="el-icon-location"></i>
+                    <span>分类一</span>
+                  </template>
+                  <el-menu-item index="1-1">选项1</el-menu-item>
+                  <el-menu-item index="1-2">选项2</el-menu-item>
+                  <el-menu-item index="1-3">选项3</el-menu-item>
+                </el-submenu>
+                <el-menu-item index="2">
+                  <i class="el-icon-menu"></i>
+                  <span slot="title">分类二</span>
+                </el-menu-item>
+                <el-menu-item index="3">
+                  <i class="el-icon-document"></i>
+                  <span slot="title">分类三</span>
+                </el-menu-item>
+                <el-menu-item index="4">
+                  <i class="el-icon-setting"></i>
+                  <span slot="title">分类四</span>
+                </el-menu-item>
+              </el-menu>
+            </el-row>
+          </el-aside>
+          <el-container>
+            <el-header>
+              <el-row>
+                <el-col :span="16">
+                  <el-input v-model="searchFileItem" placeholder="请输入内容进行查询"></el-input>
+                </el-col>
+                <el-col :span="2" :offset="1">
+                  <el-button type="primary" icon="el-icon-search" @click="searchFile()">搜索</el-button>
+                </el-col>
+              </el-row>
+            </el-header>
+            <el-main>
+              <!-- 文件服务/容器循环 -->
+              <el-row style="max-height: 300px;overflow:auto;">
+                <el-table
+                  ref="multipleTable"
+                  :data="fileList"
+                  tooltip-effect="dark"
+                  style="width: 100%"
+                  @selection-change="handleSelectionChange"
+                >
+                  <el-table-column type="selection" width="55"></el-table-column>
+                  <el-table-column label="排序" width="60">
+                    <template>
+                      <!-- <template slot-scope="scope"> -->
+                      <img src="../assets/img/soft_demo1.jpg" height="60" width="100%" />
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="fileName" label="名称" width="80"></el-table-column>
+                  <el-table-column prop="count" label="下载量" width="80"></el-table-column>
+                  <el-table-column prop="time" label="上架时间" width="150"></el-table-column>
+                </el-table>
+              </el-row>
+              <el-row style="text-align: center;margin-top:10px;">
+                <el-pagination
+                  @size-change="fileSizeChange"
+                  @current-change="fileCurrentChange"
+                  :current-page="fileCurrentPage"
+                  :page-sizes="[5, 10, 15]"
+                  :page-size="filePageSize"
+                  layout="total, prev, pager, next, jumper"
+                  :total="fileTotal"
+                ></el-pagination>
+              </el-row>
+            </el-main>
+          </el-container>
+        </el-container>
+  </div>
+</el-card>
       </el-row>
       <div slot="footer" class="dialog-footer">
         <el-button v-show="!ifAddDialog" type="primary" @click="submitForm('dialogForm')">确 定</el-button>
@@ -617,18 +600,13 @@ export default {
         ]
       },
       fileList: [
-        { id: 0, fileName: "软件名1", count: 50, time: "2019年8月20日" },
-        { id: 1, fileName: "软件名2", count: 50, time: "2019年8月20日" },
-        { id: 2, fileName: "软件名3", count: 50, time: "2019年8月20日" },
-        { id: 3, fileName: "软件名4", count: 50, time: "2019年8月20日" },
-        { id: 4, fileName: "软件名5", count: 50, time: "2019年8月20日" },
-        { id: 5, fileName: "软件名6", count: 50, time: "2019年8月20日" },
-        { id: 6, fileName: "软件名7", count: 50, time: "2019年8月20日" }
-      ],
-      fileSelectedList: [
-        { id: 0, fileName: "软件名1", count: 50, time: "2019年8月20日" },
-        { id: 1, fileName: "软件名2", count: 50, time: "2019年8月20日" },
-        { id: 2, fileName: "软件名3", count: 50, time: "2019年8月20日" }
+        { id: 0, fileName: "软件名1",count:50,time:"2019年8月20日" },
+        { id: 1, fileName: "软件名2",count:50,time:"2019年8月20日" },
+        { id: 2, fileName: "软件名3",count:50,time:"2019年8月20日" },
+        { id: 3, fileName: "软件名4",count:50,time:"2019年8月20日" },
+        { id: 4, fileName: "软件名5",count:50,time:"2019年8月20日" },
+        { id: 5, fileName: "软件名6",count:50,time:"2019年8月20日" },
+        { id: 6, fileName: "软件名7",count:50,time:"2019年8月20日"}
       ],
       searchFileItem: "",
       fileCurrentPage: 1,
@@ -1011,9 +989,6 @@ export default {
         dir: "asc"
       };
       this.searchFile("");
-    },
-    handleSelectionChange(){
-
     },
     handleOpen(key, keyPath) {
       console.log(key, keyPath);

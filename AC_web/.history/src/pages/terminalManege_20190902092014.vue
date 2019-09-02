@@ -144,7 +144,7 @@
       </el-tab-pane>
     </el-tabs>
     <!-- 新增/编辑弹窗 -->
-    <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="75%">
+    <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="80%">
       <el-row v-show="!ifAddDialog">
         <el-form
           :model="dialogForm"
@@ -280,7 +280,7 @@
       </el-row>
       <!-- 新增服务/容器 -->
       <el-row v-show="ifAddDialog">
-        <el-col :span="16" :offset="1">
+        <el-col :span="16">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
               <span>文件库</span>
@@ -347,9 +347,9 @@
                             <img src="../assets/img/soft_demo1.jpg" height="60" width="100%" />
                           </template>
                         </el-table-column>
-                        <el-table-column prop="fileName" label="名称" width="100"></el-table-column>
-                        <el-table-column prop="count" label="下载量" width="100"></el-table-column>
-                        <el-table-column prop="time" label="上架时间" width="180"></el-table-column>
+                        <el-table-column prop="fileName" label="名称" width="80"></el-table-column>
+                        <el-table-column prop="count" label="下载量" width="80"></el-table-column>
+                        <el-table-column prop="time" label="上架时间" width="150"></el-table-column>
                       </el-table>
                     </el-row>
                     <el-row style="text-align: center;margin-top:10px;">
@@ -1011,9 +1011,6 @@ export default {
         dir: "asc"
       };
       this.searchFile("");
-    },
-    handleSelectionChange(){
-
     },
     handleOpen(key, keyPath) {
       console.log(key, keyPath);

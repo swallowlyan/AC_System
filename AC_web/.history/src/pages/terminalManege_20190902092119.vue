@@ -144,7 +144,7 @@
       </el-tab-pane>
     </el-tabs>
     <!-- 新增/编辑弹窗 -->
-    <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="75%">
+    <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="80%">
       <el-row v-show="!ifAddDialog">
         <el-form
           :model="dialogForm"
@@ -280,7 +280,7 @@
       </el-row>
       <!-- 新增服务/容器 -->
       <el-row v-show="ifAddDialog">
-        <el-col :span="16" :offset="1">
+        <el-col :span="16">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
               <span>文件库</span>
@@ -1011,9 +1011,6 @@ export default {
         dir: "asc"
       };
       this.searchFile("");
-    },
-    handleSelectionChange(){
-
     },
     handleOpen(key, keyPath) {
       console.log(key, keyPath);
