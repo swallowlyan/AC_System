@@ -67,7 +67,8 @@
             </el-table-column>
           </el-table>
           <el-row style="margin:20px 0px">
-            <el-button-group>
+            <el-button type="primary" round><i class="el-icon-upload"></i>同步容器</el-button>
+            <!-- <el-button-group>
               <el-button
                 type="success"
                 round
@@ -82,9 +83,7 @@
                 icon="el-icon-plus"
                 @click="add('dialogForm')"
               >新增</el-button>
-              <!-- <el-button type="warning" round size="small" icon="el-icon-edit" @click="editRow()">编辑</el-button>
-              <el-button type="danger" round size="small" icon="el-icon-delete" @click="delRow()">删除</el-button>-->
-            </el-button-group>
+            </el-button-group> -->
             <el-pagination
               background
               @size-change="handleSizeChange"
