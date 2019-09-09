@@ -168,9 +168,9 @@ export default {
             url:"/userManage",
             icon:""
             },
-            {title:"数据管理",
+            {title:"用户总览",
             index:"3",
-            url:"",
+            url:"/userOverview",
             icon:""
             }
           ]

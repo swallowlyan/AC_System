@@ -35,13 +35,15 @@
             <el-table-column type="selection" width="55"></el-table-column>
             <el-table-column type="index" width="50" label="序号"></el-table-column>
             <el-table-column prop="name" width="120" label="用户名"></el-table-column>
-            <el-table-column prop="orgId" label="所属机构"></el-table-column>
-            <el-table-column prop="tenantId" label="租户级别"></el-table-column>
+            <el-table-column prop="orgId" label="所属租户"></el-table-column>
+            <el-table-column prop="firstOrg" label="上级租户"></el-table-column>
+            <el-table-column prop="status" label="租户状态"></el-table-column>
+            <el-table-column prop="permissions" label="用户权限"></el-table-column>
             <el-table-column prop="options" width="250" label="操作">
               <template slot-scope="scope">
+                <el-button @click="disableUser(scope.row)" type="text" size="medium">禁用</el-button>
                 <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
                 <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
-                <el-button @click="authorization(scope.row)" type="text" size="medium">用户授权</el-button>
                 <el-button @click="resetPwd(scope.row)" type="text" size="medium">重置密码</el-button>
               </template>
             </el-table-column>
@@ -83,12 +85,13 @@
     <!-- 新增/编辑弹窗 -->
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible">
       <el-form :model="dialogForm" :rules="dialogRules" ref="dialogForm" label-width="100px">
-        <el-form-item label="用户名" prop="name">
+        <el-form-item label="用户名:" prop="name">
           <el-col :span="15">
-            <el-input v-model="dialogForm.name" placeholder="请输入用户名"></el-input>
+            <el-input v-if="!ifUpdate" v-model="dialogForm.name" placeholder="请输入用户名"></el-input>
+            <span v-if="ifUpdate">{{dialogForm.name}}</span>
           </el-col>
         </el-form-item>
-        <el-form-item label="所属机构" prop="orgId">
+        <el-form-item label="所属租户" prop="orgId">
           <el-col :span="15">
             <el-select v-model="dialogForm.orgId" :placeholder="orgArr.title" style="width:100%">
               <el-option
@@ -100,18 +103,10 @@
             </el-select>
           </el-col>
         </el-form-item>
-        <el-form-item label="租户级别" prop="tenantId">
-          <el-col :span="15">
-            <el-select v-model="dialogForm.tenantId" :placeholder="tenantArr.title" style="width:100%">
-              <el-option
-                v-for="item in tenantArr.options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>
-          </el-col>
-        </el-form-item>
+        <el-form-item label="用户权限">
+                <el-radio v-model="dialogForm.status" label="0">管理员</el-radio>
+                <el-radio v-model="dialogForm.status" label="1">普通租户</el-radio>
+              </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -162,32 +157,50 @@ export default {
         {
           name: "用户1",
           orgId: "类型1",
-          tenantId: "厂商1"
+          tenantId: "厂商1",
+          firstOrg:"",
+          status:"0",
+          permissions:"管理员"
         },
         {
           name: "用户1",
           orgId: "类型1",
-          tenantId: "厂商1"
+          tenantId: "厂商1",
+          firstOrg:"",
+          status:"0",
+          permissions:"管理员"
         },
         {
           name: "用户1",
           orgId: "类型1",
-          tenantId: "厂商1"
+          tenantId: "厂商1",
+          firstOrg:"",
+          status:"0",
+          permissions:"管理员"
         },
         {
           name: "用户1",
           orgId: "类型1",
-          tenantId: "厂商1"
+          tenantId: "厂商1",
+          firstOrg:"",
+          status:"0",
+          permissions:"管理员"
         },
         {
           name: "用户1",
           orgId: "类型1",
-          tenantId: "厂商1"
+          tenantId: "厂商1",
+          firstOrg:"",
+          status:"0",
+          permissions:"管理员"
         },
         {
           name: "用户1",
           orgId: "类型1",
-          tenantId: "厂商1"
+          tenantId: "厂商1",
+          firstOrg:"",
+          status:"0",
+          permissions:"管理员"
         }
       ],
       dialogTitle: "新增",
@@ -208,7 +221,8 @@ export default {
         tenantId: [
           { required: true, message: "请选择租户级别", trigger: "change" }
         ]
-      }
+      },
+      ifUpdate:false
     };
   },
   mounted() {
@@ -242,6 +256,7 @@ export default {
     add(formName) {
       this.dialogTitle = "新增用户";
       this.dialogFormVisible = true;
+      this.dialogForm={};
       this.$nextTick(() => {
         this.$refs[formName].resetFields();
       });
@@ -257,6 +272,7 @@ export default {
         // });
         this.dialogTitle = "编辑用户";
         this.dialogForm = row;
+        this.ifUpdate=true;
         this.dialogFormVisible = true;
         // this.$axios.post('',{
         //   id:this.selectedRow[0].id,'
@@ -314,12 +330,12 @@ export default {
         }
       });
     },
-    //用户授权
-    authorization(row){
-
-    },
     //重置密码
     resetPwd(row){
+
+    },
+    //禁用
+    disableUser(row){
 
     },
     handleSizeChange(val) {

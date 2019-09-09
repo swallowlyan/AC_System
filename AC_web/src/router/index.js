@@ -10,6 +10,7 @@ import alarmPush from '../pages/alarmPush'
 
 import userManage from '../pages/system/userManage'
 import tenantManage from '../pages/system/tenantManage'
+import userOverview from '../pages/system/userOverview'
 
 Vue.use(Router)
 
@@ -59,6 +60,11 @@ export default new Router({
           path:'tenantManage',
           name:'tenantManage',
           component:tenantManage
+        },
+        {
+          path:'userOverview',
+          name:'userOverview',
+          component:userOverview
         }
       ]
     },
