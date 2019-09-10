@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import main from '../pages/main.vue'
-import homePage from '../pages/homePage.vue'
+import loginPage from '../pages/LoginPage'
+import registerPage from '../pages/registerPage'
+
 import terminalManege from '../pages/terminalManege'
 import applicationManege from '../pages/applicationManege'
 import containerManege from '../pages/containerManege'
@@ -68,6 +70,15 @@ export default new Router({
         }
       ]
     },
-
+    {
+      path:'/login',
+      name:'loginPage',
+      component:loginPage
+    },
+    {
+      path:'/register',
+      name:'registerPage',
+      component:registerPage
+    }
   ]
 })

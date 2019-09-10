@@ -283,7 +283,7 @@
         <el-col :span="16" :offset="1">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
-              <span>文件库</span>
+              <span>{{addTitle}}</span>
             </div>
             <div>
               <el-container>
@@ -372,13 +372,15 @@
         <el-col :span="5" :offset="1">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
-              <span>已选文件</span>
+              <span>{{addSelectTitle}}</span>
             </div>
             <div>
               <ul>
                 <li v-for="(item,index) in fileSelectedList" :key="index">
                   {{item.fileName}}
-                  <el-button type="text"><i class="el-icon-close"></i></el-button>
+                  <el-button type="text">
+                    <i class="el-icon-close"></i>
+                  </el-button>
                 </li>
               </ul>
             </div>
@@ -616,6 +618,8 @@ export default {
           { required: true, message: "请选择终端归属地", trigger: "change" }
         ]
       },
+      addSelectTitle: "已选容器",
+      addTitle: "容器库",
       fileList: [
         { id: 0, fileName: "软件名1", count: 50, time: "2019年8月20日" },
         { id: 1, fileName: "软件名2", count: 50, time: "2019年8月20日" },
@@ -980,6 +984,13 @@ export default {
       });
     },
     chooseFile(type) {
+      if (type === "app") {
+        this.addSelectTitle = "已选应用";
+        this.addTitle = "应用库";
+      } else {
+        this.addSelectTitle = "已选容器";
+        this.addTitle = "容器库";
+      }
       this.ifAddDialog = true;
     },
     submitFile() {},
@@ -1012,9 +1023,7 @@ export default {
       };
       this.searchFile("");
     },
-    handleSelectionChange(){
-
-    },
+    handleSelectionChange() {},
     handleOpen(key, keyPath) {
       console.log(key, keyPath);
     },
