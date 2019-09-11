@@ -26,7 +26,7 @@
                   </router-link>
                 </el-dropdown-item>
                 <el-dropdown-item icon="el-icon-circle-check-outline">
-                  <el-button type="text" @click="loginOut">
+                  <el-button type="text" @click="loginOut" style="color:#ffffff">
                     <i class="fa fa-power-off" aria-hidden="true"></i>登出
                   </el-button>
                 </el-dropdown-item>
