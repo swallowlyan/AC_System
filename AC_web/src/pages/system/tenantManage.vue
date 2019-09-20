@@ -55,11 +55,16 @@
               >
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column type="index" width="50" label="序号"></el-table-column>
-                <el-table-column prop="name" width="120" label="用户名"></el-table-column>
-                <el-table-column prop="orgId" label="所属租户"></el-table-column>
-                <el-table-column prop="firstOrg" label="上级租户"></el-table-column>
-                <el-table-column prop="status" label="用户状态"></el-table-column>
-                <el-table-column prop="permissions" label="用户权限"></el-table-column>
+                <el-table-column prop="tenantName" width="120" label="租户名"></el-table-column>
+                <el-table-column prop="parentId" label="上级租户"></el-table-column>
+                <el-table-column prop="status" label="租户状态">
+                  <template slot-scope="scope">
+                    <span v-if="scope.row.status===1" style="color:#67c23a">正常</span>
+                    <span v-if="scope.row.status===8" style="color:gray">停用</span>
+                    <span v-if="scope.row.status===9" style="color:red">删除</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="description" label="租户"></el-table-column>
                 <el-table-column prop="options" width="250" label="操作">
                   <template slot-scope="scope">
                     <el-button @click="removeRow(scope.row)" type="text" size="medium">移出本租户</el-button>
@@ -73,9 +78,15 @@
                     round
                     size="small"
                     icon="el-icon-refresh"
-                    @click="search(1,10)"
+                    @click="search(1)"
                   >刷新</el-button>
-                  <el-button type="primary" round size="small" icon="el-icon-plus" @click="addUserDialog()">添加用户</el-button>
+                  <el-button
+                    type="primary"
+                    round
+                    size="small"
+                    icon="el-icon-plus"
+                    @click="addUserDialog()"
+                  >添加用户</el-button>
                 </el-button-group>
                 <el-pagination
                   background
@@ -100,12 +111,19 @@
       <el-form :model="dialogForm" :rules="dialogRules" ref="dialogForm" label-width="100px">
         <el-form-item label="租户名称" prop="name">
           <el-col :span="15">
-            <el-input v-model="dialogForm.name" placeholder="请输入租户名称"></el-input>
+            <el-input v-model="dialogForm.tenantName" placeholder="请输入租户名称"></el-input>
           </el-col>
         </el-form-item>
-        <el-form-item label="上级租户" prop="orgId">
+        <el-form-item label="租户状态" prop="status">
           <el-col :span="15">
-            <span>{{selectedOrg}}</span>
+            <el-radio v-model="dialogForm.status" label="1">正常</el-radio>
+            <el-radio v-model="dialogForm.status" label="8">停用</el-radio>
+            <el-radio v-model="dialogForm.status" label="9">删除</el-radio>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="租户描述">
+          <el-col :span="15">
+            <el-input v-model="dialogForm.description" placeholder="请输入租户描述"></el-input>
           </el-col>
         </el-form-item>
       </el-form>
@@ -124,43 +142,43 @@
             </div>
             <div>
               <el-container>
-                  <el-header>
-                    <el-row>
-                      <el-col :span="16">
-                        <el-input v-model="searchUserItem" placeholder="请输入内容进行查询"></el-input>
-                      </el-col>
-                      <el-col :span="2" :offset="1">
-                        <el-button type="primary" icon="el-icon-search" @click="searchUser()">搜索</el-button>
-                      </el-col>
-                    </el-row>
-                  </el-header>
-                  <el-main>
-                    <!-- 用户列表 -->
-                    <el-row style="max-height: 300px;overflow:auto;">
-                      <el-table
-                        ref="multipleTable"
-                        :data="tableData"
-                        tooltip-effect="dark"
-                        style="width: 100%"
-                        @selection-change="dialogSelectionChange"
-                      >
-                        <el-table-column type="selection" width="55"></el-table-column>
-                        <el-table-column prop="name" label="用户名称" width="100"></el-table-column>
-                        <el-table-column prop="time" label="创建日期" width="180"></el-table-column>
-                      </el-table>
-                    </el-row>
-                    <el-row style="text-align: center;margin-top:10px;">
-                      <el-pagination
-                        @size-change="dialogSizeChange"
-                        @current-change="dialogCurrentChange"
-                        :current-page="dialogCurrentPage"
-                        :page-sizes="[5, 10, 15]"
-                        :page-size="dialogPageSize"
-                        layout="total, prev, pager, next, jumper"
-                        :total="dialogTotal"
-                      ></el-pagination>
-                    </el-row>
-                  </el-main>
+                <el-header>
+                  <el-row>
+                    <el-col :span="16">
+                      <el-input v-model="searchUserItem" placeholder="请输入内容进行查询"></el-input>
+                    </el-col>
+                    <el-col :span="2" :offset="1">
+                      <el-button type="primary" icon="el-icon-search" @click="searchUser()">搜索</el-button>
+                    </el-col>
+                  </el-row>
+                </el-header>
+                <el-main>
+                  <!-- 用户列表 -->
+                  <el-row style="max-height: 300px;overflow:auto;">
+                    <el-table
+                      ref="multipleTable"
+                      :data="tableData"
+                      tooltip-effect="dark"
+                      style="width: 100%"
+                      @selection-change="dialogSelectionChange"
+                    >
+                      <el-table-column type="selection" width="55"></el-table-column>
+                      <el-table-column prop="name" label="用户名称" width="100"></el-table-column>
+                      <el-table-column prop="time" label="创建日期" width="180"></el-table-column>
+                    </el-table>
+                  </el-row>
+                  <el-row style="text-align: center;margin-top:10px;">
+                    <el-pagination
+                      @size-change="dialogSizeChange"
+                      @current-change="dialogCurrentChange"
+                      :current-page="dialogCurrentPage"
+                      :page-sizes="[5, 10, 15]"
+                      :page-size="dialogPageSize"
+                      layout="total, prev, pager, next, jumper"
+                      :total="dialogTotal"
+                    ></el-pagination>
+                  </el-row>
+                </el-main>
               </el-container>
             </div>
           </el-card>
@@ -174,7 +192,9 @@
               <ul>
                 <li v-for="(item,index) in userSelectedList" :key="index">
                   {{item.username}}
-                  <el-button type="text"><i class="el-icon-close"></i></el-button>
+                  <el-button type="text">
+                    <i class="el-icon-close"></i>
+                  </el-button>
                 </li>
               </ul>
             </div>
@@ -222,95 +242,29 @@ export default {
           }
         ]
       },
-      tableData: [
-        {
-          name: "租户1",
-          orgId: "类型1",
-          tenantId: "厂商1",
-          firstOrg: "",
-          status: "0",
-          permissions: "管理员",
-          time:"2019年8月1日"
-        },
-        {
-          name: "租户1",
-          orgId: "类型1",
-          tenantId: "厂商1",
-          firstOrg: "",
-          status: "0",
-          permissions: "管理员",
-          time:"2019年8月1日"
-        },
-        {
-          name: "租户1",
-          orgId: "类型1",
-          tenantId: "厂商1",
-          firstOrg: "",
-          status: "0",
-          permissions: "管理员",
-          time:"2019年8月1日"
-        },
-        {
-          name: "租户1",
-          orgId: "类型1",
-          tenantId: "厂商1",
-          firstOrg: "",
-          status: "0",
-          permissions: "管理员",
-          time:"2019年8月1日"
-        },
-        {
-          name: "租户1",
-          orgId: "类型1",
-          tenantId: "厂商1",
-          firstOrg: "",
-          status: "0",
-          permissions: "管理员",
-          time:"2019年8月1日"
-          },
-        {
-          name: "租户1",
-          orgId: "类型1",
-          tenantId: "厂商1",
-          firstOrg: "",
-          status: "0",
-          permissions: "管理员",
-          time:"2019年8月1日"
-        }
-      ],
-      areaData: [
-        { index: "济南市公司", name: "济南市公司" },
-        {
-          index: "青岛市公司",
-          name: "青岛市公司",
-          child: [
-            { index: "市北区公司", name: "市北区公司" },
-            { index: "市南区公司", name: "市南区公司" }
-          ]
-        },
-        { index: "烟台市公司", name: "烟台市公司" }
-      ],
-      ifAreaChild:false,
+      tableData: [],
+      areaData: [],
+      ifAreaChild: false,
       selectedOrg: "",
       dialogTitle: "新增",
       dialogFormVisible: false,
       dialogForm: {
-        name: "",
-        orgId: ""
+        tenantName: "",
+        status: ""
       },
       dialogRules: {
-        name: [
-          { required: true, message: "请输入租户名称", trigger: "blur" },
-          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" }
-        ]
+        tenantName: [
+          { required: true, message: "请输入租户名称", trigger: "blur" }
+        ],
+        status: [{ required: true, message: "请选择租户状态", trigger: "blur" }]
       },
       userSelectedList: [
         { id: 0, username: "用户1", time: "2019年8月20日" },
         { id: 1, username: "用户2", time: "2019年8月20日" },
         { id: 2, username: "用户3", time: "2019年8月20日" }
       ],
-      dialogAddUser:false,
-      searchUserItem:"",
+      dialogAddUser: false,
+      searchUserItem: "",
       dialogCurrentPage: 1,
       dialogPageSize: 10,
       dialogTotal: 0,
@@ -323,9 +277,33 @@ export default {
     };
   },
   mounted() {
-    this.tableSize = this.tableData.length;
+    this.search(1);
   },
   methods: {
+    search(page) {
+      this.$axios
+        .get("/admin/tenant/list", {
+          pageSize: this.tableLimit,
+          pageIndex: page
+        })
+        .then(res => {
+          this.tableSize = res.data.data.total;
+          this.tableData = res.data.data.records;
+          //parent
+          this.areaData = [];
+          this.tableData.forEach(item => {
+            let parent = {};
+            parent.index = item.tenantId;
+            parent.name = item.tenantName;
+            if (parent.children !== undefined) {
+            }
+            this.areaData.push(parent);
+          });
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
     reset(formName) {
       this.$nextTick(() => {
         this.$refs[formName].resetFields();
@@ -368,25 +346,28 @@ export default {
         }
       }
     },
-    delRow(row) {
-      if (this.selectedRow.length > 0) {
+    delRow() {
+      if (this.selectedRow.length === 1) {
         this.$confirm("是否确定删除该租户?", "提示", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
         })
           .then(() => {
-            // this.$axios.post('',{
-            //   id:row.id,'
-            // }).then((res)=>{
-            //   this.search(page);
-            // }).catch((err)=>{
-            //   console.log(err);
-            // });
-            this.$message({
-              type: "success",
-              message: "删除成功!"
-            });
+            this.$axios
+              .delete(
+                "/admin/tenant/remove?tenantId=" + this.selectedRow[0].tenantId
+              )
+              .then(res => {
+                this.$message({
+                  type: "success",
+                  message: "删除成功!"
+                });
+                this.search(1);
+              })
+              .catch(err => {
+                console.log(err);
+              });
           })
           .catch(() => {
             this.$message({
@@ -396,27 +377,64 @@ export default {
           });
       } else {
         this.$message({
-          message: "请选择数据进行操作",
+          message: "请选择单条数据进行操作",
           type: "warning"
         });
       }
     },
+    //新增、修改租户
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          // this.$axios.post('',{
-          //   dialogForm,
-          // }).then((res)=>{
-          this.dialogFormVisible = false;
-          this.$message({
-            message: "编辑成功",
-            type: "success"
-          });
-          this.$refs[formName].resetFields();
-          //   this.search(page);
-          // }).catch((err)=>{
-          //   console.log(err);
-          // });
+          //新增
+          if (this.dialogTitle.indexOf("新增") > -1) {
+            let param = {};
+            param.parentId = this.selectedOrg;
+            Object.keys(this.dialogForm).forEach(item => {
+              param[item] = this.dialogForm[item];
+            });
+            this.$axios
+              .post("/admin/tenant/save?" + this.$qs.stringify(param))
+              .then(res => {
+                this.dialogFormVisible = false;
+                this.$message({
+                  message: "成功添加",
+                  type: "success"
+                });
+                this.$refs[formName].resetFields();
+                this.search(1);
+              })
+              .catch(err => {
+                console.log(err);
+              });
+          } else {
+            //修改
+            let param = {};
+            param.parentId = this.selectedOrg;
+            Object.keys(this.dialogForm).forEach(item => {
+              if (
+                item === "tenantId" ||
+                item === "tenantName" ||
+                item === "status" ||
+                item === "description"
+              )
+                param[item] = this.dialogForm[item];
+            });
+            this.$axios
+              .put("/admin/tenant/update?" + this.$qs.stringify(param))
+              .then(res => {
+                this.dialogFormVisible = false;
+                this.$message({
+                  message: "修改成功",
+                  type: "success"
+                });
+                this.$refs[formName].resetFields();
+                this.search(1);
+              })
+              .catch(err => {
+                console.log(err);
+              });
+          }
         } else {
           console.log("error submit!!");
           return false;
@@ -425,28 +443,22 @@ export default {
     },
     orgSelect(index, indexPath) {
       this.selectedOrg = index;
-      if(indexPath.length>1)this.ifAreaChild=true;
-      else this.ifAreaChild=false;
+      if (indexPath.length > 1) this.ifAreaChild = true;
+      else this.ifAreaChild = false;
     },
-    removeRow(){
-
+    removeRow() {},
+    addUserDialog() {
+      if (this.selectedRow.length === 1) {
+        this.dialogAddUser = true;
+      } else {
+        this.$message({
+          message: "请选择单条数据进行操作",
+          type: "warning"
+        });
+      }
     },
-    addUserDialog(){
-    if (this.selectedRow.length === 1) {
-          this.dialogAddUser = true;
-        } else {
-          this.$message({
-            message: "请选择单条数据进行操作",
-            type: "warning"
-          });
-        }
-    },
-    searchUser(){
-      
-    },
-    submitAddUser(){
-
-    },
+    searchUser() {},
+    submitAddUser() {},
     handleSizeChange(val) {
       this.tableLimit = val;
       this.search(1);
@@ -473,9 +485,7 @@ export default {
       };
       this.searchFile("");
     },
-    dialogSelectionChange(){
-
-    },
+    dialogSelectionChange() {},
     handleOpen(key, keyPath) {
       console.log(key);
     },
