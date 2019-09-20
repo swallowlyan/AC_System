@@ -6,25 +6,8 @@
         <el-form-item label="容器名称">
           <el-input v-model="searchItem.name" placeholder="请输入容器名称"></el-input>
         </el-form-item>
-        <el-form-item label="适用终端">
-          <el-select v-model="searchItem.terminalId" :placeholder="terminalArr.title">
-            <el-option
-              v-for="item in terminalArr.options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="容器状态">
-          <el-select v-model="searchItem.status" :placeholder="statusArr.status">
-            <el-option
-              v-for="item in statusArr.options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
+        <el-form-item label="容器类型">
+          <el-input v-model="searchItem.type" placeholder="请输入容器类型"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="search(1)">查询</el-button>
@@ -44,21 +27,27 @@
           >
             <el-table-column type="selection" width="55"></el-table-column>
             <el-table-column type="index" width="50" label="序号"></el-table-column>
-            <el-table-column prop="name" width="150" label="容器名称">
-                  <template slot-scope="scope">
-                    <el-button
-                      @click="detailRow(scope.row)"
-                      type="text"
-                      size="medium"
-                    >{{scope.row.name}}</el-button>
-                  </template>
+            <el-table-column prop="containerName" width="150" label="容器名称">
+              <template slot-scope="scope">
+                <el-button
+                  @click="detailRow(scope.row)"
+                  type="text"
+                  size="medium"
+                >{{scope.row.name}}</el-button>
+              </template>
             </el-table-column>
-            <el-table-column prop="version" label="版本"></el-table-column>
-            <el-table-column prop="createTime" width="100" label="发布时间"></el-table-column>
-            <el-table-column prop="factory" label="厂商"></el-table-column>
-            <el-table-column prop="terminal" label="适用终端"></el-table-column>
-            <el-table-column prop="status" label="容器状态"></el-table-column>
-            <el-table-column prop="instructions" width="150" label="功能说明"></el-table-column>
+            <el-table-column prop="containerType" label="容器类型"></el-table-column>
+            <el-table-column prop="releaseTime" width="100" label="发布时间"></el-table-column>
+            <el-table-column prop="developer" label="厂商"></el-table-column>
+            <el-table-column prop="version" label="容器版本"></el-table-column>
+            <el-table-column prop="bseVersion" label="基础包版本"></el-table-column>
+            <el-table-column prop="isIncrementPkg" label="是否升级包">
+               <template slot-scope="scope">
+                    <span v-if="scope.row.isIncrementPkg===0">否</span>
+                    <span v-if="scope.row.isIncrementPkg===0">是</span>
+               </template>
+            </el-table-column>
+            <el-table-column prop="description" width="150" label="说明"></el-table-column>
             <el-table-column prop="options" label="操作">
               <template slot-scope="scope">
                 <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
@@ -67,8 +56,7 @@
             </el-table-column>
           </el-table>
           <el-row style="margin:20px 0px">
-            <el-button type="primary" round><i class="el-icon-upload"></i>同步容器</el-button>
-            <!-- <el-button-group>
+            <el-button-group>
               <el-button
                 type="success"
                 round
@@ -83,7 +71,10 @@
                 icon="el-icon-plus"
                 @click="add('dialogForm')"
               >新增</el-button>
-            </el-button-group> -->
+            </el-button-group>
+            <el-button type="primary" round size="small">
+              <i class="el-icon-upload"></i>同步容器
+            </el-button>
             <el-pagination
               background
               @size-change="handleSizeChange"
@@ -101,57 +92,91 @@
     </el-row>
     <!-- 新增/编辑弹窗 -->
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible">
-      <el-form :model="dialogForm" :rules="dialogRules" ref="dialogForm" label-width="100px" class="acForm">
-        <el-col :span="24">
-          <el-form-item label="容器名称" prop="name">
-            <span v-if="ifDialogDetail">{{dialogForm.name}}</span>
-            <el-input v-if="!ifDialogDetail" v-model="dialogForm.name" placeholder="请输入容器名称"></el-input>
-        </el-form-item>
-        </el-col>
-        <el-col :span="24">
-        <el-form-item label="容器版本" prop="version">
-          <span v-if="ifDialogDetail">{{dialogForm.version}}</span>
-            <el-input v-if="!ifDialogDetail" v-model="dialogForm.version" placeholder="请输入容器版本"></el-input>
-        </el-form-item>
-        </el-col>
-        
-        <el-col :span="24">
-        <el-form-item label="厂商" prop="factory">
-          <span v-if="ifDialogDetail">{{dialogForm.factory}}</span>
-            <el-input v-if="!ifDialogDetail" v-model="dialogForm.factory" placeholder="请输入厂商"></el-input>
-        </el-form-item>
-        </el-col>
-        <el-col :span="24">
-        <el-form-item label="容器状态">
-          <span v-if="ifDialogDetail">{{dialogForm.status}}</span>
-          <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="0">离线</el-radio>
-          <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="1">在线</el-radio>
-        </el-form-item>
-        </el-col>
-        <el-col :span="24" style="height:100px">
-        <el-form-item label="功能说明" class="lineHeight">
-          <span v-if="ifDialogDetail">{{dialogForm.instructions}}</span>
-          <el-input v-if="!ifDialogDetail" type="textarea" style="height:100px" v-model="dialogForm.instructions"></el-input>
-        </el-form-item>
-        </el-col>
-        <el-col :span="24">
-        <el-form-item label="适用终端" prop="terminal">
-          <span v-if="ifDialogDetail">{{dialogForm.terminal}}</span>
-            <el-select
-             v-if="!ifDialogDetail"
-              v-model="dialogForm.terminal"
-              :placeholder="terminalArr.title"
-              style="width:100%"
-            >
-              <el-option
-                v-for="item in terminalArr.options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>
-        </el-form-item>
-        </el-col>
+      <el-form
+        :model="dialogForm"
+        :rules="dialogRules"
+        ref="dialogForm"
+        label-width="100px"
+        class="acForm"
+      >
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="容器ID" prop="containerId">
+              <span v-if="ifDialogDetail">{{dialogForm.containerId}}</span>
+              <el-input
+                v-if="!ifDialogDetail"
+                v-model="dialogForm.containerId"
+                placeholder="请输入容器ID"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="容器名称" prop="containerName">
+              <span v-if="ifDialogDetail">{{dialogForm.containerName}}</span>
+              <el-input
+                v-if="!ifDialogDetail"
+                v-model="dialogForm.containerName"
+                placeholder="请输入容器名称"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="容器类型">
+              <span v-if="ifDialogDetail">{{dialogForm.containerType}}</span>
+              <el-input
+                v-if="!ifDialogDetail"
+                v-model="dialogForm.containerType"
+                placeholder="请输入容器类型"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="容器版本">
+              <span v-if="ifDialogDetail">{{dialogForm.version}}</span>
+              <el-input v-if="!ifDialogDetail" v-model="dialogForm.version" placeholder="请输入容器版本"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="基础包版本">
+              <span v-if="ifDialogDetail">{{dialogForm.bseVersion}}</span>
+              <el-input
+                v-if="!ifDialogDetail"
+                v-model="dialogForm.bseVersion"
+                placeholder="请输入基础包版本"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="容器url">
+              <span v-if="ifDialogDetail">{{dialogForm.url}}</span>
+              <el-input v-if="!ifDialogDetail" v-model="dialogForm.url" placeholder="请输入容器url"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="是否升级包" prop="isIncrementPkg">
+              <span v-if="ifDialogDetail">{{dialogForm.isIncrementPkg}}</span>
+              <el-radio v-if="!ifDialogDetail" v-model="dialogForm.isIncrementPkg" label="0">否</el-radio>
+              <el-radio v-if="!ifDialogDetail" v-model="dialogForm.isIncrementPkg" label="1">是</el-radio>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24" style="height:100px">
+            <el-form-item label="简要说明" class="lineHeight">
+              <span v-if="ifDialogDetail">{{dialogForm.description}}</span>
+              <el-input
+                v-if="!ifDialogDetail"
+                type="textarea"
+                style="height:100px"
+                v-model="dialogForm.description"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -170,8 +195,7 @@ export default {
       selectedRow: [],
       searchItem: {
         name: "",
-        terminalId: "",
-        status: ""
+        type: ""
       },
       terminalArr: {
         title: "请选择终端",
@@ -203,96 +227,56 @@ export default {
           }
         ]
       },
-      tableData: [
-        {
-          name: "MathCAD",
-          version: "1.0",
-          createTime: "2019-08-01",
-          factory: "厂商1",
-          terminal: "终端1",
-          status: "在线",
-          instructions: "测试用例"
-        },
-        {
-          name: "MathCAD",
-          version: "1.0",
-          createTime: "2019-08-01",
-          factory: "厂商1",
-          terminal: "终端1",
-          status: "在线",
-          instructions: "测试用例"
-        },
-        {
-          name: "MathCAD",
-          version: "1.0",
-          createTime: "2019-08-01",
-          factory: "厂商1",
-          terminal: "终端1",
-          status: "在线",
-          instructions: "测试用例"
-        },
-        {
-          name: "MathCAD",
-          version: "1.0",
-          createTime: "2019-08-01",
-          factory: "厂商1",
-          terminal: "终端1",
-          status: "在线",
-          instructions: "测试用例"
-        },
-        {
-          name: "MathCAD",
-          version: "1.0",
-          createTime: "2019-08-01",
-          factory: "厂商1",
-          terminal: "终端1",
-          status: "在线",
-          instructions: "测试用例"
-        }
-      ],
+      tableData: [],
       dialogTitle: "新增",
       dialogFormVisible: false,
-      ifDialogDetail:false,
+      ifDialogDetail: false,
       dialogForm: {
-        name: "",
+        containerId: "",
+        containerName: "",
+        containerType: "",
+        isIncrementPkg: "",
+        bseVersion: "",
         version: "",
-        factory: "",
-        terminal: "",
-        status: "0",
-        instructions: ""
+        url: "",
+        logo: "",
+        description: ""
       },
       dialogRules: {
-        name: [
-          { required: true, message: "请输入容器名称", trigger: "blur" },
+        containerId: [
+          { required: true, message: "请输入容器ID", trigger: "blur" }
         ],
-        version: [
-          { required: true, message: "请选择容器版本", trigger: "change" }
+        containerName: [
+          { required: true, message: "请输入容器名称", trigger: "blur" }
         ],
-        terminal: [
-          { required: true, message: "请选择适用终端", trigger: "change" }
-        ],
-        factory: [{ required: true, message: "请输入厂商", trigger: "change" }]
+        isIncrementPkg: [
+          { required: true, message: "请选择是否升级", trigger: "change" }
+        ]
       }
     };
   },
   mounted() {
-    this.tableSize = this.tableData.length;
+    this.search(1);
   },
   methods: {
     search(page) {
-      // this.$axios.post('',{
-      //   id:this.searchItem.id,
-      //   version:this.searchItem.version,
-      //   ascription:this.searchItem.ascription,
-      //   limit:this.tableLimit,
-      //   page:page,
-      //   sort:'asc'
-      // }).then((res)=>{
-      //   this.tableSize=res.data.length;
-      //   this.tableData=res.data;
-      // }).catch((err)=>{
-      //   console.log(err);
-      // });
+      let condition={};
+      condition.name=this.searchItem.name;
+      condition.type=this.searchItem.type;
+      this.$axios.post(
+        '/admin/containers/files',
+        {condition:condition,
+        pageSize:this.tableLimit,
+        pageIndex:page,
+        sort:["desc"]
+      },
+      {headers: {"Content-Type": "application/json"}}
+      ).then((res)=>{
+        this.tableSize=res.data.totalRecord;
+        this.tableData=res.data.data;
+      }).catch((err)=>{
+        console.log(err);
+      });
     },
     reset(formName) {
       this.$refs[formName].resetFields();
@@ -303,18 +287,15 @@ export default {
     },
     add(formName) {
       this.dialogTitle = "新增容器";
-      this.ifDialogDetail=false;
+      this.ifDialogDetail = false;
       this.dialogForm = {};
       this.dialogFormVisible = true;
-      this.$nextTick(() => {
-        this.$refs[formName].resetFields();
-      });
     },
-    detailRow(row){
-        this.dialogTitle = "容器详细信息";
-        this.ifDialogDetail=true;
-        this.dialogForm = row;
-        this.dialogFormVisible = true;
+    detailRow(row) {
+      this.dialogTitle = "容器详细信息";
+      this.ifDialogDetail = true;
+      this.dialogForm = row;
+      this.dialogFormVisible = true;
     },
     editRow(row) {
       // if (this.selectedRow.length === 0 || this.selectedRow.length > 1) {
@@ -323,18 +304,18 @@ export default {
       //     type: "warning"
       //   });
       // } else {
-        //获取当前数据内容
-        // this.$axios.post('',{
-        //   id:this.selectedRow[0].id,'
-        // }).then((res)=>{
-        //   this.search(page);
-        // }).catch((err)=>{
-        //   console.log(err);
-        // });
-        this.dialogTitle = "编辑终端";
-        this.ifDialogDetail=false;
-        this.dialogForm = row;
-        this.dialogFormVisible = true;
+      //获取当前数据内容
+      // this.$axios.post('',{
+      //   id:this.selectedRow[0].id,'
+      // }).then((res)=>{
+      //   this.search(page);
+      // }).catch((err)=>{
+      //   console.log(err);
+      // });
+      this.dialogTitle = "编辑终端";
+      this.ifDialogDetail = false;
+      this.dialogForm = row;
+      this.dialogFormVisible = true;
       // }
     },
     delRow(row) {
@@ -344,50 +325,63 @@ export default {
       //     type: "warning"
       //   });
       // } else {
-        this.$confirm("是否确定删除该容器?", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
-          .then(() => {
-            let ids = [];
-            // this.$axios.post('',{
-            //   id:row.id,'
-            // }).then((res)=>{
-            //   this.search(page);
-            // }).catch((err)=>{
-            //   console.log(err);
-            // });
+      this.$confirm("是否确定删除该容器?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          let ids = [];
+          // this.$axios.post('',{
+          //   id:row.id,'
+          // }).then((res)=>{
+          //   this.search(page);
+          // }).catch((err)=>{
+          //   console.log(err);
+          // });
 
-            this.$message({
-              type: "success",
-              message: "删除成功!"
-            });
-          })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消删除"
-            });
+          this.$message({
+            type: "success",
+            message: "删除成功!"
           });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
       // }
     },
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          // this.$axios.post('',{
-          //   dialogForm,
-          // }).then((res)=>{
-          this.dialogFormVisible = false;
-          this.$message({
-            message: "编辑成功",
-            type: "success"
-          });
-          this.$refs[formName].resetFields();
-          //   this.search(page);
-          // }).catch((err)=>{
-          //   console.log(err);
-          // });
+          let config = {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          };
+          this.$axios
+            .post("/admin/containers/add", this.dialogForm, config)
+            .then(res => {
+              if (res.data.success) {
+                this.dialogFormVisible = false;
+                this.$message({
+                  message: "添加成功",
+                  type: "success"
+                });
+                this.$refs[formName].resetFields();
+                this.search(1);
+              }else{
+                this.$message({
+                  message: "添加失败",
+                  type: "error"
+                });
+              }
+            })
+            .catch(err => {
+              console.log(err);
+            });
         } else {
           console.log("error submit!!");
           return false;

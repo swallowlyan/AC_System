@@ -3,11 +3,11 @@
   <div id="applicationManage">
     <el-row>
       <el-form :inline="true" :model="searchItem" ref="searchItem">
-        <el-form-item label="所属终端">
-          <el-input v-model="searchItem.terminalId" placeholder="请输入终端ID"></el-input>
+        <el-form-item label="微应用名称">
+          <el-input v-model="searchItem.name" placeholder="请输入微应用名称"></el-input>
         </el-form-item>
-        <el-form-item label="所属容器">
-          <el-input v-model="searchItem.container" placeholder="请输入终端ID"></el-input>
+        <el-form-item label="所属类型">
+          <el-input v-model="searchItem.type" placeholder="请输入类型"></el-input>
         </el-form-item>
         <el-form-item label="应用状态">
           <el-select v-model="searchItem.status" :placeholder="statusArr.title">
@@ -37,7 +37,7 @@
           >
             <el-table-column type="selection" width="55"></el-table-column>
             <el-table-column type="index" width="50" label="序号"></el-table-column>
-            <el-table-column prop="name" width="120" label="应用名">
+            <el-table-column prop="appName" width="120" label="应用名">
               <template slot-scope="scope">
                 <el-button
                   @click="detailRow(scope.row)"
@@ -46,10 +46,10 @@
                 >{{scope.row.name}}</el-button>
               </template>
             </el-table-column>
-            <el-table-column prop="type" label="应用类型"></el-table-column>
-            <el-table-column prop="factory" width="150" label="应用厂商"></el-table-column>
+            <el-table-column prop="appType" label="应用类型"></el-table-column>
+            <el-table-column prop="vendor" width="150" label="供应商"></el-table-column>
             <el-table-column prop="version" label="应用版本"></el-table-column>
-            <el-table-column prop="createTime" width="120" label="发布时间"></el-table-column>
+            <el-table-column prop="appReleaseTime" width="120" label="发布时间"></el-table-column>
             <el-table-column prop="containerType" width="120" label="容器类型"></el-table-column>
             <el-table-column prop="containerVersion" label="容器版本"></el-table-column>
             <el-table-column prop="options" label="操作">
@@ -166,8 +166,8 @@ export default {
       tableLimit: 10,
       selectedRow: [],
       searchItem: {
-        terminalId: "",
-        container: "",
+        name: "",
+        type: "",
         status: ""
       },
       statusArr: {
@@ -217,62 +217,7 @@ export default {
           }
         ]
       },
-      tableData: [
-        {
-          name: "应用1",
-          type: "类型1",
-          factory: "厂商1",
-          version: "1.0",
-          createTime: "2019-08-10",
-          containerType: "容器类型1",
-          containerVersion: "1.0"
-        },
-        {
-          name: "应用1",
-          type: "类型1",
-          factory: "厂商1",
-          version: "1.0",
-          createTime: "2019-08-10",
-          containerType: "容器类型1",
-          containerVersion: "1.0"
-        },
-        {
-          name: "应用1",
-          type: "类型1",
-          factory: "厂商1",
-          version: "1.0",
-          createTime: "2019-08-10",
-          containerType: "容器类型1",
-          containerVersion: "1.0"
-        },
-        {
-          name: "应用1",
-          type: "类型1",
-          factory: "厂商1",
-          version: "1.0",
-          createTime: "2019-08-10",
-          containerType: "容器类型1",
-          containerVersion: "1.0"
-        },
-        {
-          name: "应用1",
-          type: "类型1",
-          factory: "厂商1",
-          version: "1.0",
-          createTime: "2019-08-10",
-          containerType: "容器类型1",
-          containerVersion: "1.0"
-        },
-        {
-          name: "应用1",
-          type: "类型1",
-          factory: "厂商1",
-          version: "1.0",
-          createTime: "2019-08-10",
-          containerType: "容器类型1",
-          containerVersion: "1.0"
-        }
-      ],
+      tableData: [],
       dialogTitle: "新增",
       dialogFormVisible: false,
       ifDialogDetail: false,
@@ -308,23 +253,18 @@ export default {
     };
   },
   mounted() {
-    this.tableSize = this.tableData.length;
+    this.search(1);
   },
   methods: {
     search(page) {
-      // this.$axios.post('',{
-      //   id:this.searchItem.id,
-      //   version:this.searchItem.version,
-      //   ascription:this.searchItem.ascription,
-      //   limit:this.tableLimit,
-      //   page:page,
-      //   sort:'asc'
-      // }).then((res)=>{
-      //   this.tableSize=res.data.length;
-      //   this.tableData=res.data;
-      // }).catch((err)=>{
-      //   console.log(err);
-      // });
+      this.$axios.post('/admin/app/files?'+"pageIndex="+page+"&pageSize="+this.tableLimit,{appInfo:this.searchItem},
+      {headers: {"Content-Type": "application/json"}}
+      ).then((res)=>{
+        this.tableSize=res.data.data.total;
+        this.tableData=res.data.data.records;
+      }).catch((err)=>{
+        console.log(err);
+      });
     },
     reset(formName) {
       this.$refs[formName].resetFields();

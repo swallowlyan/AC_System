@@ -32,28 +32,14 @@
       <el-tab-pane label="详细列表" name="detailView">
         <el-row>
           <el-form :inline="true" :model="searchItem" ref="searchItem">
-            <el-form-item label="终端ID" prop="id">
-              <el-input v-model="searchItem.id" placeholder="请输入终端ID"></el-input>
+            <el-form-item label="终端ID">
+              <el-input v-model="searchItem.terminalId" placeholder="请输入终端ID"></el-input>
             </el-form-item>
-            <el-form-item prop="version" label="版本号">
-              <el-select v-model="searchItem.version" :placeholder="versionArr.title">
-                <el-option
-                  v-for="item in versionArr.options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                ></el-option>
-              </el-select>
+            <el-form-item prop="name" label="设备名称">
+              <el-input v-model="searchItem.name" placeholder="请输入设备名称"></el-input>
             </el-form-item>
-            <el-form-item prop="ascription" label="归属地">
-              <el-select v-model="searchItem.ascription" :placeholder="ascriptionArr.title">
-                <el-option
-                  v-for="item in ascriptionArr.options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                ></el-option>
-              </el-select>
+            <el-form-item prop="neType" label="设备类型">
+              <el-input v-model="searchItem.neType" placeholder="请输入设备类型"></el-input>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="search(1)">查询</el-button>
@@ -73,30 +59,30 @@
               >
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column type="index" width="50" label="序号"></el-table-column>
-                <el-table-column prop="id" label="终端ID">
+                <el-table-column prop="terminalId" label="终端ID">
                   <template slot-scope="scope">
                     <el-button
                       @click="detailRow(scope.row)"
                       type="text"
                       size="medium"
-                    >{{scope.row.id}}</el-button>
+                    >{{scope.row.terminalId}}</el-button>
                   </template>
                 </el-table-column>
-                <el-table-column prop="version" label="终端版本"></el-table-column>
-                <el-table-column prop="ability" label="终端能力"></el-table-column>
-                <el-table-column prop="container" label="运行容器"></el-table-column>
+                <el-table-column prop="terminalName" label="终端名称"></el-table-column>
+                <el-table-column prop="ip" label="终端ip"></el-table-column>
+                <el-table-column prop="mac" label="mac地址"></el-table-column>
+                <el-table-column prop="terminalType" label="设备类型"></el-table-column>
                 <el-table-column prop="status" label="终端状态">
                   <template slot-scope="scope">
-                    <span v-if="scope.row.status==='1'" style="color:#67c23a">正常</span>
-                    <span v-if="scope.row.status==='0'" style="color:red">离线</span>
-                    <span
-                      v-if="scope.row.status!=='0'&&scope.row.status!=='1'"
-                      style="color:orange"
-                    >未确认</span>
+                    <span v-if="scope.row.status===0" style="color:#67c23a">正常</span>
+                    <span v-if="scope.row.status===1" style="color:orange">告警</span>
+                    <span v-if="scope.row.status===2" style="color:red">故障</span>
+                    <span v-if="scope.row.status===3" style="color:gray">离线</span>
+                    <span v-if="scope.row.status===4" style="color:#000">未注册</span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="ascription" label="归属地"></el-table-column>
-                <el-table-column prop="time" width="180" label="终端时间"></el-table-column>
+                <el-table-column prop="vendor" label="制造商"></el-table-column>
+                <el-table-column prop="activeTime" width="180" label="激活时间"></el-table-column>
                 <el-table-column prop="options" label="操作" width="200">
                   <template slot-scope="scope">
                     <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
@@ -155,68 +141,93 @@
         >
           <el-row>
             <el-col :span="12">
-              <el-form-item label="终端ID" prop="name">
-                <span v-if="ifDialogDetail">{{dialogForm.id}}</span>
-                <el-input v-if="!ifDialogDetail" v-model="dialogForm.id" placeholder="请输入终端ID"></el-input>
+              <el-form-item label="终端ID" prop="terminalId">
+                <span v-if="ifDialogDetail">{{dialogForm.terminalId}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.terminalId"
+                  placeholder="请输入终端ID"
+                ></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="终端版本" prop="version">
-                <span v-if="ifDialogDetail">{{dialogForm.version}}</span>
-                <el-select
+              <el-form-item label="终端名称" prop="terminalName">
+                <span v-if="ifDialogDetail">{{dialogForm.terminalName}}</span>
+                <el-input
                   v-if="!ifDialogDetail"
-                  v-model="dialogForm.version"
-                  placeholder="请选择终端版本"
-                  style="width:100%"
-                >
-                  <el-option
-                    v-for="item in versionArr.options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  ></el-option>
-                </el-select>
+                  v-model="dialogForm.terminalName"
+                  placeholder="请输入终端名称"
+                ></el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="终端能力" prop="ability">
-                <span v-if="ifDialogDetail">{{dialogForm.ability}}</span>
-                <el-input v-if="!ifDialogDetail" v-model="dialogForm.ability" placeholder="请输入终端能力"></el-input>
+              <el-form-item label="终端类型" prop="terminalType">
+                <span v-if="ifDialogDetail">{{dialogForm.terminalType}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.terminalType"
+                  placeholder="请输入终端类型"
+                ></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="终端状态">
-                <span v-if="ifDialogDetail">{{dialogForm.status}}</span>
-                <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="0">离线</el-radio>
-                <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="1">在线</el-radio>
+              <el-form-item label="终端状态" prop="status">
+                <!-- 详情状态 -->
+                <span v-if="ifDialogDetail&&dialogForm.status===0">正常</span>
+                <span v-if="ifDialogDetail&&dialogForm.status===1">告警</span>
+                <span v-if="ifDialogDetail&&dialogForm.status===2">故障</span>
+                <span v-if="ifDialogDetail&&dialogForm.status===3">离线</span>
+                <span v-if="ifDialogDetail&&dialogForm.status===4">未注册</span>
+                <!-- 编辑状态 -->
+                <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="0">正常</el-radio>
+                <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="1">告警</el-radio>
+                <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="2">故障</el-radio>
+                <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="3">离线</el-radio>
+                <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="4">未注册</el-radio>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="终端归属地" prop="ascription">
-                <span v-if="ifDialogDetail">{{dialogForm.ascription}}</span>
-                <el-select
-                  v-if="!ifDialogDetail"
-                  v-model="dialogForm.ascription"
-                  placeholder="请选择终端归属地"
-                  style="width:100%"
-                >
-                  <el-option
-                    v-for="item in ascriptionArr.options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  ></el-option>
-                </el-select>
+              <el-form-item label="终端ip">
+                <span v-if="ifDialogDetail">{{dialogForm.ip}}</span>
+                <el-input v-if="!ifDialogDetail" v-model="dialogForm.ip" placeholder="请输入终端ip"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="12">
+              <el-form-item label="mac地址">
+                <span v-if="ifDialogDetail">{{dialogForm.mac}}</span>
+                <el-input v-if="!ifDialogDetail" v-model="dialogForm.mac" placeholder="请输入mac地址"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row></el-row>
+          <el-row v-if="ifDialogDetail">
+            <el-col :span="24">
               <el-form-item label="终端时间">
-                <span>{{dialogForm.time}}</span>
-                <el-button v-if="!ifDialogDetail" type="primary" plain size="mini">对时</el-button>
+                <span style="float:left">{{dialogForm.ActiveTime}}</span>
+                <el-button
+                  type="primary"
+                  plain
+                  size="mini"
+                  style="float:left"
+                  @click="pairRow(dialogForm)"
+                >对时</el-button>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="描述信息">
+                <span v-if="ifDialogDetail">{{dialogForm.description}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.description"
+                  type="textarea"
+                  placeholder="请输入描述信息"
+                ></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -406,12 +417,11 @@ export default {
       activeTab: "allView",
       tableSize: 0,
       tableLimit: 10,
-
       selectedRow: [],
       searchItem: {
-        id: "",
-        version: "",
-        ascription: ""
+        terminalId: "",
+        name: "",
+        neType: ""
       },
       versionArr: {
         title: "请选择版本号",
@@ -513,109 +523,35 @@ export default {
         { name: "广西", value: 59 },
         { name: "海南", value: 14 }
       ],
-      tableData: [
-        {
-          id: "MathCAD",
-          version: "1.0",
-          ability: "test1",
-          container: "test1",
-          status: "1",
-          ascription: "北京",
-          time: "2019年8月19日 13:20:36",
-          appArr: [
-            "test",
-            "test",
-            "test",
-            "test",
-            "test",
-            "test",
-            "test",
-            "test"
-          ],
-          containerArr: ["test", "test", "test", "test", "test", "test"]
-        },
-        {
-          id: "MathCAD",
-          version: "2.0",
-          ability: "test2",
-          container: "test2",
-          status: "0",
-          ascription: "北京",
-          time: "2019年8月19日 13:20:36"
-        },
-        {
-          id: "MathCAD",
-          version: "1.2",
-          ability: "test3",
-          container: "test3",
-          status: "",
-          ascription: "北京",
-          time: "2019年8月19日 13:20:36"
-        },
-        {
-          id: "MathCAD",
-          version: "1.4",
-          ability: "test4",
-          container: "test4",
-          status: "1",
-          ascription: "北京",
-          time: "2019年8月19日 13:20:36"
-        },
-        {
-          id: "MathCAD",
-          version: "1.0",
-          ability: "test1",
-          container: "test1",
-          status: "0",
-          ascription: "北京",
-          time: "2019年8月19日 13:20:36"
-        },
-        {
-          id: "MathCAD",
-          version: "2.0",
-          ability: "test2",
-          container: "test2",
-          status: "",
-          ascription: "北京",
-          time: "2019年8月19日 13:20:36"
-        },
-        {
-          id: "MathCAD",
-          version: "1.2",
-          ability: "test3",
-          container: "test3",
-          status: "",
-          ascription: "北京",
-          time: "2019年8月19日 13:20:36"
-        }
-      ],
+      tableData: [],
       dialogTitle: "新增",
       dialogFormVisible: false,
       ifDialogDetail: false,
       ifAddDialog: false,
       dialogForm: {
-        id: "",
-        version: "",
-        ability: "",
-        time: "",
-        status: "0",
-        ascription: "",
+        terminalId: "",
+        terminalName: "",
+        terminalType: "",
+        status: "",
+        ip: "",
+        mac: "",
+        ActiveTime: "",
+        description: "",
         appArr: [],
         containerArr: []
       },
       dialogRules: {
-        id: [
-          { required: true, message: "请输入终端ID", trigger: "blur" },
-          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" }
+        terminalId: [
+          { required: true, message: "请输入终端ID", trigger: "blur" }
         ],
-        version: [
-          { required: true, message: "请选择终端版本", trigger: "change" }
+        terminalName: [
+          { required: true, message: "请输入终端名称", trigger: "blur" }
         ],
-        ability: [
-          { required: true, message: "请输入终端能力", trigger: "change" }
+        terminalType: [
+          { required: true, message: "请输入终端类型", trigger: "blur" }
         ],
-        ascription: [
-          { required: true, message: "请选择终端归属地", trigger: "change" }
+        status: [
+          { required: true, message: "请选择终端状态", trigger: "blur" }
         ]
       },
       addSelectTitle: "已选容器",
@@ -647,24 +583,26 @@ export default {
     };
   },
   mounted() {
-    this.tableSize = this.tableData.length;
+    this.search(1);
     this.drawMap();
   },
   methods: {
     search(page) {
-      // this.$axios.post('',{
-      //   id:this.searchItem.id,
-      //   version:this.searchItem.version,
-      //   ascription:this.searchItem.ascription,
-      //   limit:this.tableLimit,
-      //   page:page,
-      //   sort:'asc'
-      // }).then((res)=>{
-      //   this.tableSize=res.data.length;
-      //   this.tableData=res.data;
-      // }).catch((err)=>{
-      //   console.log(err);
-      // });
+      this.$axios
+        .post("/admin/terminal/devices/info", {
+          terminalId: this.searchItem.terminalId,
+          name: this.searchItem.name,
+          neType: this.searchItem.neType,
+          pageSize: this.tableLimit,
+          pageIndex: page
+        })
+        .then(res => {
+          this.tableSize = res.data.data.totalRecord;
+          this.tableData = res.data.data.data.records;
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
     reset(formName) {
       this.$refs[formName].resetFields();
@@ -907,21 +845,13 @@ export default {
       this.ifDialogDetail = false;
       this.dialogForm = {};
       this.dialogFormVisible = true;
-      this.$nextTick(() => {
-        this.$refs[formName].resetFields();
-      });
+      // this.$nextTick(() => {
+      //   this.$refs[formName].resetFields();
+      // });
     },
     //编辑
     editRow(row) {
       this.ifDialogDetail = false;
-      //获取当前数据内容
-      // this.$axios.post('',{
-      //   id:this.selectedRow[0].id,'
-      // }).then((res)=>{
-      //   this.search(page);
-      // }).catch((err)=>{
-      //   console.log(err);
-      // });
       this.ifAddDialog = false;
       this.dialogTitle = "编辑终端";
       this.dialogForm = row;
@@ -935,17 +865,28 @@ export default {
         type: "warning"
       })
         .then(() => {
-          // this.$axios.post('',{
-          //   id:row.id,'
-          // }).then((res)=>{
-          //   this.search(page);
-          // }).catch((err)=>{
-          //   console.log(err);
-          // });
-          this.$message({
+            let arr = [];
+            arr.push(row);
+            this.$axios
+              .delete("/admin/terminal/devices",{data:arr})
+              .then(res => {
+                if (res.data.success) {
+                  this.$message({
             type: "success",
             message: "删除成功!"
           });
+                  this.search(1);
+                } else {
+                  this.$message({
+                    message: "删除失败",
+                    type: "error"
+                  });
+                }
+              })
+              .catch(err => {
+                console.log(err);
+              });
+          
         })
         .catch(() => {
           this.$message({
@@ -957,26 +898,86 @@ export default {
     //升级
     updateRow(row) {},
     //对时
-    pairRow(row) {},
+    pairRow(row) {
+      this.$axios
+              .put("/admin/terminal/devices/clocksyn/" + row.terminalId)
+              .then(res => {
+                if (res.data.success) {
+                  this.$message({
+                    message: "对时成功",
+                    type: "success"
+                  });
+                } else {
+                  this.$message({
+                    message: "对时失败",
+                    type: "error"
+                  });
+                }
+              })
+              .catch(err => {
+                console.log(err);
+              });
+    },
     //批量导入
     importRows() {},
     //提交新增/编辑
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          // this.$axios.post('',{
-          //   dialogForm,
-          // }).then((res)=>{
-          this.dialogFormVisible = false;
-          this.$message({
-            message: "编辑成功",
-            type: "success"
-          });
-          this.$refs[formName].resetFields();
-          //   this.search(page);
-          // }).catch((err)=>{
-          //   console.log(err);
-          // });
+          //新增
+          if (this.dialogTitle.indexOf("新增") > -1) {
+            let config = {
+              headers: {
+                "Content-Type": "application/json"
+              }
+            };
+            let arr = [];
+            arr.push(this.dialogForm);
+            this.$axios
+              .post("/admin/terminal/devices", arr, config)
+              .then(res => {
+                if (res.data.success) {
+                  this.dialogFormVisible = false;
+                  this.$message({
+                    message: "成功",
+                    type: "success"
+                  });
+                  this.$refs[formName].resetFields();
+                  this.search(1);
+                } else {
+                  this.$message({
+                    message: "失败",
+                    type: "error"
+                  });
+                }
+              })
+              .catch(err => {
+                console.log(err);
+              });
+          } else {
+            //编辑
+            var editData=this.$qs.stringify(this.dialogForm);
+            this.$axios
+              .put("/admin/terminal/devices/" + this.dialogForm.terminalId+"?"+editData)
+              .then(res => {
+                if (res.data.success) {
+                  this.dialogFormVisible = false;
+                  this.$message({
+                    message: "成功",
+                    type: "success"
+                  });
+                  this.$refs[formName].resetFields();
+                } else {
+                  this.$message({
+                    message: "失败",
+                    type: "error"
+                  });
+                }
+              })
+              .catch(err => {
+                console.log(err);
+              });
+          }
         } else {
           console.log("error submit!!");
           return false;

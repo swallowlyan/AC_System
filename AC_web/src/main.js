@@ -12,6 +12,7 @@ import 'font-awesome/css/font-awesome.css'
 
 /////////////////////
 Vue.prototype.$axios = axios;
+Vue.prototype.$qs = qs;
 
 Vue.config.productionTip = false;
 axios.defaults.baseURL = "/api";
