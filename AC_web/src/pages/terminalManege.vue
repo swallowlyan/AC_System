@@ -389,7 +389,7 @@
               <ul>
                 <li v-for="(item,index) in fileSelectedList" :key="index">
                   {{item.fileName}}
-                  <el-button type="text">
+                  <el-button type="text" @click="removeSelected(item)">
                     <i class="el-icon-close"></i>
                   </el-button>
                 </li>
@@ -462,8 +462,8 @@ export default {
           title: "终端总数",
           timeTitle: "当前",
           smallTitle: "接入终端总数",
-          count: "236,495",
-          percent: "98%",
+          count: "0",
+          percent: "0%",
           icon: "fa fa-long-arrow-up",
           color: "blue"
         },
@@ -471,26 +471,26 @@ export default {
           title: "在线终端总数",
           timeTitle: "当前",
           smallTitle: "当前在线终端总数",
-          count: "235,964",
-          percent: "98%",
+          count: "0",
+          percent: "0%",
           icon: "fa fa-long-arrow-up",
           color: "green"
         },
         {
-          title: "活跃用户",
+          title: "活跃终端总数",
           timeTitle: "月",
-          smallTitle: "8月活跃用户总数",
-          count: "6,956",
-          percent: "98%",
+          smallTitle: "活跃终端",
+          count: "0",
+          percent: "0%",
           icon: "fa fa-long-arrow-up",
           color: "greenAll"
         },
         {
-          title: "应用总数",
+          title: "未证实终端总数",
           timeTitle: "当前",
-          smallTitle: "平台提供应用总数",
-          count: "3,235",
-          percent: "98%",
+          smallTitle: "未证实终端",
+          count: "0",
+          percent: "0%",
           icon: "fa fa-long-arrow-up",
           color: "orange"
         }
@@ -550,9 +550,7 @@ export default {
         terminalType: [
           { required: true, message: "请输入终端类型", trigger: "blur" }
         ],
-        status: [
-          { required: true, message: "请选择终端状态", trigger: "blur" }
-        ]
+        status: [{ required: true, message: "请选择终端状态", trigger: "blur" }]
       },
       addSelectTitle: "已选容器",
       addTitle: "容器库",
@@ -565,11 +563,7 @@ export default {
         { id: 5, fileName: "软件名6", count: 50, time: "2019年8月20日" },
         { id: 6, fileName: "软件名7", count: 50, time: "2019年8月20日" }
       ],
-      fileSelectedList: [
-        { id: 0, fileName: "软件名1", count: 50, time: "2019年8月20日" },
-        { id: 1, fileName: "软件名2", count: 50, time: "2019年8月20日" },
-        { id: 2, fileName: "软件名3", count: 50, time: "2019年8月20日" }
-      ],
+      fileSelectedList: [],
       searchFileItem: "",
       fileCurrentPage: 1,
       filePageSize: 10,
@@ -584,6 +578,7 @@ export default {
   },
   mounted() {
     this.search(1);
+    this.getMapData();
     this.drawMap();
   },
   methods: {
@@ -612,7 +607,34 @@ export default {
       console.info(row);
     },
     //获取地图数据
-    getMapData() {},
+    getMapData() {
+      this.$axios
+        .post(
+          "/admin/snapshoot/queryTerminalStatistic",
+          {},
+          {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }
+        )
+        .then(res => {
+          if (res.data.success) {
+              this.allDataArr[0].count = res.data.data.terminalNum_total;
+              this.allDataArr[1].count = res.data.data.terminalNum_online;
+              this.allDataArr[2].count = res.data.data.terminalNum_active;
+              this.allDataArr[3].count = res.data.data.terminalNum_unconfirmed;
+          } else {
+            this.$message({
+              message: "查询失败",
+              type: "error"
+            });
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
     drawMap() {
       let myChart = this.$echarts.init(document.getElementById("mapChart"));
       myChart.showLoading();
@@ -865,28 +887,27 @@ export default {
         type: "warning"
       })
         .then(() => {
-            let arr = [];
-            arr.push(row);
-            this.$axios
-              .delete("/admin/terminal/devices",{data:arr})
-              .then(res => {
-                if (res.data.success) {
-                  this.$message({
-            type: "success",
-            message: "删除成功!"
-          });
-                  this.search(1);
-                } else {
-                  this.$message({
-                    message: "删除失败",
-                    type: "error"
-                  });
-                }
-              })
-              .catch(err => {
-                console.log(err);
-              });
-          
+          let arr = [];
+          arr.push(row);
+          this.$axios
+            .delete("/admin/terminal/devices", { data: arr })
+            .then(res => {
+              if (res.data.success) {
+                this.$message({
+                  type: "success",
+                  message: "删除成功!"
+                });
+                this.search(1);
+              } else {
+                this.$message({
+                  message: "删除失败",
+                  type: "error"
+                });
+              }
+            })
+            .catch(err => {
+              console.log(err);
+            });
         })
         .catch(() => {
           this.$message({
@@ -900,23 +921,23 @@ export default {
     //对时
     pairRow(row) {
       this.$axios
-              .put("/admin/terminal/devices/clocksyn/" + row.terminalId)
-              .then(res => {
-                if (res.data.success) {
-                  this.$message({
-                    message: "对时成功",
-                    type: "success"
-                  });
-                } else {
-                  this.$message({
-                    message: "对时失败",
-                    type: "error"
-                  });
-                }
-              })
-              .catch(err => {
-                console.log(err);
-              });
+        .put("/admin/terminal/devices/clocksyn/" + row.terminalId)
+        .then(res => {
+          if (res.data.success) {
+            this.$message({
+              message: "对时成功",
+              type: "success"
+            });
+          } else {
+            this.$message({
+              message: "对时失败",
+              type: "error"
+            });
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
     //批量导入
     importRows() {},
@@ -956,9 +977,14 @@ export default {
               });
           } else {
             //编辑
-            var editData=this.$qs.stringify(this.dialogForm);
+            var editData = this.$qs.stringify(this.dialogForm);
             this.$axios
-              .put("/admin/terminal/devices/" + this.dialogForm.terminalId+"?"+editData)
+              .put(
+                "/admin/terminal/devices/" +
+                  this.dialogForm.terminalId +
+                  "?" +
+                  editData
+              )
               .then(res => {
                 if (res.data.success) {
                   this.dialogFormVisible = false;
@@ -992,9 +1018,83 @@ export default {
         this.addSelectTitle = "已选容器";
         this.addTitle = "容器库";
       }
+      this.fileSelectedList=[];
       this.ifAddDialog = true;
     },
-    submitFile() {},
+    submitFile() {
+      let url = "",
+        param = {};
+      if (this.addTitle === "应用库") {
+        url = "/admin/app/deploy?isUpdate=false";
+        param =  [
+            {
+              containerName: "string",
+              esn: "string",
+              name: "string",
+              operateType: 0,
+              type: "string",
+              vendor: "string",
+              version: "string"
+            }
+          ];
+        // param = { apps: this.fileSelectedList, isUpdate: false };
+      } else if (this.addTitle === "容器库") {
+        url = "/admin/containers/deploy,/upgrade";
+        param = {
+          containerlist: [
+            {
+              containerInfo: {
+                incrementPkg: true,
+                name: "string",
+                releaseTime: 0,
+                releaseUser: "string",
+                type: "string",
+                vendor: "string",
+                version: "string"
+              },
+              containerconfig: {
+                containerName: "string",
+                cpuCores: 0,
+                description: "string",
+                diskSizeMB: "string",
+                memoryMB: "string",
+                openServices: "string",
+                physicalInterfaces: "string",
+                volumeSizeMB: "string"
+              },
+              deviceid: "string"
+            }
+          ],
+          update: true
+        };
+
+        // param = { containerlist: this.fileSelectedList, update: true };
+      }
+      //this.fileSelectedList;
+      this.$axios
+        .post(url, param, {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        })
+        .then(res => {
+          if (res.data.success) {
+            this.$message({
+              message: "安装成功",
+              type: "success"
+            });
+            this.ifAddDialog = false;
+          } else {
+            this.$message({
+              message: "安装失败",
+              type: "error"
+            });
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
     //tab点击事件
     handleClick() {},
     handleSizeChange(val) {
@@ -1024,7 +1124,17 @@ export default {
       };
       this.searchFile("");
     },
-    handleSelectionChange() {},
+    handleSelectionChange(val) {
+      this.fileSelectedList = val;
+    },
+    removeSelected(val) {
+      this.fileSelectedList.forEach((item, index) => {
+        if (item.id === val.id) {
+          this.fileSelectedList.splice(index, 1);
+          this.$refs.multipleTable.toggleRowSelection(item, false);
+        }
+      });
+    },
     handleOpen(key, keyPath) {
       console.log(key, keyPath);
     },

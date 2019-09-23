@@ -202,10 +202,10 @@
             <el-header>
               <el-row>
                 <el-col :span="16">
-                  <el-input v-model="searchFileItem" placeholder="请输入内容进行查询"></el-input>
+                  <el-input v-model="searchFileItem" placeholder="请输入文件ID"></el-input>
                 </el-col>
                 <el-col :span="2" :offset="1">
-                  <el-button type="primary" icon="el-icon-search" @click="searchFile()">搜索</el-button>
+                  <el-button type="primary" icon="el-icon-search" @click="searchFile(1)">搜索</el-button>
                 </el-col>
               </el-row>
             </el-header>
@@ -330,19 +330,12 @@ export default {
         dir: "asc"
       },
       searchFileItem: "",
-      fileList: [
-        { id: 0, fileName: "软件名1" },
-        { id: 1, fileName: "软件名2" },
-        { id: 2, fileName: "软件名3" },
-        { id: 3, fileName: "软件名4" },
-        { id: 4, fileName: "软件名5" },
-        { id: 5, fileName: "软件名6" },
-        { id: 6, fileName: "软件名7" }
-      ]
+      fileList: []
     };
   },
   mounted() {
     this.initPage();
+    this.searchFile(1);
   },
   methods: {
     //获取分类
@@ -436,7 +429,6 @@ export default {
     },
     initPage() {
       this.total = this.appList.length;
-      this.fileTotal = this.fileList.length;
       // this.menuId=sessionStorage.getItem('menuId');
       // this.username=sessionStorage.getItem('username');
       // this.getAreaType();this.getIndustryType();this.getPayType();
@@ -492,59 +484,29 @@ export default {
           });
       }
     },
-    //云服务
-    toSAAS(softId) {
-      const loading = this.$loading({
-        lock: true,
-        text: "正在打开软件……",
-        spinner: "el-icon-loading",
-        background: "rgba(0, 0, 0, 0.7)"
-      });
-      this.$axios
-        .post("/send-request/use-desktop", {
-          username: sessionStorage.getItem("username"),
-          softwareId: softId
-        })
-        .then(res => {
-          // console.log(res);
-          if (res.data.success === true) {
-            setTimeout(() => {
-              window.open(res.data.desktopAddr);
-              loading.close();
-            }, 5000);
-          } else {
-            loading.close();
-            alert("打开软件失败，请重试或联系管理员！");
-          }
-          // console.log(res.data);
-        })
-        .catch(err => {
-          loading.close();
-          alert("打开软件失败，请重试或联系管理员！");
-          console.log(err);
-        });
-    },
     ////////////////////////////文件
     //查找文件
-    searchFile() {},
+    searchFile(page) {
+      let param={
+          pageIndex:page,
+          pageSize:this.filePageSize
+        };
+        if(this.searchFileItem!=="")param.fileId= this.searchFileItem;
+      this.$axios
+        .get("/admin/file/list?"+this.$qs.stringify(param))
+        .then(res => {
+          this.fileTotal=res.data.data.total;
+          this.fileList=res.data.data.records;
+        })
+        .catch(err => {
+        });
+    },
     fileSizeChange(val) {
       this.filePageSize = val;
-      this.fileParam = {
-        current: 1,
-        size: val,
-        sort: "id",
-        dir: "asc"
-      };
-      this.searchFile("");
+      this.searchFile(1);
     },
     fileCurrentChange(val) {
-      this.fileParam = {
-        current: val,
-        size: this.filePageSize,
-        sort: "id",
-        dir: "asc"
-      };
-      this.searchFile("");
+      this.searchFile(val);
     },
     handleOpen(key, keyPath) {
       console.log(key, keyPath);
