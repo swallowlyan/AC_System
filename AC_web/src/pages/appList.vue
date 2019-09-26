@@ -173,28 +173,25 @@
                 class="el-menu-vertical-demo"
                 @open="handleOpen"
                 @close="handleClose"
+                @select="fileTypeSelect"
               >
-                <el-submenu index="1">
-                  <template slot="title">
-                    <i class="el-icon-location"></i>
-                    <span>分类一</span>
-                  </template>
-                  <el-menu-item index="1-1">选项1</el-menu-item>
-                  <el-menu-item index="1-2">选项2</el-menu-item>
-                  <el-menu-item index="1-3">选项3</el-menu-item>
-                </el-submenu>
-                <el-menu-item index="2">
-                  <i class="el-icon-menu"></i>
-                  <span slot="title">分类二</span>
-                </el-menu-item>
-                <el-menu-item index="3">
-                  <i class="el-icon-document"></i>
-                  <span slot="title">分类三</span>
-                </el-menu-item>
-                <el-menu-item index="4">
-                  <i class="el-icon-setting"></i>
-                  <span slot="title">分类四</span>
-                </el-menu-item>
+              <div v-for="(item , index) in fileType" :key="index">
+              <el-menu-item v-if="!item.child" :index="item.fileType">
+                <i class="el-icon-menu"></i>
+                <span slot="title">{{item.fileType}}</span>
+              </el-menu-item>
+              <el-submenu v-if="item.child" :index="item.fileType">
+                <template slot="title">
+                  <i class="el-icon-location"></i>
+                  <span>{{item.fileType}}</span>
+                </template>
+                <el-menu-item
+                  v-for="(child,ind) in item.child"
+                  :key="ind"
+                  :index="child.fileType"
+                >{{child.fileType}}</el-menu-item>
+              </el-submenu>
+            </div>
               </el-menu>
             </el-row>
           </el-aside>
@@ -330,12 +327,15 @@ export default {
         dir: "asc"
       },
       searchFileItem: "",
-      fileList: []
+      fileType:[],
+      fileList: [],
+      selectedFileType:""
     };
   },
   mounted() {
     this.initPage();
     this.searchFile(1);
+    this.getFileType();
   },
   methods: {
     //获取分类
@@ -343,7 +343,7 @@ export default {
       this.$axios
         .get("")
         .then(res => {
-          if (res.data.data.length > 0) this.areaTypeList = res.data.data;
+          if(res.data.success)this.areaTypeList = res.data.data;
         })
         .catch(err => {
           console.log(err);
@@ -364,6 +364,16 @@ export default {
         .get("")
         .then(res => {
           if (res.data.data.length > 0) this.levelList = res.data.data;
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    getFileType() {
+      this.$axios
+        .get("/admin/file/types")
+        .then(res => {
+          if(res.data.success)this.fileType = res.data.data;
         })
         .catch(err => {
           console.log(err);
@@ -492,6 +502,7 @@ export default {
           pageSize:this.filePageSize
         };
         if(this.searchFileItem!=="")param.fileId= this.searchFileItem;
+        if(this.selectedFileType!=="")param.fileType= this.selectedFileType;
       this.$axios
         .get("/admin/file/list?"+this.$qs.stringify(param))
         .then(res => {
@@ -507,6 +518,11 @@ export default {
     },
     fileCurrentChange(val) {
       this.searchFile(val);
+    },
+    //选中文件分类
+    fileTypeSelect(index, indexPath){
+      this.selectedFileType = index;
+      this.searchFile(1);
     },
     handleOpen(key, keyPath) {
       console.log(key, keyPath);

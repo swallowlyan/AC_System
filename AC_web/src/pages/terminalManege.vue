@@ -583,14 +583,19 @@ export default {
   },
   methods: {
     search(page) {
+      // terminalId: this.searchItem.terminalId,
+      //     name: this.searchItem.name,
+      //     neType: this.searchItem.neType,
+      let param="pageSize="+this.tableLimit+"&pageIndex="+page;
+      Object.keys(this.searchItem).forEach(item=>{
+        if(this.searchItem[item]!=="")param+="&"+item+"="+this.searchItem[item];
+      })
       this.$axios
-        .post("/admin/terminal/devices/info", {
-          terminalId: this.searchItem.terminalId,
-          name: this.searchItem.name,
-          neType: this.searchItem.neType,
-          pageSize: this.tableLimit,
-          pageIndex: page
-        })
+        .post("/admin/terminal/devices/info?"+param,{},{
+            headers: {
+              "Content-Type": "application/json"
+            }
+          })
         .then(res => {
           this.tableSize = res.data.data.totalRecord;
           this.tableData = res.data.data.data.records;
