@@ -305,28 +305,25 @@
                       class="el-menu-vertical-demo"
                       @open="handleOpen"
                       @close="handleClose"
+                      @select="typeSelect"
                     >
-                      <el-submenu index="1">
-                        <template slot="title">
-                          <i class="el-icon-location"></i>
-                          <span>分类一</span>
-                        </template>
-                        <el-menu-item index="1-1">选项1</el-menu-item>
-                        <el-menu-item index="1-2">选项2</el-menu-item>
-                        <el-menu-item index="1-3">选项3</el-menu-item>
-                      </el-submenu>
-                      <el-menu-item index="2">
-                        <i class="el-icon-menu"></i>
-                        <span slot="title">分类二</span>
-                      </el-menu-item>
-                      <el-menu-item index="3">
-                        <i class="el-icon-document"></i>
-                        <span slot="title">分类三</span>
-                      </el-menu-item>
-                      <el-menu-item index="4">
-                        <i class="el-icon-setting"></i>
-                        <span slot="title">分类四</span>
-                      </el-menu-item>
+                      <div v-for="(item , index) in addDialogTypes" :key="index">
+                        <el-menu-item v-if="!item.child" :index="item.ItemCode">
+                          <i class="el-icon-menu"></i>
+                          <span slot="title">{{item.ItemName}}</span>
+                        </el-menu-item>
+                        <el-submenu v-if="item.child" :index="item.ItemCode">
+                          <template slot="title">
+                            <i class="el-icon-location"></i>
+                            <span>{{item.ItemName}}</span>
+                          </template>
+                          <el-menu-item
+                            v-for="(child,ind) in item.child"
+                            :key="ind"
+                            :index="child.ItemCode"
+                          >{{child.ItemName}}</el-menu-item>
+                        </el-submenu>
+                      </div>
                     </el-menu>
                   </el-row>
                 </el-aside>
@@ -415,21 +412,21 @@ export default {
   data() {
     //自定义正则验证
     let checkIp = (rule, value, callback) => {
-		      let regExp = /(?=(\b|\D))(((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))\.){3}((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))(?=(\b|\D))/;
-      if(regExp.test(value) === false) {
-           callback(new Error('请输入正确的IP地址'));
-        } else {
-          callback();
+      let regExp = /(?=(\b|\D))(((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))\.){3}((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))(?=(\b|\D))/;
+      if (regExp.test(value) === false) {
+        callback(new Error("请输入正确的IP地址"));
+      } else {
+        callback();
       }
     };
     let checkMac = (rule, value, callback) => {
-		      let regExp =/((([a-f0-9]{2}:){5})|(([a-f0-9]{2}-){5}))[a-f0-9]{2}/gi;
-      if(regExp.test(value) === false) {
-           callback(new Error('请输入正确的MAC地址'));
-        } else {
-          callback();
+      let regExp = /((([a-f0-9]{2}:){5})|(([a-f0-9]{2}-){5}))[a-f0-9]{2}/gi;
+      if (regExp.test(value) === false) {
+        callback(new Error("请输入正确的MAC地址"));
+      } else {
+        callback();
       }
-		};
+    };
     return {
       activeTab: "allView",
       tableSize: 0,
@@ -559,7 +556,7 @@ export default {
       },
       dialogRules: {
         terminalId: [
-          { required: true, message: "请输入终端ID", trigger: "blur" },
+          { required: true, message: "请输入终端ID", trigger: "blur" }
         ],
         terminalName: [
           { required: true, message: "请输入终端名称", trigger: "blur" }
@@ -567,16 +564,16 @@ export default {
         terminalType: [
           { required: true, message: "请输入终端类型", trigger: "blur" }
         ],
-        status: [{ required: true, message: "请选择终端状态", trigger: "blur" }],
-        ip:[
-          { validator: checkIp, trigger: 'blur' }
+        status: [
+          { required: true, message: "请选择终端状态", trigger: "blur" }
         ],
-        mac:[
-          { validator: checkMac, trigger: 'blur' }
-        ]
+        ip: [{ validator: checkIp, trigger: "blur" }],
+        mac: [{ validator: checkMac, trigger: "blur" }]
       },
       addSelectTitle: "已选容器",
       addTitle: "容器库",
+      addDialogTypes: [],
+      selectedType:"",
       fileList: [
         { id: 0, fileName: "软件名1", count: 50, time: "2019年8月20日" },
         { id: 1, fileName: "软件名2", count: 50, time: "2019年8月20日" },
@@ -609,16 +606,21 @@ export default {
       // terminalId: this.searchItem.terminalId,
       //     name: this.searchItem.name,
       //     neType: this.searchItem.neType,
-      let param="pageSize="+this.tableLimit+"&pageIndex="+page;
-      Object.keys(this.searchItem).forEach(item=>{
-        if(this.searchItem[item]!=="")param+="&"+item+"="+this.searchItem[item];
-      })
+      let param = "pageSize=" + this.tableLimit + "&pageIndex=" + page;
+      Object.keys(this.searchItem).forEach(item => {
+        if (this.searchItem[item] !== "")
+          param += "&" + item + "=" + this.searchItem[item];
+      });
       this.$axios
-        .post(baseUrl+"/admin/terminal/devices/info?"+param,{},{
+        .post(
+          baseUrl + "/admin/terminal/devices/info?" + param,
+          {},
+          {
             headers: {
               "Content-Type": "application/json"
             }
-          })
+          }
+        )
         .then(res => {
           this.tableSize = res.data.data.totalRecord;
           this.tableData = res.data.data.data.records;
@@ -638,7 +640,7 @@ export default {
     getMapData() {
       this.$axios
         .post(
-          baseUrl+"/admin/snapshoot/queryTerminalStatistic",
+          baseUrl + "/admin/snapshoot/queryTerminalStatistic",
           {},
           {
             headers: {
@@ -648,10 +650,10 @@ export default {
         )
         .then(res => {
           if (res.data.success) {
-              this.allDataArr[0].count = res.data.data.terminalNum_total;
-              this.allDataArr[1].count = res.data.data.terminalNum_online;
-              this.allDataArr[2].count = res.data.data.terminalNum_active;
-              this.allDataArr[3].count = res.data.data.terminalNum_unconfirmed;
+            this.allDataArr[0].count = res.data.data.terminalNum_total;
+            this.allDataArr[1].count = res.data.data.terminalNum_online;
+            this.allDataArr[2].count = res.data.data.terminalNum_active;
+            this.allDataArr[3].count = res.data.data.terminalNum_unconfirmed;
           } else {
             this.$message({
               message: "查询失败",
@@ -918,7 +920,7 @@ export default {
           let arr = [];
           arr.push(row);
           this.$axios
-            .delete(baseUrl+"/admin/terminal/devices", { data: arr })
+            .delete(baseUrl + "/admin/terminal/devices", { data: arr })
             .then(res => {
               if (res.data.success) {
                 this.$message({
@@ -949,7 +951,7 @@ export default {
     //对时
     pairRow(row) {
       this.$axios
-        .put(baseUrl+"/admin/terminal/devices/clocksyn/" + row.terminalId)
+        .put(baseUrl + "/admin/terminal/devices/clocksyn/" + row.terminalId)
         .then(res => {
           if (res.data.success) {
             this.$message({
@@ -983,7 +985,7 @@ export default {
             let arr = [];
             arr.push(this.dialogForm);
             this.$axios
-              .post(baseUrl+"/admin/terminal/devices", arr, config)
+              .post(baseUrl + "/admin/terminal/devices", arr, config)
               .then(res => {
                 if (res.data.success) {
                   this.dialogFormVisible = false;
@@ -1008,7 +1010,8 @@ export default {
             var editData = this.$qs.stringify(this.dialogForm);
             this.$axios
               .put(
-                baseUrl+"/admin/terminal/devices/" +
+                baseUrl +
+                  "/admin/terminal/devices/" +
                   this.dialogForm.terminalId +
                   "?" +
                   editData
@@ -1038,6 +1041,22 @@ export default {
         }
       });
     },
+    //获取应用分类
+    getAddDialogType() {
+      let url="";
+      if(this.addTitle.indexOf("容器")>-1)url="";
+      else url="/admin/app/getAllTypes"
+      this.$axios
+        .post(baseUrl + url)
+        .then(res => {
+          if (res.data.success) {
+            this.addDialogTypes=res.data.data;
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
     chooseFile(type) {
       if (type === "app") {
         this.addSelectTitle = "已选应用";
@@ -1046,28 +1065,33 @@ export default {
         this.addSelectTitle = "已选容器";
         this.addTitle = "容器库";
       }
-      this.fileSelectedList=[];
+      this.getAddDialogType();
+      this.fileSelectedList = [];
       this.ifAddDialog = true;
+    },
+    typeSelect(index, indexPath) {
+      this.selectedType = index;
+      this.searchFile("");
     },
     submitFile() {
       let url = "",
         param = {};
       if (this.addTitle === "应用库") {
-        url = baseUrl+"/admin/app/deploy?isUpdate=false";
-        param =  [
-            {
-              containerName: "string",
-              esn: "string",
-              name: "string",
-              operateType: 0,
-              type: "string",
-              vendor: "string",
-              version: "string"
-            }
-          ];
+        url = baseUrl + "/admin/app/deploy?isUpdate=false";
+        param = [
+          {
+            containerName: "string",
+            esn: "string",
+            name: "string",
+            operateType: 0,
+            type: "string",
+            vendor: "string",
+            version: "string"
+          }
+        ];
         // param = { apps: this.fileSelectedList, isUpdate: false };
       } else if (this.addTitle === "容器库") {
-        url = baseUrl+"/admin/containers/deploy,/upgrade";
+        url = baseUrl + "/admin/containers/deploy,/upgrade";
         param = {
           containerlist: [
             {
