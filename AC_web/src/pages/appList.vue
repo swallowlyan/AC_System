@@ -176,20 +176,20 @@
                 @select="fileTypeSelect"
               >
               <div v-for="(item , index) in fileType" :key="index">
-              <el-menu-item v-if="!item.child" :index="item.fileType">
+              <el-menu-item v-if="!item.child" :index="item.itemCode">
                 <i class="el-icon-menu"></i>
-                <span slot="title">{{item.fileType}}</span>
+                <span slot="title">{{item.itemName}}</span>
               </el-menu-item>
-              <el-submenu v-if="item.child" :index="item.fileType">
+              <el-submenu v-if="item.child" :index="item.itemCode">
                 <template slot="title">
                   <i class="el-icon-location"></i>
-                  <span>{{item.fileType}}</span>
+                  <span>{{item.itemName}}</span>
                 </template>
                 <el-menu-item
                   v-for="(child,ind) in item.child"
                   :key="ind"
-                  :index="child.fileType"
-                >{{child.fileType}}</el-menu-item>
+                  :index="child.itemCode"
+                >{{child.itemName}}</el-menu-item>
               </el-submenu>
             </div>
               </el-menu>

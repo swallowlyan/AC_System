@@ -64,7 +64,7 @@
                     <span v-if="scope.row.status===9" style="color:red">删除</span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="description" label="租户"></el-table-column>
+                <el-table-column prop="description" label="简要说明"></el-table-column>
                 <el-table-column prop="options" width="250" label="操作">
                   <template slot-scope="scope">
                     <el-button @click="removeRow(scope.row)" type="text" size="medium">移出本租户</el-button>
@@ -336,7 +336,7 @@ export default {
       } else {
         if (this.selectedRow.length === 1) {
           this.dialogTitle = "编辑租户";
-          this.dialogForm = this.selectedRow[0];
+          this.dialogForm = Object.assign({},this.selectedRow[0]);
           this.dialogFormVisible = true;
         } else {
           this.$message({

@@ -232,7 +232,7 @@ export default {
     },
     editRow(row) {
       this.dialogTitle = "编辑用户";
-      this.dialogForm = row;
+      this.dialogForm = Object.assign({},row);
       this.ifUpdate = true;
       this.dialogFormVisible = true;
     },

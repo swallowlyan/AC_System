@@ -36,17 +36,17 @@
                 >{{scope.row.name}}</el-button>
               </template>
             </el-table-column>
-            <el-table-column prop="containerType" label="容器类型"></el-table-column>
-            <el-table-column prop="releaseTime" width="100" label="发布时间"></el-table-column>
-            <el-table-column prop="developer" label="厂商"></el-table-column>
+            <el-table-column prop="type" label="容器类型"></el-table-column>
+            <el-table-column prop="vendor" label="供应商"></el-table-column>
             <el-table-column prop="version" label="容器版本"></el-table-column>
-            <el-table-column prop="bseVersion" label="基础包版本"></el-table-column>
+            <el-table-column prop="baseVersion" label="基础包版本"></el-table-column>
             <el-table-column prop="isIncrementPkg" label="是否升级包">
                <template slot-scope="scope">
-                    <span v-if="scope.row.isIncrementPkg===0">否</span>
-                    <span v-if="scope.row.isIncrementPkg===0">是</span>
+                    <span v-if="!scope.row.isIncrementPkg">否</span>
+                    <span v-if="scope.row.isIncrementPkg">是</span>
                </template>
             </el-table-column>
+            <el-table-column prop="releaseTime" width="120" label="发布时间"></el-table-column>
             <el-table-column prop="description" width="150" label="说明"></el-table-column>
             <el-table-column prop="options" label="操作">
               <template slot-scope="scope">
@@ -105,17 +105,17 @@
               <span v-if="ifDialogDetail">{{dialogForm.containerId}}</span>
               <el-input
                 v-if="!ifDialogDetail"
-                v-model="dialogForm.containerId"
+                v-model="dialogForm.id"
                 placeholder="请输入容器ID"
               ></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="容器名称" prop="containerName">
-              <span v-if="ifDialogDetail">{{dialogForm.containerName}}</span>
+              <span v-if="ifDialogDetail">{{dialogForm.name}}</span>
               <el-input
                 v-if="!ifDialogDetail"
-                v-model="dialogForm.containerName"
+                v-model="dialogForm.name"
                 placeholder="请输入容器名称"
               ></el-input>
             </el-form-item>
@@ -124,10 +124,10 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="容器类型">
-              <span v-if="ifDialogDetail">{{dialogForm.containerType}}</span>
+              <span v-if="ifDialogDetail">{{dialogForm.type}}</span>
               <el-input
                 v-if="!ifDialogDetail"
-                v-model="dialogForm.containerType"
+                v-model="dialogForm.type"
                 placeholder="请输入容器类型"
               ></el-input>
             </el-form-item>
@@ -141,12 +141,12 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="基础包版本">
-              <span v-if="ifDialogDetail">{{dialogForm.bseVersion}}</span>
+            <el-form-item label="供应商">
+              <span v-if="ifDialogDetail">{{dialogForm.vendor}}</span>
               <el-input
                 v-if="!ifDialogDetail"
-                v-model="dialogForm.bseVersion"
-                placeholder="请输入基础包版本"
+                v-model="dialogForm.vendor"
+                placeholder="请输入供应商"
               ></el-input>
             </el-form-item>
           </el-col>
@@ -160,9 +160,10 @@
         <el-row>
           <el-col :span="24">
             <el-form-item label="是否升级包" prop="isIncrementPkg">
-              <span v-if="ifDialogDetail">{{dialogForm.isIncrementPkg}}</span>
-              <el-radio v-if="!ifDialogDetail" v-model="dialogForm.isIncrementPkg" label="0">否</el-radio>
-              <el-radio v-if="!ifDialogDetail" v-model="dialogForm.isIncrementPkg" label="1">是</el-radio>
+              <span v-if="ifDialogDetail&&dialogForm.isIncrementPkg">是</span>
+              <span v-if="ifDialogDetail&&(!dialogForm.isIncrementPkg)">否</span>
+              <el-radio v-if="!ifDialogDetail" v-model="dialogForm.isIncrementPkg" label="false">否</el-radio>
+              <el-radio v-if="!ifDialogDetail" v-model="dialogForm.isIncrementPkg" label="true">是</el-radio>
             </el-form-item>
           </el-col>
           <el-col :span="24" style="height:100px">
@@ -232,21 +233,22 @@ export default {
       dialogFormVisible: false,
       ifDialogDetail: false,
       dialogForm: {
-        containerId: "",
-        containerName: "",
-        containerType: "",
+        id: "",
+        name: "",
+        type: "",
+        vendor:"",
         isIncrementPkg: "",
-        bseVersion: "",
+        baseVersion: "",
         version: "",
         url: "",
         logo: "",
         description: ""
       },
       dialogRules: {
-        containerId: [
+        id: [
           { required: true, message: "请输入容器ID", trigger: "blur" }
         ],
-        containerName: [
+        name: [
           { required: true, message: "请输入容器名称", trigger: "blur" }
         ],
         isIncrementPkg: [
@@ -273,6 +275,13 @@ export default {
       {headers: {"Content-Type": "application/json"}}
       ).then((res)=>{
         this.tableSize=res.data.totalRecord;
+        if(res.data.data.length>0){
+          res.data.data.forEach(item => {
+            Object.keys(item.containerFiles[0]).forEach(key=>{
+                item[key]=item.containerFiles[0][key];
+            });
+          });
+        }
         this.tableData=res.data.data;
       }).catch((err)=>{
         console.log(err);
@@ -294,29 +303,14 @@ export default {
     detailRow(row) {
       this.dialogTitle = "容器详细信息";
       this.ifDialogDetail = true;
-      this.dialogForm = row;
+      this.dialogForm = Object.assign({},row);
       this.dialogFormVisible = true;
     },
     editRow(row) {
-      // if (this.selectedRow.length === 0 || this.selectedRow.length > 1) {
-      //   this.$message({
-      //     message: "请选择单条数据进行编辑",
-      //     type: "warning"
-      //   });
-      // } else {
-      //获取当前数据内容
-      // this.$axios.post('',{
-      //   id:this.selectedRow[0].id,'
-      // }).then((res)=>{
-      //   this.search(page);
-      // }).catch((err)=>{
-      //   console.log(err);
-      // });
       this.dialogTitle = "编辑终端";
       this.ifDialogDetail = false;
-      this.dialogForm = row;
+      this.dialogForm = Object.assign({},row);
       this.dialogFormVisible = true;
-      // }
     },
     delRow(row) {
       // if (this.selectedRow.length === 0) {

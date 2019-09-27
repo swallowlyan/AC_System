@@ -285,29 +285,14 @@ export default {
     detailRow(row) {
       this.dialogTitle = "应用详细信息";
       this.ifDialogDetail = true;
-      this.dialogForm = row;
+      this.dialogForm = Object.assign({},row);
       this.dialogFormVisible = true;
     },
     editRow(row) {
-      //获取当前数据内容
-      // this.$axios.post('',{
-      //   id:this.selectedRow[0].id,'
-      // }).then((res)=>{
-      //   this.search(page);
-      // }).catch((err)=>{
-      //   console.log(err);
-      // });
       this.dialogTitle = "编辑应用";
-      this.dialogForm = row;
+      this.dialogForm = Object.assign({},row);
       this.ifDialogDetail = false;
       this.dialogFormVisible = true;
-      // this.$axios.post('',{
-      //   id:this.selectedRow[0].id,'
-      // }).then((res)=>{
-      //   this.search(page);
-      // }).catch((err)=>{
-      //   console.log(err);
-      // });
     },
     delRow(row) {
       this.$confirm("是否确定删除该应用?", "提示", {

@@ -886,7 +886,7 @@ export default {
     //查看
     detailRow(row) {
       this.dialogTitle = "终端详细信息";
-      this.dialogForm = row;
+      this.dialogForm = Object.assign({},row);
       this.ifDialogDetail = true;
       this.dialogFormVisible = true;
     },
@@ -906,7 +906,7 @@ export default {
       this.ifDialogDetail = false;
       this.ifAddDialog = false;
       this.dialogTitle = "编辑终端";
-      this.dialogForm = row;
+      this.dialogForm = Object.assign({},row);
       this.dialogFormVisible = true;
     },
     //删除
