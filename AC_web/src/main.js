@@ -6,9 +6,6 @@ import router from './router'
 import echarts from '../node_modules/echarts'
 import axios from 'axios'
 import qs from 'qs'
-import 'font-awesome/css/font-awesome.css'
-
-
 
 /////////////////////
 Vue.prototype.$axios = axios;

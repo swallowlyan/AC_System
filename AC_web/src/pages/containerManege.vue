@@ -264,7 +264,7 @@ export default {
       condition.name=this.searchItem.name;
       condition.type=this.searchItem.type;
       this.$axios.post(
-        '/admin/containers/files',
+        baseUrl+'/admin/containers/files',
         {condition:condition,
         pageSize:this.tableLimit,
         pageIndex:page,
@@ -362,7 +362,7 @@ export default {
             }
           };
           this.$axios
-            .post("/admin/containers/add", this.dialogForm, config)
+            .post(baseUrl+"/admin/containers/add", this.dialogForm, config)
             .then(res => {
               if (res.data.success) {
                 this.dialogFormVisible = false;

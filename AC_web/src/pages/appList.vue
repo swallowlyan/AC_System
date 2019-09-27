@@ -341,7 +341,7 @@ export default {
     //获取分类
     getAreaType() {
       this.$axios
-        .get("")
+        .get(baseUrl+"")
         .then(res => {
           if(res.data.success)this.areaTypeList = res.data.data;
         })
@@ -351,7 +351,7 @@ export default {
     },
     getIndustryType() {
       this.$axios
-        .get("")
+        .get(baseUrl+"")
         .then(res => {
           if (res.data.data.length > 0) this.developersList = res.data.data;
         })
@@ -361,7 +361,7 @@ export default {
     },
     getPayType() {
       this.$axios
-        .get("")
+        .get(baseUrl+"")
         .then(res => {
           if (res.data.data.length > 0) this.levelList = res.data.data;
         })
@@ -371,7 +371,7 @@ export default {
     },
     getFileType() {
       this.$axios
-        .get("/admin/file/types")
+        .get(baseUrl+"/admin/file/types")
         .then(res => {
           if(res.data.success)this.fileType = res.data.data;
         })
@@ -388,7 +388,7 @@ export default {
       this.param.softMenu = this.menuId;
       this.param.softCategory = val;
       this.$axios
-        .post("", this.param)
+        .post(baseUrl+"", this.param)
         .then(res => {
           this.total = res.data.data.total;
           this.currentPage = res.data.data.current;
@@ -407,7 +407,7 @@ export default {
       this.param.softMenu = this.menuId;
       this.param.softCategory = val;
       this.$axios
-        .post("", this.param)
+        .post(baseUrl+"", this.param)
         .then(res => {
           this.total = res.data.data.total;
           this.currentPage = res.data.data.current;
@@ -426,7 +426,7 @@ export default {
       this.param.softMenu = this.menuId;
       this.param.softCategory = val;
       this.$axios
-        .post("", this.param)
+        .post(baseUrl+"", this.param)
         .then(res => {
           this.total = res.data.data.total;
           this.currentPage = res.data.data.current;
@@ -481,7 +481,7 @@ export default {
           softId: softId
         };
         this.$axios
-          .get("/soft-auth/soft-order", { params: param })
+          .get(baseUrl+"/soft-auth/soft-order", { params: param })
           .then(res => {
             this.$message({
               message: "已成功获取该服务",
@@ -504,7 +504,7 @@ export default {
         if(this.searchFileItem!=="")param.fileId= this.searchFileItem;
         if(this.selectedFileType!=="")param.fileType= this.selectedFileType;
       this.$axios
-        .get("/admin/file/list?"+this.$qs.stringify(param))
+        .get(baseUrl+"/admin/file/list?"+this.$qs.stringify(param))
         .then(res => {
           this.fileTotal=res.data.data.total;
           this.fileList=res.data.data.records;

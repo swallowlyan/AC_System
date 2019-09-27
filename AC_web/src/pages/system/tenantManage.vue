@@ -282,7 +282,7 @@ export default {
   methods: {
     search(page) {
       this.$axios
-        .get("/admin/tenant/list", {
+        .get(baseUrl+"/admin/tenant/list", {
           pageSize: this.tableLimit,
           pageIndex: page
         })
@@ -356,7 +356,7 @@ export default {
           .then(() => {
             this.$axios
               .delete(
-                "/admin/tenant/remove?tenantId=" + this.selectedRow[0].tenantId
+                baseUrl+"/admin/tenant/remove?tenantId=" + this.selectedRow[0].tenantId
               )
               .then(res => {
                 this.$message({
@@ -394,7 +394,7 @@ export default {
               param[item] = this.dialogForm[item];
             });
             this.$axios
-              .post("/admin/tenant/save?" + this.$qs.stringify(param))
+              .post(baseUrl+"/admin/tenant/save?" + this.$qs.stringify(param))
               .then(res => {
                 this.dialogFormVisible = false;
                 this.$message({
@@ -421,7 +421,7 @@ export default {
                 param[item] = this.dialogForm[item];
             });
             this.$axios
-              .put("/admin/tenant/update?" + this.$qs.stringify(param))
+              .put(baseUrl+"/admin/tenant/update?" + this.$qs.stringify(param))
               .then(res => {
                 this.dialogFormVisible = false;
                 this.$message({

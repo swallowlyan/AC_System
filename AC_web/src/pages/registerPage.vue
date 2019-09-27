@@ -196,14 +196,14 @@
           /*this.$refs[formName].validate((valid) => {
             if (valid) {*/
               //username校验
-              this.$axios.get('/sysuser/check-username',
+              this.$axios.get(baseUrl+'/sysuser/check-username',
                 {params:{
                     username:this.userForm.username
                   }
                 }).then((res)=>{
                 if(res.data.data==="CHECK_NO_EXIST"){
                   //email校验
-                  this.$axios.get('/sysuser/check',
+                  this.$axios.get(baseUrl+'/sysuser/check',
                     {params:{
                         column:"email",
                         value:this.userForm.email
@@ -211,7 +211,7 @@
                     }).then((res)=>{
                     if(res.data.data==="CHECK_NO_EXIST"){
                       //phone校验
-                      this.$axios.get('/sysuser/check',
+                      this.$axios.get(baseUrl+'/sysuser/check',
                         {params:{
                             column:"phone",
                             value:this.userForm.phone
@@ -219,7 +219,7 @@
                         }).then((res)=>{
                         if(res.data.data==="CHECK_NO_EXIST"){
                           //重复验证已通过，提交信息
-                          this.$axios.post('/sysuser/create',this.userForm).then((res)=>{
+                          this.$axios.post(baseUrl+'/sysuser/create',this.userForm).then((res)=>{
                             if(res.data.message==="成功"){
                               this.$message({
                                 showClose: true,
@@ -277,14 +277,14 @@
           this.$refs[formName].validate((valid) => {
             if (valid) {
               //username校验
-              this.$axios.get('/sysuser/check-username',
+              this.$axios.get(baseUrl+'/sysuser/check-username',
                 {params:{
                     username:this.enterpriseForm.username
                   }
                 }).then((res)=>{
                 if(res.data.data==="CHECK_NO_EXIST"){
                   //email校验
-                  this.$axios.get('/sysuser/check',
+                  this.$axios.get(baseUrl+'/sysuser/check',
                     {params:{
                         column:"email",
                         value:this.enterpriseForm.email
@@ -292,7 +292,7 @@
                     }).then((res)=>{
                     if(res.data.data==="CHECK_NO_EXIST"){
                       //phone校验
-                      this.$axios.get('/sysuser/check',
+                      this.$axios.get(baseUrl+'/sysuser/check',
                         {params:{
                             column:"phone",
                             value:this.enterpriseForm.phone
@@ -300,7 +300,7 @@
                         }).then((res)=>{
                         if(res.data.data==="CHECK_NO_EXIST"){
                           //重复验证已通过，提交信息
-                          this.$axios.post('/sysuser/org-reg',this.enterpriseForm).then((res)=>{
+                          this.$axios.post(baseUrl+'/sysuser/org-reg',this.enterpriseForm).then((res)=>{
                             if(res.data.message==="成功"){
                               this.$message({
                                 showClose: true,

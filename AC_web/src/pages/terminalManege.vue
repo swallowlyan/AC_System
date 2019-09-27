@@ -191,13 +191,13 @@
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="终端ip">
+              <el-form-item label="终端ip" prop="ip">
                 <span v-if="ifDialogDetail">{{dialogForm.ip}}</span>
                 <el-input v-if="!ifDialogDetail" v-model="dialogForm.ip" placeholder="请输入终端ip"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="mac地址">
+              <el-form-item label="mac地址" prop="mac">
                 <span v-if="ifDialogDetail">{{dialogForm.mac}}</span>
                 <el-input v-if="!ifDialogDetail" v-model="dialogForm.mac" placeholder="请输入mac地址"></el-input>
               </el-form-item>
@@ -413,6 +413,23 @@ const geoCoordMap = {};
 export default {
   name: "terminalManege",
   data() {
+    //自定义正则验证
+    let checkIp = (rule, value, callback) => {
+		      let regExp = /(?=(\b|\D))(((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))\.){3}((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))(?=(\b|\D))/;
+      if(regExp.test(value) === false) {
+           callback(new Error('请输入正确的IP地址'));
+        } else {
+          callback();
+      }
+    };
+    let checkMac = (rule, value, callback) => {
+		      let regExp =/((([a-f0-9]{2}:){5})|(([a-f0-9]{2}-){5}))[a-f0-9]{2}/gi;
+      if(regExp.test(value) === false) {
+           callback(new Error('请输入正确的MAC地址'));
+        } else {
+          callback();
+      }
+		};
     return {
       activeTab: "allView",
       tableSize: 0,
@@ -542,7 +559,7 @@ export default {
       },
       dialogRules: {
         terminalId: [
-          { required: true, message: "请输入终端ID", trigger: "blur" }
+          { required: true, message: "请输入终端ID", trigger: "blur" },
         ],
         terminalName: [
           { required: true, message: "请输入终端名称", trigger: "blur" }
@@ -550,7 +567,13 @@ export default {
         terminalType: [
           { required: true, message: "请输入终端类型", trigger: "blur" }
         ],
-        status: [{ required: true, message: "请选择终端状态", trigger: "blur" }]
+        status: [{ required: true, message: "请选择终端状态", trigger: "blur" }],
+        ip:[
+          { validator: checkIp, trigger: 'blur' }
+        ],
+        mac:[
+          { validator: checkMac, trigger: 'blur' }
+        ]
       },
       addSelectTitle: "已选容器",
       addTitle: "容器库",
@@ -591,7 +614,7 @@ export default {
         if(this.searchItem[item]!=="")param+="&"+item+"="+this.searchItem[item];
       })
       this.$axios
-        .post("/admin/terminal/devices/info?"+param,{},{
+        .post(baseUrl+"/admin/terminal/devices/info?"+param,{},{
             headers: {
               "Content-Type": "application/json"
             }
@@ -615,7 +638,7 @@ export default {
     getMapData() {
       this.$axios
         .post(
-          "/admin/snapshoot/queryTerminalStatistic",
+          baseUrl+"/admin/snapshoot/queryTerminalStatistic",
           {},
           {
             headers: {
@@ -895,7 +918,7 @@ export default {
           let arr = [];
           arr.push(row);
           this.$axios
-            .delete("/admin/terminal/devices", { data: arr })
+            .delete(baseUrl+"/admin/terminal/devices", { data: arr })
             .then(res => {
               if (res.data.success) {
                 this.$message({
@@ -926,7 +949,7 @@ export default {
     //对时
     pairRow(row) {
       this.$axios
-        .put("/admin/terminal/devices/clocksyn/" + row.terminalId)
+        .put(baseUrl+"/admin/terminal/devices/clocksyn/" + row.terminalId)
         .then(res => {
           if (res.data.success) {
             this.$message({
@@ -960,7 +983,7 @@ export default {
             let arr = [];
             arr.push(this.dialogForm);
             this.$axios
-              .post("/admin/terminal/devices", arr, config)
+              .post(baseUrl+"/admin/terminal/devices", arr, config)
               .then(res => {
                 if (res.data.success) {
                   this.dialogFormVisible = false;
@@ -985,7 +1008,7 @@ export default {
             var editData = this.$qs.stringify(this.dialogForm);
             this.$axios
               .put(
-                "/admin/terminal/devices/" +
+                baseUrl+"/admin/terminal/devices/" +
                   this.dialogForm.terminalId +
                   "?" +
                   editData
@@ -1030,7 +1053,7 @@ export default {
       let url = "",
         param = {};
       if (this.addTitle === "应用库") {
-        url = "/admin/app/deploy?isUpdate=false";
+        url = baseUrl+"/admin/app/deploy?isUpdate=false";
         param =  [
             {
               containerName: "string",
@@ -1044,7 +1067,7 @@ export default {
           ];
         // param = { apps: this.fileSelectedList, isUpdate: false };
       } else if (this.addTitle === "容器库") {
-        url = "/admin/containers/deploy,/upgrade";
+        url = baseUrl+"/admin/containers/deploy,/upgrade";
         param = {
           containerlist: [
             {

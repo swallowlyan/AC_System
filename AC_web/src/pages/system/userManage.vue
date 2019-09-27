@@ -205,7 +205,7 @@ export default {
       if (this.searchItem.tenantId !== "")
         param.tenantId = this.searchItem.tenantId;
       this.$axios
-        .get("/admin/user/list?" + this.$qs.stringify(param))
+        .get(baseUrl+"/admin/user/list?" + this.$qs.stringify(param))
         .then(res => {
           this.tableSize = res.data.data.total;
           this.tableData = res.data.data.records;
@@ -246,7 +246,7 @@ export default {
           .then(() => {
             this.$axios
               .delete(
-                "/admin/user/remove?userId=" + row.uid
+                baseUrl+"/admin/user/remove?userId=" + row.uid
               )
               .then(res => {
                 this.$message({
@@ -273,7 +273,7 @@ export default {
           //新增
           if (this.dialogTitle.indexOf("新增") > -1) {
             this.$axios
-              .post("/admin/user/save?"+this.$qs.stringify(this.dialogForm))
+              .post(baseUrl+"/admin/user/save?"+this.$qs.stringify(this.dialogForm))
               .then(res => {
                 this.dialogFormVisible = false;
                 this.$message({
@@ -292,7 +292,7 @@ export default {
               if(item!=="createTime"&&item!=="deleteTime") param[item]=this.dialogForm[item];
             });
             this.$axios
-              .put("/admin/user/update?"+this.$qs.stringify(param))
+              .put(baseUrl+"/admin/user/update?"+this.$qs.stringify(param))
               .then(res => {
                 this.dialogFormVisible = false;
                 this.$message({

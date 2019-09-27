@@ -12,7 +12,9 @@ export default {
   components: {}
 }
 </script>
-
+<style>
+ @import "../src/assets/font-awesome-4.7.0/css/font-awesome";
+</style>
 <style>
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
@@ -40,8 +42,10 @@ a:visited{
   color: #ffffff;
   text-decoration:none;
 }
-
-  .container{
+.el-form-item__error{
+  z-index: 999 !important;
+}
+.container{
     background: rgba(255,255,255,0);/*firefox、chrome*/
     background: #fff\7;/*IE*/
     filter: alpha(opacity=0);/*IE*/
