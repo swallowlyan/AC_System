@@ -295,7 +295,7 @@ export default {
       this.dialogFormVisible = true;
     },
     delRow(row) {
-      this.$confirm("是否确定删除该应用?", "提示", {
+      this.$confirm("是否确定删除     '" + row.name +"     该应用?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"

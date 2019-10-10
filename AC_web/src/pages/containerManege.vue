@@ -41,12 +41,12 @@
             <el-table-column prop="version" label="容器版本"></el-table-column>
             <el-table-column prop="baseVersion" label="基础包版本"></el-table-column>
             <el-table-column prop="isIncrementPkg" label="是否升级包">
-               <template slot-scope="scope">
-                    <span v-if="!scope.row.isIncrementPkg">否</span>
-                    <span v-if="scope.row.isIncrementPkg">是</span>
-               </template>
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isIncrementPkg">否</span>
+                <span v-if="scope.row.isIncrementPkg">是</span>
+              </template>
             </el-table-column>
-            <el-table-column prop="releaseTime" width="120" label="发布时间"></el-table-column>
+            <el-table-column prop="releaseTime" width="150" label="发布时间" :formatter="dateFormat"></el-table-column>
             <el-table-column prop="description" width="150" label="说明"></el-table-column>
             <el-table-column prop="options" label="操作">
               <template slot-scope="scope">
@@ -103,21 +103,13 @@
           <el-col :span="12">
             <el-form-item label="容器ID" prop="containerId">
               <span v-if="ifDialogDetail">{{dialogForm.containerId}}</span>
-              <el-input
-                v-if="!ifDialogDetail"
-                v-model="dialogForm.id"
-                placeholder="请输入容器ID"
-              ></el-input>
+              <el-input v-if="!ifDialogDetail" v-model="dialogForm.id" placeholder="请输入容器ID"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="容器名称" prop="containerName">
               <span v-if="ifDialogDetail">{{dialogForm.name}}</span>
-              <el-input
-                v-if="!ifDialogDetail"
-                v-model="dialogForm.name"
-                placeholder="请输入容器名称"
-              ></el-input>
+              <el-input v-if="!ifDialogDetail" v-model="dialogForm.name" placeholder="请输入容器名称"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -125,11 +117,7 @@
           <el-col :span="12">
             <el-form-item label="容器类型">
               <span v-if="ifDialogDetail">{{dialogForm.type}}</span>
-              <el-input
-                v-if="!ifDialogDetail"
-                v-model="dialogForm.type"
-                placeholder="请输入容器类型"
-              ></el-input>
+              <el-input v-if="!ifDialogDetail" v-model="dialogForm.type" placeholder="请输入容器类型"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -143,11 +131,7 @@
           <el-col :span="12">
             <el-form-item label="供应商">
               <span v-if="ifDialogDetail">{{dialogForm.vendor}}</span>
-              <el-input
-                v-if="!ifDialogDetail"
-                v-model="dialogForm.vendor"
-                placeholder="请输入供应商"
-              ></el-input>
+              <el-input v-if="!ifDialogDetail" v-model="dialogForm.vendor" placeholder="请输入供应商"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -236,7 +220,7 @@ export default {
         id: "",
         name: "",
         type: "",
-        vendor:"",
+        vendor: "",
         isIncrementPkg: "",
         baseVersion: "",
         version: "",
@@ -245,12 +229,8 @@ export default {
         description: ""
       },
       dialogRules: {
-        id: [
-          { required: true, message: "请输入容器ID", trigger: "blur" }
-        ],
-        name: [
-          { required: true, message: "请输入容器名称", trigger: "blur" }
-        ],
+        id: [{ required: true, message: "请输入容器ID", trigger: "blur" }],
+        name: [{ required: true, message: "请输入容器名称", trigger: "blur" }],
         isIncrementPkg: [
           { required: true, message: "请选择是否升级", trigger: "change" }
         ]
@@ -262,30 +242,34 @@ export default {
   },
   methods: {
     search(page) {
-      let condition={};
-      condition.name=this.searchItem.name;
-      condition.type=this.searchItem.type;
-      this.$axios.post(
-        baseUrl+'/admin/containers/files',
-        {condition:condition,
-        pageSize:this.tableLimit,
-        pageIndex:page,
-        sort:["desc"]
-      },
-      {headers: {"Content-Type": "application/json"}}
-      ).then((res)=>{
-        this.tableSize=res.data.totalRecord;
-        if(res.data.data.length>0){
-          res.data.data.forEach(item => {
-            Object.keys(item.containerFiles[0]).forEach(key=>{
-                item[key]=item.containerFiles[0][key];
+      let condition = {};
+      condition.name = this.searchItem.name;
+      condition.type = this.searchItem.type;
+      this.$axios
+        .post(
+          baseUrl + "/admin/containers/files",
+          {
+            condition: condition,
+            pageSize: this.tableLimit,
+            pageIndex: page,
+            sort: ["desc"]
+          },
+          { headers: { "Content-Type": "application/json" } }
+        )
+        .then(res => {
+          this.tableSize = res.data.totalRecord;
+          if (res.data.data.length > 0) {
+            res.data.data.forEach(item => {
+              Object.keys(item.containerFiles[0]).forEach(key => {
+                item[key] = item.containerFiles[0][key];
+              });
             });
-          });
-        }
-        this.tableData=res.data.data;
-      }).catch((err)=>{
-        console.log(err);
-      });
+          }
+          this.tableData = res.data.data;
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
     reset(formName) {
       this.$refs[formName].resetFields();
@@ -303,13 +287,13 @@ export default {
     detailRow(row) {
       this.dialogTitle = "容器详细信息";
       this.ifDialogDetail = true;
-      this.dialogForm = Object.assign({},row);
+      this.dialogForm = Object.assign({}, row);
       this.dialogFormVisible = true;
     },
     editRow(row) {
       this.dialogTitle = "编辑终端";
       this.ifDialogDetail = false;
-      this.dialogForm = Object.assign({},row);
+      this.dialogForm = Object.assign({}, row);
       this.dialogFormVisible = true;
     },
     delRow(row) {
@@ -319,7 +303,7 @@ export default {
       //     type: "warning"
       //   });
       // } else {
-      this.$confirm("是否确定删除该容器?", "提示", {
+      this.$confirm("是否确定删除     '" + row.name +"     该容器?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
@@ -350,32 +334,49 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          let config = {
-            headers: {
-              "Content-Type": "application/json"
-            }
-          };
-          this.$axios
-            .post(baseUrl+"/admin/containers/add", this.dialogForm, config)
-            .then(res => {
-              if (res.data.success) {
-                this.dialogFormVisible = false;
-                this.$message({
-                  message: "添加成功",
-                  type: "success"
-                });
-                this.$refs[formName].resetFields();
-                this.search(1);
-              }else{
-                this.$message({
-                  message: "添加失败",
-                  type: "error"
-                });
+          if (this.dialogTitle.indexOf("新增") > -1) {
+            let config = {
+              headers: {
+                "Content-Type": "application/json"
               }
-            })
-            .catch(err => {
-              console.log(err);
-            });
+            };
+            this.$axios
+              .post(
+                baseUrl + "/admin/containers/add",
+                {
+                  containerName: this.dialogForm.name,
+                  containerType: this.dialogForm.type,
+                  isIncrementPkg: this.dialogForm.isIncrementPkg,
+                  bseVersion: this.dialogForm.baseVersion,
+                  version: this.dialogForm.version,
+                  url: this.dialogForm.url,
+                  description: this.dialogForm.description
+                },
+                config
+              )
+              .then(res => {
+                if (res.data.success) {
+                  this.dialogFormVisible = false;
+                  this.$message({
+                    message: "添加成功",
+                    type: "success"
+                  });
+                  this.$refs[formName].resetFields();
+                  this.search(1);
+                } else {
+                  this.$message({
+                    message: "添加失败",
+                    type: "error"
+                  });
+                }
+              })
+              .catch(err => {
+                console.log(err);
+              });
+          }
+          //编辑
+          else {
+          }
         } else {
           console.log("error submit!!");
           return false;
@@ -388,6 +389,23 @@ export default {
     },
     handleCurrentChange(val) {
       this.search(val);
+    },
+    dateFormat(row, column, cellValue, index) {
+      const daterc = row[column.property];
+      if (daterc != null) {
+        const dateMat = new Date(
+          parseInt(daterc.replace("/Date(", "").replace(")/", ""), 10)
+        );
+        const year = dateMat.getFullYear();
+        const month = dateMat.getMonth() + 1;
+        const day = dateMat.getDate();
+        const hh = dateMat.getHours();
+        const mm = dateMat.getMinutes();
+        const ss = dateMat.getSeconds();
+        const timeFormat =
+          year + "/" + month + "/" + day + " " + hh + ":" + mm + ":" + ss;
+        return timeFormat;
+      }
     }
   }
 };

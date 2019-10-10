@@ -12,12 +12,12 @@
                 <span>{{item.title}}</span>
                 <span class="pull-right" :class="item.color">{{item.timeTitle}}</span>
               </div>
-              <h1>{{item.count}}</h1>
-              <small>{{item.smallTitle}}</small>
-              <div class="stat-percent" :class="item.color">
+              <h1 style="margin-left:20px">{{item.count}}</h1>
+              <!-- <small>{{item.smallTitle}}</small> -->
+              <!-- <div class="stat-percent" :class="item.color">
                 {{item.percent}}
                 <i :class="item.icon"></i>
-              </div>
+              </div>-->
             </el-card>
           </el-col>
         </el-row>
@@ -81,8 +81,8 @@
                     <span v-if="scope.row.status===4" style="color:#000">未注册</span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="vendor" label="制造商"></el-table-column>
-                <el-table-column prop="activeTime" width="180" label="激活时间"></el-table-column>
+                <!-- <el-table-column prop="vendor" label="制造商"></el-table-column> -->
+                <el-table-column prop="activeTime" width="180" label="激活时间" :formatter="dateFormat"></el-table-column>
                 <el-table-column prop="options" label="操作" width="200">
                   <template slot-scope="scope">
                     <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
@@ -136,7 +136,7 @@
           :model="dialogForm"
           :rules="dialogRules"
           ref="dialogForm"
-          label-width="100px"
+          label-width="120px"
           class="acForm"
         >
           <el-row>
@@ -161,6 +161,7 @@
               </el-form-item>
             </el-col>
           </el-row>
+          <el-row></el-row>
           <el-row>
             <el-col :span="12">
               <el-form-item label="终端类型" prop="terminalType">
@@ -173,19 +174,89 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
+              <el-form-item label="制造商">
+                <span v-if="ifDialogDetail">{{dialogForm.vendor}}</span>
+                <el-input v-if="!ifDialogDetail" v-model="dialogForm.vendor" placeholder="请输入制造商"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="CPU核数" prop="maxCpuCores">
+                <span v-if="ifDialogDetail">{{dialogForm.maxCpuCores}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.maxCpuCores"
+                  placeholder="请输入CPU核数"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="最大内存(MB)" prop="maxMemoryMB">
+                <span v-if="ifDialogDetail">{{dialogForm.maxMemoryMB}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.maxMemoryMB"
+                  placeholder="请输入最大内存"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="硬盘空间(MB)" prop="maxDiskSizeMB">
+                <span v-if="ifDialogDetail">{{dialogForm.maxDiskSizeMB}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.maxDiskSizeMB"
+                  placeholder="请输入硬盘空间"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="host物理接口" prop="physicalInterfaces">
+                <span v-if="ifDialogDetail">{{dialogForm.physicalInterfaces}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.physicalInterfaces"
+                  placeholder="请输入物理接口"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="开放能力" prop="openServices">
+                <span v-if="ifDialogDetail">{{dialogForm.openServices}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.openServices"
+                  placeholder="请选择开放能力"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row v-if="ifDialogDetail">
+            <el-col :span="12">
               <el-form-item label="终端状态" prop="status">
-                <!-- 详情状态 -->
-                <span v-if="ifDialogDetail&&dialogForm.status===0">正常</span>
-                <span v-if="ifDialogDetail&&dialogForm.status===1">告警</span>
-                <span v-if="ifDialogDetail&&dialogForm.status===2">故障</span>
-                <span v-if="ifDialogDetail&&dialogForm.status===3">离线</span>
-                <span v-if="ifDialogDetail&&dialogForm.status===4">未注册</span>
-                <!-- 编辑状态 -->
-                <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="0">正常</el-radio>
-                <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="1">告警</el-radio>
-                <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="2">故障</el-radio>
-                <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="3">离线</el-radio>
-                <el-radio v-if="!ifDialogDetail" v-model="dialogForm.status" label="4">未注册</el-radio>
+                <!-- 详情状态 -->
+                <span v-if="dialogForm.status===0">正常</span>
+                <span v-if="dialogForm.status===1">告警</span>
+                <span v-if="dialogForm.status===2">故障</span>
+                <span v-if="dialogForm.status===3">离线</span>
+                <span v-if="dialogForm.status===4">未注册</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="终端时间">
+                <span style="float:left">{{dialogForm.ActiveTime}}</span>
+                <el-button
+                  type="primary"
+                  plain
+                  size="mini"
+                  style="float:left;margin:5px;"
+                  @click="pairRow(dialogForm)"
+                >对时</el-button>
               </el-form-item>
             </el-col>
           </el-row>
@@ -197,24 +268,23 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="mac地址" prop="mac">
+              <el-form-item label="mac地址">
                 <span v-if="ifDialogDetail">{{dialogForm.mac}}</span>
                 <el-input v-if="!ifDialogDetail" v-model="dialogForm.mac" placeholder="请输入mac地址"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row></el-row>
-          <el-row v-if="ifDialogDetail">
-            <el-col :span="24">
-              <el-form-item label="终端时间">
-                <span style="float:left">{{dialogForm.ActiveTime}}</span>
-                <el-button
-                  type="primary"
-                  plain
-                  size="mini"
-                  style="float:left"
-                  @click="pairRow(dialogForm)"
-                >对时</el-button>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="设备经度">
+                <span v-if="ifDialogDetail">{{dialogForm.gisLon}}</span>
+                <el-input v-if="!ifDialogDetail" v-model="dialogForm.gisLon" placeholder="请输入设备经度"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="设备纬度">
+                <span v-if="ifDialogDetail">{{dialogForm.gisLat}}</span>
+                <el-input v-if="!ifDialogDetail" v-model="dialogForm.gisLat" placeholder="请输入设备纬度"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -231,62 +301,84 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row>
-            <el-col :span="24" style="height:100px">
-              <el-form-item label="容器" class="lineHeight">
-                <div class="list">
-                  <div v-for="(item,index) in dialogForm.containerArr" :key="index">
-                    {{item}}
-                    <el-button
-                      v-if="!ifDialogDetail"
-                      type="danger"
-                      plain
-                      circle
-                      size="mini"
-                      icon="el-icon-delete"
-                    ></el-button>
-                  </div>
-                  <el-button
-                    v-if="!ifDialogDetail"
-                    type="primary"
-                    plain
-                    circle
-                    size="mini"
-                    icon="el-icon-plus"
-                    @click="chooseFile('container')"
-                  ></el-button>
-                </div>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="24" style="height:100px">
-              <el-form-item label="应用" class="lineHeight">
-                <div class="list">
-                  <div v-for="(item,index) in dialogForm.appArr" :key="index">
-                    {{item}}
-                    <el-button
-                      v-if="!ifDialogDetail"
-                      type="danger"
-                      plain
-                      circle
-                      size="mini"
-                      icon="el-icon-delete"
-                    ></el-button>
-                  </div>
-                  <el-button
-                    v-if="!ifDialogDetail"
-                    type="primary"
-                    plain
-                    circle
-                    size="mini"
-                    icon="el-icon-plus"
-                    @click="chooseFile('app')"
-                  ></el-button>
-                </div>
-              </el-form-item>
-            </el-col>
-          </el-row>
+          <div style="padding: 10px 0px;overflow: auto;">
+            <el-row>
+              <el-col :span="24" style="width:auto">
+                <el-form-item label="容器" style="height:30px">
+                  <el-row type="flex">
+                    <div
+                      class="el-col addConfig"
+                      v-for="(item,index) in dialogForm.containerArr"
+                      :key="index"
+                    >
+                      {{item.name}}
+                      <el-button
+                        v-if="!ifDialogDetail"
+                        type="text"
+                        plain
+                        circle
+                        size="mini"
+                        icon="el-icon-delete"
+                      ></el-button>
+                    </div>
+                    <div class="el-col addConfig">
+                      <el-button
+                        v-if="!ifDialogDetail"
+                        type="primary"
+                        plain
+                        circle
+                        size="mini"
+                        icon="el-icon-plus"
+                        @click="chooseFile('container')"
+                      ></el-button>
+                    </div>
+                  </el-row>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row v-if="dialogForm.containerArr!==undefined&&dialogForm.containerArr.length>0">
+              <el-col :span="24" style="height:auto;width:auto">
+                <el-form-item label="应用" class="lineHeight">
+                  <el-row type="flex">
+                    <div
+                      class="el-col addConfig"
+                      style="min-height:95px"
+                      v-for="(item,index) in dialogForm.containerArr"
+                      :key="index"
+                    >
+                      <div
+                        style="padding:5px"
+                        v-for="(app,appIndex) in item.appList"
+                        :key="appIndex"
+                      >
+                        {{app.name}}
+                        <el-button
+                          v-if="!ifDialogDetail"
+                          type="text"
+                          plain
+                          circle
+                          size="mini"
+                          icon="el-icon-delete"
+                        ></el-button>
+                      </div>
+                      <div>
+                        <el-button
+                          style="padding:5px"
+                          v-if="!ifDialogDetail"
+                          type="primary"
+                          plain
+                          circle
+                          size="mini"
+                          icon="el-icon-plus"
+                          @click="chooseFile('app')"
+                        ></el-button>
+                      </div>
+                    </div>
+                  </el-row>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </div>
         </el-form>
       </el-row>
       <!-- 新增服务/容器 -->
@@ -355,7 +447,7 @@
                             <img src="../assets/img/soft_demo1.jpg" height="60" width="100%" />
                           </template>
                         </el-table-column>
-                        <el-table-column prop="fileName" label="名称" width="100"></el-table-column>
+                        <el-table-column prop="name" label="名称" width="100"></el-table-column>
                         <el-table-column prop="count" label="下载量" width="100"></el-table-column>
                         <el-table-column prop="time" label="上架时间" width="180"></el-table-column>
                       </el-table>
@@ -385,7 +477,7 @@
             <div>
               <ul>
                 <li v-for="(item,index) in fileSelectedList" :key="index">
-                  {{item.fileName}}
+                  {{item.name}}
                   <el-button type="text" @click="removeSelected(item)">
                     <i class="el-icon-close"></i>
                   </el-button>
@@ -551,8 +643,16 @@ export default {
         mac: "",
         ActiveTime: "",
         description: "",
-        appArr: [],
-        containerArr: []
+        containerArr: [
+          // { name: "test1", appList: [{name: "test1" },{name: "test1" }] },
+          // { name: "test2", appList: [{name: "test1" }] },
+          // { name: "test3", appList: [{name: "test1" },{name: "test1" },{name: "test1" }] },
+          // { name: "test4", appList: [{name: "test1" }] },
+          // { name: "test5", appList: [{name: "test1" },{name: "test1" }] },
+          // { name: "test6", appList: [{name: "test1" },{name: "test1" },{name: "test1" }] },
+          // { name: "test7", appList: [{name: "test1" }] },
+          // { name: "test8", appList: [{name: "test1" }] }
+        ]
       },
       dialogRules: {
         terminalId: [
@@ -562,18 +662,31 @@ export default {
           { required: true, message: "请输入终端名称", trigger: "blur" }
         ],
         terminalType: [
-          { required: true, message: "请输入终端类型", trigger: "blur" }
-        ],
-        status: [
-          { required: true, message: "请选择终端状态", trigger: "blur" }
+          { required: true, message: "请选择终端类型", trigger: "blur" }
         ],
         ip: [{ validator: checkIp, trigger: "blur" }],
-        mac: [{ validator: checkMac, trigger: "blur" }]
+        mac: [{ validator: checkMac, trigger: "blur" }],
+        maxCpuCores: [
+          { required: true, message: "请输入最大的CPU核数", trigger: "blur" }
+        ],
+        maxMemoryMB: [
+          { required: true, message: "请输入最大内存(MB)", trigger: "blur" }
+        ],
+        maxDiskSizeMB: [
+          { required: true, message: "硬盘空间(MB)", trigger: "blur" }
+        ],
+        physicalInterfaces: [
+          { required: true, message: "请输入host物理接口", trigger: "blur" }
+        ],
+        openServices: [
+          { required: true, message: "请输入开放能力", trigger: "blur" }
+        ]
       },
       addSelectTitle: "已选容器",
       addTitle: "容器库",
       addDialogTypes: [],
-      selectedType:"",
+      selectedType: "",
+      appList: [],
       fileList: [
         { id: 0, fileName: "软件名1", count: 50, time: "2019年8月20日" },
         { id: 1, fileName: "软件名2", count: 50, time: "2019年8月20日" },
@@ -886,8 +999,11 @@ export default {
     //查看
     detailRow(row) {
       this.dialogTitle = "终端详细信息";
-      this.dialogForm = Object.assign({},row);
+      this.dialogForm = Object.assign({}, row);
       this.ifDialogDetail = true;
+      // this.$nextTick(() => {
+      //   this.$refs["dialogForm"].resetFields();
+      // });
       this.dialogFormVisible = true;
     },
     //新增
@@ -906,16 +1022,20 @@ export default {
       this.ifDialogDetail = false;
       this.ifAddDialog = false;
       this.dialogTitle = "编辑终端";
-      this.dialogForm = Object.assign({},row);
+      this.dialogForm = Object.assign({}, row);
       this.dialogFormVisible = true;
     },
     //删除
     delRow(row) {
-      this.$confirm("是否确定删除该终端?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
+      this.$confirm(
+        "是否确定删除     '" + row.terminalName + "'    该终端?",
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }
+      )
         .then(() => {
           let arr = [];
           arr.push(row);
@@ -947,30 +1067,57 @@ export default {
         });
     },
     //升级
-    updateRow(row) {},
+    updateRow(row) {
+      this.$confirm("是否确定升级——'" + row.terminalName + "'?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {})
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消升级"
+          });
+        });
+    },
     //对时
     pairRow(row) {
-      this.$axios
-        .put(baseUrl + "/admin/terminal/devices/clocksyn/" + row.terminalId)
-        .then(res => {
-          if (res.data.success) {
-            this.$message({
-              message: "对时成功",
-              type: "success"
+      this.$confirm("是否确定对时——'" + row.terminalName + "'?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          this.$axios
+            .put(baseUrl + "/admin/terminal/devices/clocksyn/" + row.terminalId)
+            .then(res => {
+              if (res.data.success) {
+                this.$message({
+                  message: "对时成功",
+                  type: "success"
+                });
+              } else {
+                this.$message({
+                  message: "对时失败",
+                  type: "error"
+                });
+              }
+            })
+            .catch(err => {
+              console.log(err);
             });
-          } else {
-            this.$message({
-              message: "对时失败",
-              type: "error"
-            });
-          }
         })
-        .catch(err => {
-          console.log(err);
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消对时"
+          });
         });
     },
     //批量导入
     importRows() {},
+
     //提交新增/编辑
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
@@ -1041,17 +1188,68 @@ export default {
         }
       });
     },
+    //获取容器列表
+    getContainer(page) {
+      let condition = {};
+      condition.name = this.searchFileItem;
+      this.$axios
+        .post(
+          baseUrl + "/admin/containers/files",
+          {
+            condition: condition,
+            pageSize: this.filePageSize,
+            pageIndex: page,
+            sort: ["desc"]
+          },
+          { headers: { "Content-Type": "application/json" } }
+        )
+        .then(res => {
+          this.fileTotal = res.data.totalRecord;
+          if (res.data.data.length > 0) {
+            res.data.data.forEach(item => {
+              Object.keys(item.containerFiles[0]).forEach(key => {
+                item[key] = item.containerFiles[0][key];
+              });
+            });
+          }
+          this.fileList = res.data.data;
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
     //获取应用分类
     getAddDialogType() {
-      let url="";
-      if(this.addTitle.indexOf("容器")>-1)url="";
-      else url="/admin/app/getAllTypes"
+      let url = "";
+      if (this.addTitle.indexOf("容器") > -1) url = "";
+      else url = "/admin/app/getAllTypes";
       this.$axios
         .post(baseUrl + url)
         .then(res => {
           if (res.data.success) {
-            this.addDialogTypes=res.data.data;
+            this.addDialogTypes = res.data.data;
           }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    //获取应用列表
+    getApplications(page) {
+      this.$axios
+        .post(
+          baseUrl +
+            "/admin/app/files?" +
+            "pageIndex=" +
+            page +
+            "&pageSize=" +
+            this.filePageSize,
+          { appInfo: this.searchFileItem },
+          { headers: { "Content-Type": "application/json" } }
+        )
+        .then(res => {
+          this.fileTotal = res.data.data.total;
+          this.fileList = res.data.data.records;
         })
         .catch(err => {
           console.log(err);
@@ -1061,11 +1259,13 @@ export default {
       if (type === "app") {
         this.addSelectTitle = "已选应用";
         this.addTitle = "应用库";
+        this.getApplications(1);
       } else {
         this.addSelectTitle = "已选容器";
         this.addTitle = "容器库";
+        this.getContainer(1);
       }
-      this.getAddDialogType();
+      // this.getAddDialogType();
       this.fileSelectedList = [];
       this.ifAddDialog = true;
     },
@@ -1078,49 +1278,10 @@ export default {
         param = {};
       if (this.addTitle === "应用库") {
         url = baseUrl + "/admin/app/deploy?isUpdate=false";
-        param = [
-          {
-            containerName: "string",
-            esn: "string",
-            name: "string",
-            operateType: 0,
-            type: "string",
-            vendor: "string",
-            version: "string"
-          }
-        ];
-        // param = { apps: this.fileSelectedList, isUpdate: false };
+        param = { apps: this.fileSelectedList, isUpdate: false };
       } else if (this.addTitle === "容器库") {
         url = baseUrl + "/admin/containers/deploy,/upgrade";
-        param = {
-          containerlist: [
-            {
-              containerInfo: {
-                incrementPkg: true,
-                name: "string",
-                releaseTime: 0,
-                releaseUser: "string",
-                type: "string",
-                vendor: "string",
-                version: "string"
-              },
-              containerconfig: {
-                containerName: "string",
-                cpuCores: 0,
-                description: "string",
-                diskSizeMB: "string",
-                memoryMB: "string",
-                openServices: "string",
-                physicalInterfaces: "string",
-                volumeSizeMB: "string"
-              },
-              deviceid: "string"
-            }
-          ],
-          update: true
-        };
-
-        // param = { containerlist: this.fileSelectedList, update: true };
+        param = { containerlist: this.fileSelectedList, update: true };
       }
       //this.fileSelectedList;
       this.$axios
@@ -1136,6 +1297,7 @@ export default {
               type: "success"
             });
             this.ifAddDialog = false;
+            this.dialogForm.containerArr = this.searchFile;
           } else {
             this.$message({
               message: "安装失败",
@@ -1181,9 +1343,10 @@ export default {
     },
     removeSelected(val) {
       this.fileSelectedList.forEach((item, index) => {
-        if (item.id === val.id) {
+        if (item.name === val.name) {
           this.fileSelectedList.splice(index, 1);
           this.$refs.multipleTable.toggleRowSelection(item, false);
+          return false;
         }
       });
     },
@@ -1192,6 +1355,24 @@ export default {
     },
     handleClose(key, keyPath) {
       console.log(key, keyPath);
+    },
+    dateFormat(row, column, cellValue, index) {
+      // const daterc = row[column.property];
+      // if (daterc != null) {
+      //   const dateMat = new Date(
+      //     parseInt(daterc.replace("/Date(", "").replace(")/", ""), 10)
+      //   );
+      //   const year = dateMat.getFullYear();
+      //   const month = dateMat.getMonth() + 1;
+      //   const day = dateMat.getDate();
+      //   const hh = dateMat.getHours();
+      //   const mm = dateMat.getMinutes();
+      //   const ss = dateMat.getSeconds();
+      //   const timeFormat =
+      //     year + "/" + month + "/" + day + " " + hh + ":" + mm + ":" + ss;
+      //   return cellValue;
+      // }
+      return cellValue;
     }
   }
 };
@@ -1274,6 +1455,10 @@ export default {
 }
 .acForm .el-col {
   text-align: center;
+}
+.addConfig {
+  min-width: 120px;
+  float: left;
 }
 </style>
 
