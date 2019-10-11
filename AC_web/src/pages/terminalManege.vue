@@ -39,7 +39,14 @@
               <el-input v-model="searchItem.name" placeholder="请输入设备名称"></el-input>
             </el-form-item>
             <el-form-item prop="neType" label="设备类型">
-              <el-input v-model="searchItem.neType" placeholder="请输入设备类型"></el-input>
+              <el-select v-model="searchItem.neType" :placeholder="typeArr.title">
+                <el-option
+                  v-for="item in typeArr.options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="search(1)">查询</el-button>
@@ -166,11 +173,19 @@
             <el-col :span="12">
               <el-form-item label="终端类型" prop="terminalType">
                 <span v-if="ifDialogDetail">{{dialogForm.terminalType}}</span>
-                <el-input
+                <el-select
                   v-if="!ifDialogDetail"
                   v-model="dialogForm.terminalType"
-                  placeholder="请输入终端类型"
-                ></el-input>
+                  :placeholder="typeArr.title"
+                  style="float:left"
+                >
+                  <el-option
+                    v-for="item in typeArr.options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  ></el-option>
+                </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -529,8 +544,8 @@ export default {
         name: "",
         neType: ""
       },
-      versionArr: {
-        title: "请选择版本号",
+      typeArr: {
+        title: "请选择设备类型",
         options: [
           {
             value: "1",
@@ -543,23 +558,6 @@ export default {
           {
             value: "3",
             label: "1.2"
-          }
-        ]
-      },
-      ascriptionArr: {
-        title: "请选择归属地",
-        options: [
-          {
-            value: "1",
-            label: "北京"
-          },
-          {
-            value: "2",
-            label: "上海"
-          },
-          {
-            value: "3",
-            label: "济南"
           }
         ]
       },
