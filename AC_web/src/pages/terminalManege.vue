@@ -33,18 +33,18 @@
         <el-row>
           <el-form :inline="true" :model="searchItem" ref="searchItem">
             <el-form-item label="终端ID">
-              <el-input v-model="searchItem.terminalId" placeholder="请输入终端ID"></el-input>
+              <el-input v-model="searchItem.deviceId" placeholder="请输入终端ID"></el-input>
             </el-form-item>
-            <el-form-item prop="name" label="设备名称">
+            <el-form-item prop="name" label="终端名称">
               <el-input v-model="searchItem.name" placeholder="请输入设备名称"></el-input>
             </el-form-item>
-            <el-form-item prop="neType" label="设备类型">
+            <el-form-item prop="neType" label="终端类型">
               <el-select v-model="searchItem.neType" :placeholder="typeArr.title">
                 <el-option
                   v-for="item in typeArr.options"
-                  :key="item.name"
+                  :key="item.terminalType"
                   :label="item.name"
-                  :value="item.name"
+                  :value="item.terminalType"
                 ></el-option>
               </el-select>
             </el-form-item>
@@ -181,9 +181,9 @@
                 >
                   <el-option
                     v-for="item in typeArr.options"
-                    :key="item.name"
+                    :key="item.terminalType"
                     :label="item.name"
-                    :value="item.name"
+                    :value="item.terminalType"
                   ></el-option>
                 </el-select>
               </el-form-item>
@@ -484,26 +484,13 @@ export default {
       tableLimit: 10,
       selectedRow: [],
       searchItem: {
-        terminalId: "",
+        deviceId: "",
         name: "",
         neType: ""
       },
       typeArr: {
         title: "请选择设备类型",
-        options: [
-          {
-            value: "1",
-            label: "1.0"
-          },
-          {
-            value: "2",
-            label: "1.1"
-          },
-          {
-            value: "3",
-            label: "1.2"
-          }
-        ]
+        options: []
       },
       allDataArr: [
         {
