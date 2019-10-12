@@ -247,14 +247,8 @@ export default {
       condition.type = this.searchItem.type;
       this.$axios
         .post(
-          baseUrl + "/admin/containers/files",
-          {
-            condition: condition,
-            pageSize: this.tableLimit,
-            pageIndex: page,
-            sort: ["desc"]
-          },
-          { headers: { "Content-Type": "application/json" } }
+          baseUrl + "/admin/containers/files?pageIndex="+page+"&pageSize="+this.tableLimit,
+          condition
         )
         .then(res => {
           this.tableSize = res.data.totalRecord;
@@ -335,6 +329,16 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           if (this.dialogTitle.indexOf("新增") > -1) {
+            let addParam={
+                  containerName: this.dialogForm.name,
+                  containerType: this.dialogForm.type,
+                  isIncrementPkg: true,
+                  bseVersion: this.dialogForm.baseVersion,
+                  version: this.dialogForm.version,
+                  url: this.dialogForm.url,
+                  description: this.dialogForm.description
+                };
+                if(this.dialogForm.isIncrementPkg==="false")addParam.isIncrementPkg=false;
             let config = {
               headers: {
                 "Content-Type": "application/json"
@@ -343,15 +347,7 @@ export default {
             this.$axios
               .post(
                 baseUrl + "/admin/containers/add",
-                {
-                  containerName: this.dialogForm.name,
-                  containerType: this.dialogForm.type,
-                  isIncrementPkg: this.dialogForm.isIncrementPkg,
-                  bseVersion: this.dialogForm.baseVersion,
-                  version: this.dialogForm.version,
-                  url: this.dialogForm.url,
-                  description: this.dialogForm.description
-                },
+                addParam,
                 config
               )
               .then(res => {

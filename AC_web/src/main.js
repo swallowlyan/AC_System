@@ -16,28 +16,26 @@ axios.defaults.baseURL = "/api";
 
 axios.defaults.timeout = 300000;
 
-axios.interceptors.request.use( (config) => {
-    let token = sessionStorage.getItem('userToken');
-    if(token){
-      config.headers.Authorization = token;
-    }
-    if (config.headers["Content-Type"] === "application/json"){
-      return config;
-    }
-    // debugger;
-    // config.url.indexOf('/soft-detail/create') != -1||config.url.indexOf('/soft-detail/update') != -1||(config.url.indexOf('/soft-standBook/import') != -1 ||
-    if(config.url == "/stock-in-register/import" || config.url === '/soft-detail/create' || config.url === "/soft-detail/update" || config.url === "/soft-standBook/import"
-      || config.url == '/stock-in-register/single-register'){
-      return config
-    }else{
-      config.method == 'post' ? config.data = qs.stringify(config.data) : '';
-      return config;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  });
+// axios.interceptors.request.use( (config) => {
+//     let token = sessionStorage.getItem('userToken');
+//     if(token){
+//       config.headers.Authorization = token;
+//     }
+//     if (config.headers["Content-Type"] === "application/json"){
+//       return config;
+//     }
+//     if(config.url == "/stock-in-register/import" || config.url === '/soft-detail/create' || config.url === "/soft-detail/update" || config.url === "/soft-standBook/import"
+//       || config.url == '/stock-in-register/single-register'){
+//       return config
+//     }else{
+//       config.method == 'post' ? config.data = qs.stringify(config.data) : '';
+//       return config;
+//     }
+//     return config;
+//   },
+//   (error) => {
+//     return Promise.reject(error);
+//   });
 axios.interceptors.response.use(
   (response)=>{
   if (response.data.code === 12){

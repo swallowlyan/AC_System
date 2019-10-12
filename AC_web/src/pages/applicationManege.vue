@@ -257,8 +257,8 @@ export default {
   },
   methods: {
     search(page) {
-      this.$axios.post(baseUrl+'/admin/app/files?'+"pageIndex="+page+"&pageSize="+this.tableLimit,{appInfo:this.searchItem},
-      {headers: {"Content-Type": "application/json"}}
+      this.$axios.post(baseUrl+'/admin/app/files?'+"pageIndex="+page+"&pageSize="+this.tableLimit,this.searchItem,
+      // {headers: {"Content-Type": "application/json"}}
       ).then((res)=>{
         this.tableSize=res.data.data.total;
         this.tableData=res.data.data.records;

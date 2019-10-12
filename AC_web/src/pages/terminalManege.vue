@@ -42,9 +42,9 @@
               <el-select v-model="searchItem.neType" :placeholder="typeArr.title">
                 <el-option
                   v-for="item in typeArr.options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
+                  :key="item.name"
+                  :label="item.name"
+                  :value="item.name"
                 ></el-option>
               </el-select>
             </el-form-item>
@@ -171,7 +171,7 @@
           <el-row></el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="终端类型" prop="terminalType">
+              <el-form-item label="设备类型" prop="terminalType">
                 <span v-if="ifDialogDetail">{{dialogForm.terminalType}}</span>
                 <el-select
                   v-if="!ifDialogDetail"
@@ -181,9 +181,9 @@
                 >
                   <el-option
                     v-for="item in typeArr.options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
+                    :key="item.name"
+                    :label="item.name"
+                    :value="item.name"
                   ></el-option>
                 </el-select>
               </el-form-item>
@@ -192,62 +192,6 @@
               <el-form-item label="制造商">
                 <span v-if="ifDialogDetail">{{dialogForm.vendor}}</span>
                 <el-input v-if="!ifDialogDetail" v-model="dialogForm.vendor" placeholder="请输入制造商"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="CPU核数" prop="maxCpuCores">
-                <span v-if="ifDialogDetail">{{dialogForm.maxCpuCores}}</span>
-                <el-input
-                  v-if="!ifDialogDetail"
-                  v-model="dialogForm.maxCpuCores"
-                  placeholder="请输入CPU核数"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="最大内存(MB)" prop="maxMemoryMB">
-                <span v-if="ifDialogDetail">{{dialogForm.maxMemoryMB}}</span>
-                <el-input
-                  v-if="!ifDialogDetail"
-                  v-model="dialogForm.maxMemoryMB"
-                  placeholder="请输入最大内存"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="硬盘空间(MB)" prop="maxDiskSizeMB">
-                <span v-if="ifDialogDetail">{{dialogForm.maxDiskSizeMB}}</span>
-                <el-input
-                  v-if="!ifDialogDetail"
-                  v-model="dialogForm.maxDiskSizeMB"
-                  placeholder="请输入硬盘空间"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="host物理接口" prop="physicalInterfaces">
-                <span v-if="ifDialogDetail">{{dialogForm.physicalInterfaces}}</span>
-                <el-input
-                  v-if="!ifDialogDetail"
-                  v-model="dialogForm.physicalInterfaces"
-                  placeholder="请输入物理接口"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="开放能力" prop="openServices">
-                <span v-if="ifDialogDetail">{{dialogForm.openServices}}</span>
-                <el-input
-                  v-if="!ifDialogDetail"
-                  v-model="dialogForm.openServices"
-                  placeholder="请选择开放能力"
-                ></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -581,18 +525,18 @@ export default {
           color: "green"
         },
         {
-          title: "活跃终端总数",
-          timeTitle: "月",
-          smallTitle: "活跃终端",
+          title: "已激活终端总数",
+          timeTitle: "当前",
+          smallTitle: "已激活终端",
           count: "0",
           percent: "0%",
           icon: "fa fa-long-arrow-up",
           color: "greenAll"
         },
         {
-          title: "未证实终端总数",
+          title: "未激活终端总数",
           timeTitle: "当前",
-          smallTitle: "未证实终端",
+          smallTitle: "未激活终端",
           count: "0",
           percent: "0%",
           icon: "fa fa-long-arrow-up",
@@ -663,22 +607,7 @@ export default {
           { required: true, message: "请选择终端类型", trigger: "blur" }
         ],
         ip: [{ validator: checkIp, trigger: "blur" }],
-        mac: [{ validator: checkMac, trigger: "blur" }],
-        maxCpuCores: [
-          { required: true, message: "请输入最大的CPU核数", trigger: "blur" }
-        ],
-        maxMemoryMB: [
-          { required: true, message: "请输入最大内存(MB)", trigger: "blur" }
-        ],
-        maxDiskSizeMB: [
-          { required: true, message: "硬盘空间(MB)", trigger: "blur" }
-        ],
-        physicalInterfaces: [
-          { required: true, message: "请输入host物理接口", trigger: "blur" }
-        ],
-        openServices: [
-          { required: true, message: "请输入开放能力", trigger: "blur" }
-        ]
+        mac: [{ validator: checkMac, trigger: "blur" }]
       },
       addSelectTitle: "已选容器",
       addTitle: "容器库",
@@ -708,11 +637,23 @@ export default {
     };
   },
   mounted() {
+    this.getDeviceType();
     this.search(1);
     this.getMapData();
     this.drawMap();
   },
   methods: {
+    //获取设备类型
+    getDeviceType() {
+      this.$axios
+        .post(baseUrl + "/admin/terminal-type/selTerminalTypeList")
+        .then(res => {
+          this.typeArr.options = res.data.data;
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
     search(page) {
       // terminalId: this.searchItem.terminalId,
       //     name: this.searchItem.name,
@@ -724,13 +665,7 @@ export default {
       });
       this.$axios
         .post(
-          baseUrl + "/admin/terminal/devices/info?" + param,
-          {},
-          {
-            headers: {
-              "Content-Type": "application/json"
-            }
-          }
+          baseUrl + "/admin/terminal/devices/info?" + param
         )
         .then(res => {
           this.tableSize = res.data.data.totalRecord;
@@ -751,13 +686,7 @@ export default {
     getMapData() {
       this.$axios
         .post(
-          baseUrl + "/admin/snapshoot/queryTerminalStatistic",
-          {},
-          {
-            headers: {
-              "Content-Type": "application/json"
-            }
-          }
+          baseUrl + "/admin/snapshoot/queryTerminalStatistic"
         )
         .then(res => {
           if (res.data.success) {
