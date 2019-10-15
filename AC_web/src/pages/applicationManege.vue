@@ -44,7 +44,7 @@
             </el-table-column>
             <el-table-column prop="appName" width="120" label="微应用名"></el-table-column>
             <el-table-column prop="appType" label="微应用类型"></el-table-column>
-            <el-table-column prop="vendor" width="150" label="供应商"></el-table-column>
+            <el-table-column prop="vendor" width="150" label="应用厂商"></el-table-column>
             <el-table-column prop="version" label="微应用版本"></el-table-column>
             <el-table-column prop="appReleaseTime" width="120" label="发布时间"></el-table-column>
             <el-table-column prop="containerType" width="120" label="容器类型"></el-table-column>
@@ -57,7 +57,7 @@
             </el-table-column>
           </el-table>
           <el-row style="margin:20px 0px">
-            <el-button type="primary" round icon="el-icon-plus" @click="add('dialogForm')">新增容器</el-button>
+            <el-button type="primary" round icon="el-icon-plus" @click="add('dialogForm')">新增</el-button>
             <el-pagination
               background
               @size-change="handleSizeChange"
@@ -83,20 +83,18 @@
         class="acForm"
       >
         <el-row>
-          <el-col :span="12">
+          <!-- <el-col :span="12">
             <el-form-item label="微应用ID" prop="appId">
               <span v-if="ifDialogDetail">{{dialogForm.appId}}</span>
               <el-input v-if="!ifDialogDetail" v-model="dialogForm.appId" placeholder="请输入微应用ID"></el-input>
             </el-form-item>
-          </el-col>
+          </el-col> -->
           <el-col :span="12">
             <el-form-item label="微应用名称" prop="appName">
               <span v-if="ifDialogDetail">{{dialogForm.appName}}</span>
               <el-input v-if="!ifDialogDetail" v-model="dialogForm.appName" placeholder="请输入微应用名称"></el-input>
             </el-form-item>
           </el-col>
-          </el-row>
-        <el-row>
           <el-col :span="12">
             <el-form-item label="微应用类型" prop="appType">
               <span v-if="ifDialogDetail">{{dialogForm.appType}}</span>
@@ -115,18 +113,26 @@
               </el-select>
             </el-form-item>
           </el-col>
+          </el-row>
+        <el-row>
            <el-col :span="12">
             <el-form-item label="应用中心微应用名称" prop="appStoreId">
               <span v-if="ifDialogDetail">{{dialogForm.appStoreId}}</span>
               <el-input v-if="!ifDialogDetail" v-model="dialogForm.appStoreId" placeholder="请输入应用中心微应用名称"></el-input>
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row>
           <el-col :span="12">
             <el-form-item label="微应用版本">
               <span v-if="ifDialogDetail">{{dialogForm.version}}</span>
               <el-input v-if="!ifDialogDetail" v-model="dialogForm.version" placeholder="请输入应用版本"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="应用厂商">
+              <span v-if="ifDialogDetail">{{dialogForm.vendor}}</span>
+              <el-input v-if="!ifDialogDetail" v-model="dialogForm.vendor" placeholder="请输入应用厂商"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -141,7 +147,6 @@
               ></el-date-picker>
             </el-form-item>
           </el-col>
-          
         </el-row>
         <el-row>
           <el-col :span="12">
@@ -167,12 +172,6 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="供应商">
-              <span v-if="ifDialogDetail">{{dialogForm.vendor}}</span>
-              <el-input v-if="!ifDialogDetail" v-model="dialogForm.vendor" placeholder="请输入供应商"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
             <el-form-item label="文件大小">
               <span v-if="ifDialogDetail">{{dialogForm.fileSizeMB}}</span>
               <el-input
@@ -182,8 +181,6 @@
               ></el-input>
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row>
           <el-col :span="12">
             <el-form-item label="最大数据大小">
               <span v-if="ifDialogDetail">{{dialogForm.minDataDiskMB}}</span>
@@ -194,6 +191,8 @@
               ></el-input>
             </el-form-item>
           </el-col>
+        </el-row>
+        <el-row>
           <el-col :span="12">
             <el-form-item label="最小CPU个数">
               <span v-if="ifDialogDetail">{{dialogForm.minVcpus}}</span>
@@ -204,8 +203,6 @@
               ></el-input>
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row>
           <el-col :span="12">
             <el-form-item label="物理接口">
               <span v-if="ifDialogDetail">{{dialogForm.physicalInterfaces}}</span>
@@ -216,6 +213,9 @@
               ></el-input>
             </el-form-item>
           </el-col>
+        </el-row>
+        <el-row>
+          
           <el-col :span="12">
             <el-form-item label="下载url">
               <span v-if="ifDialogDetail">{{dialogForm.downloadURL}}</span>
@@ -226,8 +226,6 @@
               ></el-input>
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row>
           <el-col :span="12">
             <el-form-item label="图标url">
               <span v-if="ifDialogDetail">{{dialogForm.logo}}</span>
@@ -235,7 +233,6 @@
             </el-form-item>
           </el-col>
         </el-row>
-        
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -282,7 +279,6 @@ export default {
       dialogFormVisible: false,
       ifDialogDetail: false,
       dialogForm: {
-        appId:"",
         appName: "",
         appType: "",
         appReleaseTime:"",
