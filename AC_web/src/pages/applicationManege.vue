@@ -408,7 +408,6 @@ export default {
         });
     },
     submitForm(formName) {
-      debugger;
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.$axios.post(baseUrl+'/admin/app/add',
