@@ -32,19 +32,19 @@
       <el-tab-pane label="详细列表" name="detailView">
         <el-row>
           <el-form :inline="true" :model="searchItem" ref="searchItem">
-            <el-form-item label="终端ID">
+            <el-form-item label="终端ID" prop="deviceId">
               <el-input v-model="searchItem.deviceId" placeholder="请输入终端ID"></el-input>
             </el-form-item>
             <el-form-item prop="name" label="终端名称">
               <el-input v-model="searchItem.name" placeholder="请输入设备名称"></el-input>
             </el-form-item>
-            <el-form-item prop="neType" label="终端类型">
-              <el-select v-model="searchItem.neType" :placeholder="typeArr.title">
+            <el-form-item prop="deviceType" label="终端类型">
+              <el-select v-model="searchItem.deviceType" :placeholder="typeArr.title">
                 <el-option
                   v-for="item in typeArr.options"
-                  :key="item.terminalType"
+                  :key="item.deviceType"
                   :label="item.name"
-                  :value="item.terminalType"
+                  :value="item.deviceType"
                 ></el-option>
               </el-select>
             </el-form-item>
@@ -66,19 +66,19 @@
               >
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column type="index" width="50" label="序号"></el-table-column>
-                <el-table-column prop="terminalId" label="终端ID">
+                <el-table-column prop="deviceId" label="终端ID">
                   <template slot-scope="scope">
                     <el-button
                       @click="detailRow(scope.row)"
                       type="text"
                       size="medium"
-                    >{{scope.row.terminalId}}</el-button>
+                    >{{scope.row.deviceId}}</el-button>
                   </template>
                 </el-table-column>
-                <el-table-column prop="terminalName" label="终端名称"></el-table-column>
+                <el-table-column prop="deviceName" label="终端名称"></el-table-column>
                 <el-table-column prop="ip" label="终端ip"></el-table-column>
                 <el-table-column prop="mac" label="mac地址"></el-table-column>
-                <el-table-column prop="terminalType" label="设备类型"></el-table-column>
+                <el-table-column prop="deviceType" label="设备类型"></el-table-column>
                 <el-table-column prop="status" label="终端状态">
                   <template slot-scope="scope">
                     <span v-if="scope.row.status===0" style="color:#67c23a">正常</span>
@@ -94,8 +94,8 @@
                   <template slot-scope="scope">
                     <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
                     <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
-                    <el-button @click="updateRow(scope.row)" type="text" size="medium">升级</el-button>
-                    <el-button @click="pairRow(scope.row)" type="text" size="medium">对时</el-button>
+                    <!-- <el-button @click="updateRow(scope.row)" type="text" size="medium">升级</el-button>
+                    <el-button @click="pairRow(scope.row)" type="text" size="medium">对时</el-button>-->
                   </template>
                 </el-table-column>
               </el-table>
@@ -138,7 +138,7 @@
     </el-tabs>
     <!-- 新增/编辑弹窗 -->
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="75%">
-      <el-row v-show="!ifAddDialog">
+      <el-row v-show="!ifAddContainer">
         <el-form
           :model="dialogForm"
           :rules="dialogRules"
@@ -148,21 +148,30 @@
         >
           <el-row>
             <el-col :span="12">
-              <el-form-item label="终端ID" prop="terminalId">
-                <span v-if="ifDialogDetail">{{dialogForm.terminalId}}</span>
+              <el-form-item label="终端ID" prop="deviceId">
+                <span v-if="ifDialogDetail">{{dialogForm.deviceId}}</span>
                 <el-input
                   v-if="!ifDialogDetail"
-                  v-model="dialogForm.terminalId"
+                  v-model="dialogForm.deviceId"
                   placeholder="请输入终端ID"
+                  style="width:80%;float:left"
                 ></el-input>
+                <el-button
+                  type="primary"
+                  plain
+                  size="mini"
+                  v-if="ifDialogEdit"
+                  style="float:right;margin:5px;"
+                  @click="restart(dialogForm)"
+                >重启</el-button>
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="终端名称" prop="terminalName">
-                <span v-if="ifDialogDetail">{{dialogForm.terminalName}}</span>
+              <el-form-item label="终端名称" prop="deviceName">
+                <span v-if="ifDialogDetail">{{dialogForm.deviceName}}</span>
                 <el-input
                   v-if="!ifDialogDetail"
-                  v-model="dialogForm.terminalName"
+                  v-model="dialogForm.deviceName"
                   placeholder="请输入终端名称"
                 ></el-input>
               </el-form-item>
@@ -171,31 +180,46 @@
           <el-row></el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="设备类型" prop="terminalType">
-                <span v-if="ifDialogDetail">{{dialogForm.terminalType}}</span>
+              <el-form-item label="设备类型" prop="deviceType">
+                <span v-if="ifDialogDetail">{{dialogForm.deviceType}}</span>
                 <el-select
                   v-if="!ifDialogDetail"
-                  v-model="dialogForm.terminalType"
+                  v-model="dialogForm.deviceType"
                   :placeholder="typeArr.title"
                   style="float:left"
                 >
                   <el-option
                     v-for="item in typeArr.options"
-                    :key="item.terminalType"
+                    :key="item.deviceType"
                     :label="item.name"
-                    :value="item.terminalType"
+                    :value="item.deviceType"
                   ></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="制造商">
-                <span v-if="ifDialogDetail">{{dialogForm.vendor}}</span>
-                <el-input v-if="!ifDialogDetail" v-model="dialogForm.vendor" placeholder="请输入制造商"></el-input>
+                <span v-if="ifDialogDetail||ifDialogEdit">{{dialogForm.vendor}}</span>
+                <el-input v-if="!ifDialogDetail&&!ifDialogEdit" v-model="dialogForm.vendor" placeholder="请输入制造商"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row v-if="ifDialogDetail">
+            <el-col :span="12">
+              <el-form-item label="终端版本">
+                <span style="float:left">{{dialogForm.version}}</span>
+                <el-button
+                  type="primary"
+                  plain
+                  size="mini"
+                  v-if="ifDialogEdit"
+                  style="float:right;margin:5px;"
+                  @click="updateRow(dialogForm)"
+                >升级</el-button>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row v-if="ifDialogEdit||ifDialogDetail">
             <el-col :span="12">
               <el-form-item label="终端状态" prop="status">
                 <!-- 详情状态 -->
@@ -204,6 +228,14 @@
                 <span v-if="dialogForm.status===2">故障</span>
                 <span v-if="dialogForm.status===3">离线</span>
                 <span v-if="dialogForm.status===4">未注册</span>
+                <el-button
+                  type="primary"
+                  plain
+                  size="mini"
+                  v-if="ifDialogEdit"
+                  style="float:right;margin:5px;"
+                  @click="maintenance(dialogForm)"
+                >进入维护状态</el-button>
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -213,7 +245,8 @@
                   type="primary"
                   plain
                   size="mini"
-                  style="float:left;margin:5px;"
+                  v-if="ifDialogEdit"
+                  style="float:right;margin:5px;"
                   @click="pairRow(dialogForm)"
                 >对时</el-button>
               </el-form-item>
@@ -222,14 +255,14 @@
           <el-row>
             <el-col :span="12">
               <el-form-item label="终端ip" prop="ip">
-                <span v-if="ifDialogDetail">{{dialogForm.ip}}</span>
-                <el-input v-if="!ifDialogDetail" v-model="dialogForm.ip" placeholder="请输入终端ip"></el-input>
+                <span v-if="ifDialogDetail||ifDialogEdit">{{dialogForm.ip}}</span>
+                <el-input v-if="!ifDialogDetail&&!ifDialogEdit" v-model="dialogForm.ip" placeholder="请输入终端ip"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="mac地址">
-                <span v-if="ifDialogDetail">{{dialogForm.mac}}</span>
-                <el-input v-if="!ifDialogDetail" v-model="dialogForm.mac" placeholder="请输入mac地址"></el-input>
+                <span v-if="ifDialogDetail||ifDialogEdit">{{dialogForm.mac}}</span>
+                <el-input v-if="!ifDialogDetail&&!ifDialogEdit" v-model="dialogForm.mac" placeholder="请输入mac地址"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -270,7 +303,7 @@
                       v-for="(item,index) in dialogForm.containerArr"
                       :key="index"
                     >
-                      {{item.name}}
+                      {{item.containerName}}
                       <el-button
                         v-if="!ifDialogDetail"
                         type="text"
@@ -310,7 +343,7 @@
                         v-for="(app,appIndex) in item.appList"
                         :key="appIndex"
                       >
-                        {{app.name}}
+                        {{app}}
                         <el-button
                           v-if="!ifDialogDetail"
                           type="text"
@@ -341,7 +374,7 @@
         </el-form>
       </el-row>
       <!-- 新增服务/容器 -->
-      <el-row v-show="ifAddDialog">
+      <el-row v-show="ifAddContainer">
         <el-col :span="16" :offset="1">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
@@ -447,10 +480,10 @@
         </el-col>
       </el-row>
       <div slot="footer" class="dialog-footer">
-        <el-button v-show="!ifAddDialog" type="primary" @click="submitForm('dialogForm')">确 定</el-button>
-        <el-button v-show="!ifAddDialog" @click="dialogFormVisible = false">取 消</el-button>
-        <el-button v-show="ifAddDialog" type="primary" @click="submitFile()">安 装</el-button>
-        <el-button v-show="ifAddDialog" @click="ifAddDialog = false">取 消</el-button>
+        <el-button v-show="!ifAddContainer" type="primary" @click="submitForm('dialogForm')">确 定</el-button>
+        <el-button v-show="!ifAddContainer" @click="dialogFormVisible = false">取 消</el-button>
+        <el-button v-show="ifAddContainer" type="primary" @click="submitFile()">安 装</el-button>
+        <el-button v-show="ifAddContainer" @click="ifAddContainer = false">取 消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -486,7 +519,7 @@ export default {
       searchItem: {
         deviceId: "",
         name: "",
-        neType: ""
+        deviceType: ""
       },
       typeArr: {
         title: "请选择设备类型",
@@ -561,12 +594,14 @@ export default {
       tableData: [],
       dialogTitle: "新增",
       dialogFormVisible: false,
+      ifDialogEdit: false,
       ifDialogDetail: false,
-      ifAddDialog: false,
+      ifAddContainer: false,
+      currentRow:{},
       dialogForm: {
-        terminalId: "",
-        terminalName: "",
-        terminalType: "",
+        deviceId: "",
+        deviceName: "",
+        deviceType: "",
         status: "",
         ip: "",
         mac: "",
@@ -584,13 +619,13 @@ export default {
         ]
       },
       dialogRules: {
-        terminalId: [
+        deviceId: [
           { required: true, message: "请输入终端ID", trigger: "blur" }
         ],
-        terminalName: [
+        deviceName: [
           { required: true, message: "请输入终端名称", trigger: "blur" }
         ],
-        terminalType: [
+        deviceType: [
           { required: true, message: "请选择终端类型", trigger: "blur" }
         ],
         ip: [{ validator: checkIp, trigger: "blur" }],
@@ -642,17 +677,24 @@ export default {
         });
     },
     search(page) {
-      // terminalId: this.searchItem.terminalId,
-      //     name: this.searchItem.name,
-      //     neType: this.searchItem.neType,
-      let param = "pageSize=" + this.tableLimit + "&pageIndex=" + page;
-      Object.keys(this.searchItem).forEach(item => {
-        if (this.searchItem[item] !== "")
-          param += "&" + item + "=" + this.searchItem[item];
-      });
+      let param = {
+        deviceId: this.searchItem.deviceId,
+        name: this.searchItem.name,
+        deviceType: this.searchItem.deviceType
+      };
+      // let param = "pageSize=" + this.tableLimit + "&pageIndex=" + page;
+      // Object.keys(this.searchItem).forEach(item => {
+      //   if (this.searchItem[item] !== "")
+      //     param += "&" + item + "=" + this.searchItem[item];
+      // });
       this.$axios
         .post(
-          baseUrl + "/admin/terminal/devices/info?" + param
+          baseUrl +
+            "/admin/terminal/devices/info?pageSize=" +
+            this.tableLimit +
+            "&pageIndex=" +
+            page,
+          param
         )
         .then(res => {
           this.tableSize = res.data.data.totalRecord;
@@ -672,9 +714,7 @@ export default {
     //获取地图数据
     getMapData() {
       this.$axios
-        .post(
-          baseUrl + "/admin/snapshoot/queryTerminalStatistic"
-        )
+        .post(baseUrl + "/admin/snapshoot/queryTerminalStatistic")
         .then(res => {
           if (res.data.success) {
             this.allDataArr[0].count = res.data.data.terminalNum_total;
@@ -912,19 +952,24 @@ export default {
     },
     //查看
     detailRow(row) {
+      this.ifAddContainer = false;
+      this.ifDialogEdit = false;
+      this.ifDialogDetail = true;
       this.dialogTitle = "终端详细信息";
       this.dialogForm = Object.assign({}, row);
-      this.ifDialogDetail = true;
+      this.dialogForm.containerArr = [];
+      this.getContainerDetail(row);
       // this.$nextTick(() => {
       //   this.$refs["dialogForm"].resetFields();
       // });
-      this.dialogFormVisible = true;
+      // this.dialogFormVisible = true;
     },
     //新增
     add(formName) {
-      this.ifAddDialog = false;
-      this.dialogTitle = "新增终端";
+      this.ifAddContainer = false;
+      this.ifDialogEdit = false;
       this.ifDialogDetail = false;
+      this.dialogTitle = "新增终端";
       this.dialogForm = {};
       this.dialogFormVisible = true;
       // this.$nextTick(() => {
@@ -933,16 +978,19 @@ export default {
     },
     //编辑
     editRow(row) {
+      this.ifAddContainer = false;
+      this.ifDialogEdit = true;
       this.ifDialogDetail = false;
-      this.ifAddDialog = false;
       this.dialogTitle = "编辑终端";
       this.dialogForm = Object.assign({}, row);
-      this.dialogFormVisible = true;
+      this.currentRow=Object.assign({}, row);
+      this.dialogForm.containerArr = [];
+      this.getContainerDetail(row);
     },
     //删除
     delRow(row) {
       this.$confirm(
-        "是否确定删除     '" + row.terminalName + "'    该终端?",
+        "是否确定删除     '" + row.deviceName + "'    该终端?",
         "提示",
         {
           confirmButtonText: "确定",
@@ -954,7 +1002,9 @@ export default {
           let arr = [];
           arr.push(row);
           this.$axios
-            .delete(baseUrl + "/admin/terminal/devices", { data: arr })
+            .delete(baseUrl + "/admin/terminal/devices", {
+              data: [row.deviceId]
+            })
             .then(res => {
               if (res.data.success) {
                 this.$message({
@@ -980,14 +1030,51 @@ export default {
           });
         });
     },
+    //获取终端对应容器
+    getContainerDetail(row) {
+      this.$axios
+        .post(
+          baseUrl +
+            "/admin/containers/devicedeployinfo?deviceId=" +
+            row.deviceId
+        )
+        .then(res => {
+          if (res.data.data !== null && res.data.data.length > 0) {
+            res.data.data.forEach(item => {
+              if (
+                item.containerConfig.openServices.substring(
+                  1,
+                  item.containerConfig.openServices.length - 1
+                ) !== ""
+              ) {
+                item.containerConfig.appList = item.containerConfig.openServices
+                  .substring(1, item.containerConfig.openServices.length - 1)
+                  .split(",");
+              }
+              this.dialogForm.containerArr.push(item.containerConfig);
+            });
+          }
+          console.info(this.dialogForm);
+          this.dialogFormVisible = true;
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    //重启
+    restart(row) {},
+    //进入维护状态
+    maintenance(row) {},
     //升级
-    updateRow(row) {
-      this.$confirm("是否确定升级——'" + row.terminalName + "'?", "提示", {
+    updateRow() {
+      this.$confirm("是否确定升级——'" + row.deviceName + "'?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
-        .then(() => {})
+        .then(() => {
+          //this.currentRow
+        })
         .catch(() => {
           this.$message({
             type: "info",
@@ -996,15 +1083,15 @@ export default {
         });
     },
     //对时
-    pairRow(row) {
-      this.$confirm("是否确定对时——'" + row.terminalName + "'?", "提示", {
+    pairRow() {
+      this.$confirm("是否确定对时——'" + this.currentRow.deviceName + "'?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
         .then(() => {
           this.$axios
-            .put(baseUrl + "/admin/terminal/devices/clocksyn/" + row.terminalId)
+            .put(baseUrl + "/admin/terminal/devices/clocksyn/" + this.currentRow.deviceId)
             .then(res => {
               if (res.data.success) {
                 this.$message({
@@ -1043,8 +1130,10 @@ export default {
                 "Content-Type": "application/json"
               }
             };
+            let param = Object.assign({}, this.dialogForm);
+            param.name = param.deviceName;
             let arr = [];
-            arr.push(this.dialogForm);
+            arr.push(param);
             this.$axios
               .post(baseUrl + "/admin/terminal/devices", arr, config)
               .then(res => {
@@ -1073,7 +1162,7 @@ export default {
               .put(
                 baseUrl +
                   "/admin/terminal/devices/" +
-                  this.dialogForm.terminalId +
+                  this.dialogForm.deviceId +
                   "?" +
                   editData
               )
@@ -1085,6 +1174,7 @@ export default {
                     type: "success"
                   });
                   this.$refs[formName].resetFields();
+                  this.search(1);
                 } else {
                   this.$message({
                     message: "失败",
@@ -1181,12 +1271,13 @@ export default {
       }
       // this.getAddDialogType();
       this.fileSelectedList = [];
-      this.ifAddDialog = true;
+      this.ifAddContainer = true;
     },
     typeSelect(index, indexPath) {
       this.selectedType = index;
       this.searchFile("");
     },
+    //安装容器/应用
     submitFile() {
       let url = "",
         param = {};
@@ -1194,7 +1285,7 @@ export default {
         url = baseUrl + "/admin/app/deploy?isUpdate=false";
         param = { apps: this.fileSelectedList, isUpdate: false };
       } else if (this.addTitle === "容器库") {
-        url = baseUrl + "/admin/containers/deploy,/upgrade";
+        url = baseUrl + "/admin/containers/deploy";
         param = { containerlist: this.fileSelectedList, update: true };
       }
       //this.fileSelectedList;
@@ -1210,7 +1301,8 @@ export default {
               message: "安装成功",
               type: "success"
             });
-            this.ifAddDialog = false;
+            this.getContainerDetail(this.currentRow);
+            this.ifAddContainer = false;
             this.dialogForm.containerArr = this.searchFile;
           } else {
             this.$message({
@@ -1371,7 +1463,7 @@ export default {
   text-align: center;
 }
 .addConfig {
-  min-width: 120px;
+  width: 160px;
   float: left;
 }
 </style>

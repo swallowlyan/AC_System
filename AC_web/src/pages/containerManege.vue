@@ -3,10 +3,10 @@
   <div id="containerManage">
     <el-row>
       <el-form :inline="true" :model="searchItem" ref="searchItem">
-        <el-form-item label="容器名称">
+        <el-form-item label="容器名称" prop="name">
           <el-input v-model="searchItem.name" placeholder="请输入容器名称"></el-input>
         </el-form-item>
-        <el-form-item label="容器类型">
+        <el-form-item label="容器类型" prop="type">
           <el-input v-model="searchItem.type" placeholder="请输入容器类型"></el-input>
         </el-form-item>
         <el-form-item>

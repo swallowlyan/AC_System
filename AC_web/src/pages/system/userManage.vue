@@ -3,10 +3,10 @@
   <div id="userManage">
     <el-row>
       <el-form :inline="true" :model="searchItem" ref="searchItem">
-        <el-form-item label="用户名">
+        <el-form-item label="用户名" prop="userName">
           <el-input v-model="searchItem.userName" placeholder="请输入用户名"></el-input>
         </el-form-item>
-        <el-form-item label="租户ID">
+        <el-form-item label="租户ID" prop="tenantId">
           <el-input v-model="searchItem.tenantId" placeholder="请输入租户ID"></el-input>
         </el-form-item>
         <el-form-item>
