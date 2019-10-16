@@ -172,7 +172,7 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="文件大小">
+            <el-form-item label="文件大小(MB)">
               <span v-if="ifDialogDetail">{{dialogForm.fileSizeMB}}</span>
               <el-input
                 v-if="!ifDialogDetail"
@@ -182,7 +182,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="最大数据大小">
+            <el-form-item label="最大数据大小(MB)">
               <span v-if="ifDialogDetail">{{dialogForm.minDataDiskMB}}</span>
               <el-input
                 v-if="!ifDialogDetail"
@@ -194,12 +194,12 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="最小CPU个数">
+            <el-form-item label="CPU核心数">
               <span v-if="ifDialogDetail">{{dialogForm.minVcpus}}</span>
               <el-input
                 v-if="!ifDialogDetail"
                 v-model="dialogForm.minVcpus"
-                placeholder="请输入最小CPU个数"
+                placeholder="请输入CPU核心数"
               ></el-input>
             </el-form-item>
           </el-col>
@@ -290,6 +290,7 @@ export default {
         fileSizeMB:"",
         logo:"",
         minVcpus:"",
+        minDataDiskMB:"",
         physicalInterfaces:""
       },
       dialogRules: {
@@ -319,7 +320,8 @@ export default {
         .post(baseUrl + "/admin/app/getAllTypes")
         .then(res => {
           if (res.data.success) {
-            this.appTypeArr.options = res.data.data;
+            this.appTypeArr.options= res.data.data;
+            this.appTypeArr.options.push({ItemCode:"",ItemName:"全部"});
           }
         })
         .catch(err => {
@@ -388,9 +390,7 @@ export default {
         type: "warning"
       })
         .then(() => {
-          this.$axios.post(baseUrl+'/admin/app/delete',{
-            appId:row.appId,
-          }).then((res)=>{
+          this.$axios.post(baseUrl+'/admin/app/delete?appId='+row.appId).then((res)=>{
             this.$message({
             type: "success",
             message: "删除成功!"

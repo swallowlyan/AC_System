@@ -75,7 +75,7 @@
                     >{{scope.row.deviceId}}</el-button>
                   </template>
                 </el-table-column>
-                <el-table-column prop="deviceName" label="终端名称"></el-table-column>
+                <el-table-column prop="name" label="终端名称"></el-table-column>
                 <el-table-column prop="ip" label="终端ip"></el-table-column>
                 <el-table-column prop="mac" label="mac地址"></el-table-column>
                 <el-table-column prop="deviceType" label="设备类型"></el-table-column>
@@ -89,7 +89,7 @@
                   </template>
                 </el-table-column>
                 <!-- <el-table-column prop="vendor" label="制造商"></el-table-column> -->
-                <el-table-column prop="activeTime" width="180" label="激活时间" :formatter="dateFormat"></el-table-column>
+                <el-table-column prop="registerTime" width="180" label="激活时间" :formatter="dateFormat"></el-table-column>
                 <el-table-column prop="options" label="操作" width="200">
                   <template slot-scope="scope">
                     <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
@@ -167,11 +167,11 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="终端名称" prop="deviceName">
-                <span v-if="ifDialogDetail">{{dialogForm.deviceName}}</span>
+              <el-form-item label="终端名称" prop="name">
+                <span v-if="ifDialogDetail">{{dialogForm.name}}</span>
                 <el-input
                   v-if="!ifDialogDetail"
-                  v-model="dialogForm.deviceName"
+                  v-model="dialogForm.name"
                   placeholder="请输入终端名称"
                 ></el-input>
               </el-form-item>
@@ -600,7 +600,7 @@ export default {
       currentRow:{},
       dialogForm: {
         deviceId: "",
-        deviceName: "",
+        name: "",
         deviceType: "",
         status: "",
         ip: "",
@@ -622,7 +622,7 @@ export default {
         deviceId: [
           { required: true, message: "请输入终端ID", trigger: "blur" }
         ],
-        deviceName: [
+        name: [
           { required: true, message: "请输入终端名称", trigger: "blur" }
         ],
         deviceType: [
@@ -671,6 +671,7 @@ export default {
         .post(baseUrl + "/admin/terminal-type/selTerminalTypeList")
         .then(res => {
           this.typeArr.options = res.data.data;
+          this.typeArr.options.push({deviceType:"",name:"全部"});
         })
         .catch(err => {
           console.log(err);
@@ -698,7 +699,7 @@ export default {
         )
         .then(res => {
           this.tableSize = res.data.data.totalRecord;
-          this.tableData = res.data.data.data.records;
+          this.tableData = res.data.data.data;
         })
         .catch(err => {
           console.log(err);
@@ -990,7 +991,7 @@ export default {
     //删除
     delRow(row) {
       this.$confirm(
-        "是否确定删除     '" + row.deviceName + "'    该终端?",
+        "是否确定删除     '" + row.name + "'    该终端?",
         "提示",
         {
           confirmButtonText: "确定",
@@ -1002,9 +1003,7 @@ export default {
           let arr = [];
           arr.push(row);
           this.$axios
-            .delete(baseUrl + "/admin/terminal/devices", {
-              data: [row.deviceId]
-            })
+            .delete(baseUrl + "/admin/terminal/devices",{params:{devices:row}})
             .then(res => {
               if (res.data.success) {
                 this.$message({
@@ -1014,7 +1013,7 @@ export default {
                 this.search(1);
               } else {
                 this.$message({
-                  message: "删除失败",
+                  message: res.data.errmsg,
                   type: "error"
                 });
               }
@@ -1067,7 +1066,7 @@ export default {
     maintenance(row) {},
     //升级
     updateRow() {
-      this.$confirm("是否确定升级——'" + row.deviceName + "'?", "提示", {
+      this.$confirm("是否确定升级——'" + row.name + "'?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
@@ -1084,7 +1083,7 @@ export default {
     },
     //对时
     pairRow() {
-      this.$confirm("是否确定对时——'" + this.currentRow.deviceName + "'?", "提示", {
+      this.$confirm("是否确定对时——'" + this.currentRow.name + "'?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
@@ -1100,7 +1099,7 @@ export default {
                 });
               } else {
                 this.$message({
-                  message: "对时失败",
+                  message: res.data.errmsg,
                   type: "error"
                 });
               }
@@ -1130,10 +1129,8 @@ export default {
                 "Content-Type": "application/json"
               }
             };
-            let param = Object.assign({}, this.dialogForm);
-            param.name = param.deviceName;
             let arr = [];
-            arr.push(param);
+            arr.push(this.dialogForm);
             this.$axios
               .post(baseUrl + "/admin/terminal/devices", arr, config)
               .then(res => {
@@ -1147,7 +1144,7 @@ export default {
                   this.search(1);
                 } else {
                   this.$message({
-                    message: "失败",
+                    message: res.data.errmsg,
                     type: "error"
                   });
                 }
@@ -1177,7 +1174,7 @@ export default {
                   this.search(1);
                 } else {
                   this.$message({
-                    message: "失败",
+                    message: res.data.errmsg,
                     type: "error"
                   });
                 }
