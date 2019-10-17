@@ -89,7 +89,12 @@
                   </template>
                 </el-table-column>
                 <!-- <el-table-column prop="vendor" label="制造商"></el-table-column> -->
-                <el-table-column prop="registerTime" width="180" label="激活时间" :formatter="dateFormat"></el-table-column>
+                <el-table-column
+                  prop="registerTime"
+                  width="180"
+                  label="激活时间"
+                  :formatter="dateFormat"
+                ></el-table-column>
                 <el-table-column prop="options" label="操作" width="200">
                   <template slot-scope="scope">
                     <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
@@ -116,7 +121,14 @@
                     @click="add('dialogForm')"
                   >新增</el-button>
                 </el-button-group>
-                <el-upload action :limit="1" style="float:left">
+                <el-upload
+                  action
+                  :before-upload="beforeAvatarUpload"
+                  :on-success="search(1)"
+                  :show-file-list="false"
+                  :limit="1"
+                  style="float:left"
+                >
                   <el-button type="warning" round size="small" icon="el-icon-upload2">批量导入</el-button>
                 </el-upload>
                 <el-pagination
@@ -169,11 +181,7 @@
             <el-col :span="12">
               <el-form-item label="终端名称" prop="name">
                 <span v-if="ifDialogDetail">{{dialogForm.name}}</span>
-                <el-input
-                  v-if="!ifDialogDetail"
-                  v-model="dialogForm.name"
-                  placeholder="请输入终端名称"
-                ></el-input>
+                <el-input v-if="!ifDialogDetail" v-model="dialogForm.name" placeholder="请输入终端名称"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -200,7 +208,11 @@
             <el-col :span="12">
               <el-form-item label="制造商">
                 <span v-if="ifDialogDetail||ifDialogEdit">{{dialogForm.vendor}}</span>
-                <el-input v-if="!ifDialogDetail&&!ifDialogEdit" v-model="dialogForm.vendor" placeholder="请输入制造商"></el-input>
+                <el-input
+                  v-if="!ifDialogDetail&&!ifDialogEdit"
+                  v-model="dialogForm.vendor"
+                  placeholder="请输入制造商"
+                ></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -256,13 +268,21 @@
             <el-col :span="12">
               <el-form-item label="终端ip" prop="ip">
                 <span v-if="ifDialogDetail||ifDialogEdit">{{dialogForm.ip}}</span>
-                <el-input v-if="!ifDialogDetail&&!ifDialogEdit" v-model="dialogForm.ip" placeholder="请输入终端ip"></el-input>
+                <el-input
+                  v-if="!ifDialogDetail&&!ifDialogEdit"
+                  v-model="dialogForm.ip"
+                  placeholder="请输入终端ip"
+                ></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="mac地址">
                 <span v-if="ifDialogDetail||ifDialogEdit">{{dialogForm.mac}}</span>
-                <el-input v-if="!ifDialogDetail&&!ifDialogEdit" v-model="dialogForm.mac" placeholder="请输入mac地址"></el-input>
+                <el-input
+                  v-if="!ifDialogDetail&&!ifDialogEdit"
+                  v-model="dialogForm.mac"
+                  placeholder="请输入mac地址"
+                ></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -597,7 +617,7 @@ export default {
       ifDialogEdit: false,
       ifDialogDetail: false,
       ifAddContainer: false,
-      currentRow:{},
+      currentRow: {},
       dialogForm: {
         deviceId: "",
         name: "",
@@ -622,9 +642,7 @@ export default {
         deviceId: [
           { required: true, message: "请输入终端ID", trigger: "blur" }
         ],
-        name: [
-          { required: true, message: "请输入终端名称", trigger: "blur" }
-        ],
+        name: [{ required: true, message: "请输入终端名称", trigger: "blur" }],
         deviceType: [
           { required: true, message: "请选择终端类型", trigger: "blur" }
         ],
@@ -671,7 +689,7 @@ export default {
         .post(baseUrl + "/admin/terminal-type/selTerminalTypeList")
         .then(res => {
           this.typeArr.options = res.data.data;
-          this.typeArr.options.push({deviceType:"",name:"全部"});
+          this.typeArr.options.push({ deviceType: "", name: "全部" });
         })
         .catch(err => {
           console.log(err);
@@ -984,26 +1002,24 @@ export default {
       this.ifDialogDetail = false;
       this.dialogTitle = "编辑终端";
       this.dialogForm = Object.assign({}, row);
-      this.currentRow=Object.assign({}, row);
+      this.currentRow = Object.assign({}, row);
       this.dialogForm.containerArr = [];
       this.getContainerDetail(row);
     },
     //删除
     delRow(row) {
-      this.$confirm(
-        "是否确定删除     '" + row.name + "'    该终端?",
-        "提示",
-        {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }
-      )
+      this.$confirm("是否确定删除     '" + row.name + "'    该终端?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
         .then(() => {
           let arr = [];
           arr.push(row);
           this.$axios
-            .delete(baseUrl + "/admin/terminal/devices",{params:{devices:row}})
+            .delete(baseUrl + "/admin/terminal/devices", {
+              params: { devices: row.deviceId }
+            })
             .then(res => {
               if (res.data.success) {
                 this.$message({
@@ -1090,7 +1106,11 @@ export default {
       })
         .then(() => {
           this.$axios
-            .put(baseUrl + "/admin/terminal/devices/clocksyn/" + this.currentRow.deviceId)
+            .put(
+              baseUrl +
+                "/admin/terminal/devices/clocksyn/" +
+                this.currentRow.deviceId
+            )
             .then(res => {
               if (res.data.success) {
                 this.$message({
@@ -1352,6 +1372,13 @@ export default {
           return false;
         }
       });
+    },
+    beforeAvatarUpload(file) {
+      const isXLS = file.type === "application/vnd.ms-excel"||file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+      if (!isXLS) {
+        this.$message.error("上传文件只能是.xls/.xlsx格式!");
+      }
+      return isXLS;
     },
     handleOpen(key, keyPath) {
       console.log(key, keyPath);
