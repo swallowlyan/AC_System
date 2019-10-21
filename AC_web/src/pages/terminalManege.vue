@@ -108,29 +108,20 @@
                 <el-button-group style="float:left">
                   <el-button
                     type="success"
-                    round
                     size="small"
                     icon="el-icon-refresh"
                     @click="search(1,10)"
                   >刷新</el-button>
                   <el-button
                     type="primary"
-                    round
                     size="small"
                     icon="el-icon-plus"
                     @click="add('dialogForm')"
                   >新增</el-button>
                 </el-button-group>
-                <el-upload
-                  action
-                  :before-upload="beforeAvatarUpload"
-                  :on-success="search(1)"
-                  :show-file-list="false"
-                  :limit="1"
-                  style="float:left"
-                >
-                  <el-button type="warning" round size="small" icon="el-icon-upload2">批量导入</el-button>
-                </el-upload>
+                <vue-xlsx-table @on-select-file="selectExcel" style="margin: 2px 5px;">
+                  <i class="el-icon-upload2"></i>批量导入
+                </vue-xlsx-table>
                 <el-pagination
                   background
                   @size-change="handleSizeChange"
@@ -506,10 +497,31 @@
         <el-button v-show="ifAddContainer" @click="ifAddContainer = false">取 消</el-button>
       </div>
     </el-dialog>
+    <!-- 文件预览弹窗  -->
+    <el-dialog title="文件预览" :visible.sync="excelShow">
+      <table class="previewTable">
+        <thead>
+          <tr>
+            <td v-for="(title,titleIndex) in previewExcel.header" :key="titleIndex">{{title}}</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(trItem,trIndex) in previewExcel.body" :key="trIndex">
+            <td v-for="(tdItem,tdIndex) in trItem" :key="tdIndex">{{tdItem}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="uploadFile()">上 传</el-button>
+        <el-button @click="excelShow = false">取 消</el-button>
+      </div>
+    </el-dialog>
+    <!-- 文件预览弹窗  -->
   </div>
 </template>
 <script>
 import "../../node_modules/echarts/map/js/china.js";
+import XLSX from "xlsx"; // npm导入库，命令：npm i xlsx@^0.14.1 -s
 const geoCoordMap = {};
 export default {
   name: "terminalManege",
@@ -532,6 +544,7 @@ export default {
       }
     };
     return {
+      excelShow: false,
       activeTab: "allView",
       tableSize: 0,
       tableLimit: 10,
@@ -673,7 +686,9 @@ export default {
         size: 5,
         sort: "id",
         dir: "asc"
-      }
+      },
+      //////
+      previewExcel: {}
     };
   },
   mounted() {
@@ -681,6 +696,7 @@ export default {
     this.search(1);
     this.getMapData();
     this.drawMap();
+    ///////////////////
   },
   methods: {
     //获取设备类型
@@ -718,6 +734,7 @@ export default {
         .then(res => {
           this.tableSize = res.data.data.totalRecord;
           this.tableData = res.data.data.data;
+          return false;
         })
         .catch(err => {
           console.log(err);
@@ -1374,7 +1391,10 @@ export default {
       });
     },
     beforeAvatarUpload(file) {
-      const isXLS = file.type === "application/vnd.ms-excel"||file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+      const isXLS =
+        file.type === "application/vnd.ms-excel" ||
+        file.type ===
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
       if (!isXLS) {
         this.$message.error("上传文件只能是.xls/.xlsx格式!");
       }
@@ -1403,6 +1423,44 @@ export default {
       //   return cellValue;
       // }
       return cellValue;
+    },
+    //预览
+    selectExcel(convertedData) {
+      this.previewExcel = convertedData;
+      this.excelShow = true;
+      console.info(convertedData);
+    },
+    uploadFile() {
+      let paramArr=[];
+      this.previewExcel.body.forEach((item)=>{
+        paramArr.push(item);
+      });
+      let config = {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      };
+      this.$axios
+        .post(baseUrl + "/admin/terminal/devices", paramArr, config)
+        .then(res => {
+          if (res.data.success) {
+            this.dialogFormVisible = false;
+            this.$message({
+              message: "上传成功",
+              type: "success"
+            });
+            this.excelShow=false;
+            this.search(1);
+          } else {
+            this.$message({
+              message: res.data.errmsg,
+              type: "error"
+            });
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
     }
   }
 };
@@ -1489,6 +1547,21 @@ export default {
 .addConfig {
   width: 160px;
   float: left;
+}
+.previewTable {
+  color: #48576a;
+  table-layout: fixed;
+  width: 100%;
+  text-align: center;
+  border-collapse: collapse;
+}
+.previewTable td {
+  border: 1px solid #8492a6;
+  padding: 5px 0;
+  word-wrap: break-word;
+}
+.previewTable > thead {
+  background-color: #eff2f7;
 }
 </style>
 

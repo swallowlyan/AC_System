@@ -7,6 +7,9 @@ import echarts from '../node_modules/echarts'
 import axios from 'axios'
 import qs from 'qs'
 
+import vueXlsxTable from 'vue-xlsx-table'
+Vue.use(vueXlsxTable, {rABS: false}) //HTML5 FileReader API 有两个方法可以读取本地文件 readAsBinaryString 和 readAsArrayBuffer, 默认rABS为true，也就是使用readAsBinaryString
+
 /////////////////////
 Vue.prototype.$axios = axios;
 Vue.prototype.$qs = qs;

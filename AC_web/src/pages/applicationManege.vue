@@ -52,6 +52,7 @@
             <el-table-column prop="options" label="操作">
               <template slot-scope="scope">
                 <!-- <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</!-->
+                <el-button @click="toInstallDialog(scope.row,false)" type="text" size="medium">安装</el-button>
                 <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
               </template>
             </el-table-column>
@@ -82,6 +83,7 @@
         label-width="150px"
         class="acForm"
       >
+      <el-row v-show="!ifInstallDialog">
         <el-row>
           <!-- <el-col :span="12">
             <el-form-item label="微应用ID" prop="appId">
@@ -233,10 +235,81 @@
             </el-form-item>
           </el-col>
         </el-row>
+      </el-row>
+        <el-row v-show="ifInstallDialog">
+        <el-col :span="18">
+          <el-row style="max-height: 300px;overflow:auto;">
+            <el-table
+              ref="multipleTable"
+              :data="deviceList"
+              tooltip-effect="dark"
+              style="width: 100%"
+              @selection-change="handleSelectionChange"
+            >
+              <el-table-column type="selection" width="55"></el-table-column>
+              <el-table-column prop="deviceId" label="终端ID" width="200"></el-table-column>
+              <el-table-column prop="name" label="终端名称"></el-table-column>
+              <el-table-column prop="deviceType" label="设备类型"></el-table-column>
+              <el-table-column prop="status" label="终端状态">
+                <template slot-scope="scope">
+                  <span v-if="scope.row.status===0" style="color:#67c23a">正常</span>
+                  <span v-if="scope.row.status===1" style="color:orange">告警</span>
+                  <span v-if="scope.row.status===2" style="color:red">故障</span>
+                  <span v-if="scope.row.status===3" style="color:gray">离线</span>
+                  <span v-if="scope.row.status===4" style="color:#000">未注册</span>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-row>
+          <el-row style="text-align: center;margin-top:10px;">
+            <el-pagination
+              @size-change="deviceSizeChange"
+              @current-change="deviceCurrentChange"
+              :current-page="deviceCurrentPage"
+              :page-sizes="[5, 10, 15]"
+              :page-size="devicePageSize"
+              layout="total, prev, pager, next, jumper"
+              :total="deviceTotal"
+            ></el-pagination>
+          </el-row>
+        </el-col>
+        <el-col :span="5" :offset="1">
+          <el-card class="box-card">
+            <div slot="header" class="clearfix">
+              <span>已选设备</span>
+            </div>
+            <div>
+              <ul>
+                <li v-for="(item,index) in selectedDevices" :key="index">
+                  {{item.deviceId}}——
+                  {{item.name}}
+                  <el-button type="text" @click="removeSelected(item)">
+                    <i class="el-icon-close"></i>
+                  </el-button>
+                </li>
+              </ul>
+              <el-button
+                v-show="ifGetInstalled"
+                type="danger"
+                plain
+                icon="el-icon-delete"
+                size="small"
+                @click="unInstallContainer()"
+              >卸载</el-button>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="submitForm('dialogForm')">确 定</el-button>
+        <el-button
+          v-show="ifInstallDialog"
+          type="primary"
+          @click="installContainer()"
+        >安 装</el-button>
+        <el-button v-show="ifInstallDialog" @click="dialogFormVisible = false">取 消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -306,7 +379,14 @@ export default {
         appStoreId: [
           { required: true, message: "请输入应用中心微应用名称 ", trigger: "change" }
         ]
-      }
+      },
+      ifInstallDialog:false,
+      ifGetInstalled:false,
+      deviceList: [],
+      selectedDevices: [],
+      deviceCurrentPage: 1,
+      devicePageSize: 10,
+      deviceTotal: 0
     };
   },
   mounted() {
@@ -435,6 +515,64 @@ export default {
     },
     handleCurrentChange(val) {
       this.search(val);
+    },
+    toInstallDialog(row, ifGetInstalled) {
+      // if (ifGetInstalled) this.dialogTitle = "已安装设备";
+      // else this.dialogTitle = "安装容器";
+      this.ifGetInstalled = ifGetInstalled;
+      this.currentContainer = Object.assign({}, row);
+      this.deviceList=[];
+      this.selectedDevices = [];
+      this.ifInstallDialog = true;
+      this.getDeviceDialog(1);
+      this.dialogFormVisible = true;
+    },
+    getDeviceDialog(page) {
+      if (!this.ifGetInstalled) {
+        //查询可安装终端
+        this.$axios
+          .post(
+            baseUrl +
+              "/admin/terminal/devices/info?pageSize=" +
+              this.devicePageSize +
+              "&pageIndex=" +
+              page,
+            {}
+          )
+          .then(res => {
+            this.deviceTotal = res.data.data.totalRecord;
+            this.deviceList = res.data.data.data;
+            this.ifInstallDialog = true;
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      } else {
+        //查询已安装终端
+        
+      }
+    },
+    //安装
+    installApp() {
+    },
+    handleSelectionChange(val) {
+      this.selectedDevices = val;
+    },
+    removeSelected(val) {
+      this.selectedDevices.forEach((item, index) => {
+        if (item.name === val.name) {
+          this.selectedDevices.splice(index, 1);
+          this.$refs.multipleTable.toggleRowSelection(item, false);
+          return false;
+        }
+      });
+    },
+    deviceSizeChange(val) {
+      this.devicePageSize = val;
+      this.getDeviceDialog(1);
+    },
+    deviceCurrentChange(val) {
+      this.getDeviceDialog(val);
     }
   }
 };

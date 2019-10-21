@@ -309,6 +309,7 @@
             <div>
               <ul>
                 <li v-for="(item,index) in selectedDevices" :key="index">
+                  {{item.deviceId}}——
                   {{item.name}}
                   <el-button type="text" @click="removeSelected(item)">
                     <i class="el-icon-close"></i>
