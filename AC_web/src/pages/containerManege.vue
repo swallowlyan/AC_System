@@ -1,20 +1,24 @@
 <!--容器管理-->
 <template>
   <div id="containerManage">
-    <el-row>
-      <el-form :inline="true" :model="searchItem" ref="searchItem">
-        <el-form-item label="容器名称" prop="name">
-          <el-input v-model="searchItem.name" placeholder="请输入容器名称"></el-input>
-        </el-form-item>
-        <el-form-item label="容器类型" prop="type">
-          <el-input v-model="searchItem.type" placeholder="请输入容器类型"></el-input>
-        </el-form-item>
-        <el-form-item>
+    <el-form :model="searchItem" ref="searchItem" label-width="auto">
+      <el-row>
+        <el-col :span="6">
+          <el-form-item label="容器名称" prop="name">
+            <el-input v-model="searchItem.name" placeholder="请输入容器名称"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="容器类型" prop="type">
+            <el-input v-model="searchItem.type" placeholder="请输入容器类型"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6" :offset="1">
           <el-button type="primary" @click="search(1)">查询</el-button>
           <el-button type="default" @click="reset('searchItem')">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-row>
+        </el-col>
+      </el-row>
+    </el-form>
     <el-row>
       <el-col :span="22">
         <div>
@@ -573,7 +577,7 @@ export default {
       else this.dialogTitle = "安装容器";
       this.ifGetInstalled = ifGetInstalled;
       this.currentContainer = Object.assign({}, row);
-      this.deviceList=[];
+      this.deviceList = [];
       this.selectedDevices = [];
       this.ifInstallDialog = true;
       this.getDeviceDialog(1);
@@ -654,7 +658,7 @@ export default {
             this.$axios
               .post(
                 baseUrl + "/admin/containers/deploy",
-                { containerlist:paramList, update: true },
+                { containerlist: paramList, update: true },
                 { headers: { "Content-Type": "application/json" } }
               )
               .then(res => {
@@ -690,11 +694,12 @@ export default {
     },
     //卸载
     unInstallContainer() {
-      let optionNameArr = "",paramList=[];
+      let optionNameArr = "",
+        paramList = [];
       if (this.selectedDevices.length > 0) {
         this.selectedDevices.forEach(item => {
           optionNameArr += item.name + ",";
-          let param={
+          let param = {
             containerNames: [this.currentContainer.name],
             deviceId: item.deviceId
           };
@@ -717,7 +722,7 @@ export default {
             this.$axios
               .post(
                 baseUrl + "/admin/containers/uninstall",
-                { containers :paramList},
+                { containers: paramList },
                 { headers: { "Content-Type": "application/json" } }
               )
               .then(res => {

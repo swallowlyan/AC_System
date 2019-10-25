@@ -157,7 +157,7 @@ export default {
           index: "6",
           url: "/",
           ifChild: true,
-          icon: "fa fa-cog",
+          icon: "el-icon-s-tools",
           child:[
             {title:"租户管理",
             index:"1",
@@ -175,6 +175,13 @@ export default {
             icon:""
             }
           ]
+        },
+        {
+          title: "文件服务",
+          index: "7",
+          url: "/fileService",
+          ifChild: false,
+          icon: "el-icon-folder"
         }
       ]
     };

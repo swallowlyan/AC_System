@@ -1,27 +1,32 @@
 <!--微应用管理-->
 <template>
   <div id="applicationManage">
-    <el-row>
-      <el-form :inline="true" :model="searchItem" ref="searchItem">
-        <el-form-item label="微应用名称" prop="name">
-          <el-input v-model="searchItem.name" placeholder="请输入微应用名称"></el-input>
-        </el-form-item>
-        <el-form-item label="微应用类型" prop="type">
-          <el-select v-model="searchItem.type" :placeholder="appTypeArr.title">
-            <el-option
-              v-for="item in appTypeArr.options"
-              :key="item.ItemCode"
-              :label="item.ItemName"
-              :value="item.ItemCode"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="search(1)">查询</el-button>
-          <el-button type="default" @click="reset('searchItem')">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-row>
+    <el-form :model="searchItem" ref="searchItem" label-width="auto">
+      <el-row>
+        <el-col :span="6">
+          <el-form-item label="微应用名称" prop="name">
+            <el-input v-model="searchItem.name" placeholder="请输入微应用名称"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="微应用类型" prop="type">
+            <el-select v-model="searchItem.type" :placeholder="appTypeArr.title">
+              <el-option
+                v-for="item in appTypeArr.options"
+                :key="item.ItemCode"
+                :label="item.ItemName"
+                :value="item.ItemCode"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6" :offset="1">
+            <el-button type="primary" @click="search(1)">查询</el-button>
+            <el-button type="default" @click="reset('searchItem')">重置</el-button>
+        </el-col>
+      </el-row>
+    </el-form>
+
     <el-row>
       <el-col :span="22">
         <div>
@@ -83,232 +88,235 @@
         label-width="150px"
         class="acForm"
       >
-      <el-row v-show="!ifInstallDialog">
-        <el-row>
-          <!-- <el-col :span="12">
+        <el-row v-show="!ifInstallDialog">
+          <el-row>
+            <!-- <el-col :span="12">
             <el-form-item label="微应用ID" prop="appId">
               <span v-if="ifDialogDetail">{{dialogForm.appId}}</span>
               <el-input v-if="!ifDialogDetail" v-model="dialogForm.appId" placeholder="请输入微应用ID"></el-input>
             </el-form-item>
-          </el-col> -->
-          <el-col :span="12">
-            <el-form-item label="微应用名称" prop="appName">
-              <span v-if="ifDialogDetail">{{dialogForm.appName}}</span>
-              <el-input v-if="!ifDialogDetail" v-model="dialogForm.appName" placeholder="请输入微应用名称"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="微应用类型" prop="appType">
-              <span v-if="ifDialogDetail">{{dialogForm.appType}}</span>
-              <el-select
-                v-if="!ifDialogDetail"
-                v-model="dialogForm.appType"
-                :placeholder="appTypeArr.title"
-                style="width:100%"
-              >
-                <el-option
-                  v-for="item in appTypeArr.options"
-                  :key="item.ItemCode"
-                  :label="item.ItemName"
-                  :value="item.ItemCode"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
+            </el-col>-->
+            <el-col :span="12">
+              <el-form-item label="微应用名称" prop="appName">
+                <span v-if="ifDialogDetail">{{dialogForm.appName}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.appName"
+                  placeholder="请输入微应用名称"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="微应用类型" prop="appType">
+                <span v-if="ifDialogDetail">{{dialogForm.appType}}</span>
+                <el-select
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.appType"
+                  :placeholder="appTypeArr.title"
+                  style="width:100%"
+                >
+                  <el-option
+                    v-for="item in appTypeArr.options"
+                    :key="item.ItemCode"
+                    :label="item.ItemName"
+                    :value="item.ItemCode"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
           </el-row>
-        <el-row>
-           <el-col :span="12">
-            <el-form-item label="应用中心微应用名称" prop="appStoreId">
-              <span v-if="ifDialogDetail">{{dialogForm.appStoreId}}</span>
-              <el-input v-if="!ifDialogDetail" v-model="dialogForm.appStoreId" placeholder="请输入应用中心微应用名称"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="微应用版本">
-              <span v-if="ifDialogDetail">{{dialogForm.version}}</span>
-              <el-input v-if="!ifDialogDetail" v-model="dialogForm.version" placeholder="请输入应用版本"></el-input>
-            </el-form-item>
-          </el-col>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="应用中心微应用名称" prop="appStoreId">
+                <span v-if="ifDialogDetail">{{dialogForm.appStoreId}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.appStoreId"
+                  placeholder="请输入应用中心微应用名称"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="微应用版本">
+                <span v-if="ifDialogDetail">{{dialogForm.version}}</span>
+                <el-input v-if="!ifDialogDetail" v-model="dialogForm.version" placeholder="请输入应用版本"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="应用厂商">
+                <span v-if="ifDialogDetail">{{dialogForm.vendor}}</span>
+                <el-input v-if="!ifDialogDetail" v-model="dialogForm.vendor" placeholder="请输入应用厂商"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="发布时间">
+                <span v-if="ifDialogDetail">{{dialogForm.appReleaseTime}}</span>
+                <el-date-picker
+                  v-model="dialogForm.appReleaseTime"
+                  v-if="!ifDialogDetail"
+                  type="datetime"
+                  placeholder="请选择发布时间"
+                  style="width:90%"
+                ></el-date-picker>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="容器类型">
+                <span v-if="ifDialogDetail">{{dialogForm.containerType}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.containerType"
+                  placeholder="请输入容器类型"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="容器版本">
+                <span v-if="ifDialogDetail">{{dialogForm.containerVersion}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.containerVersion"
+                  placeholder="请输入容器版本"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="文件大小(MB)">
+                <span v-if="ifDialogDetail">{{dialogForm.fileSizeMB}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.fileSizeMB"
+                  placeholder="请输入文件大小"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="最大数据大小(MB)">
+                <span v-if="ifDialogDetail">{{dialogForm.minDataDiskMB}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.minDataDiskMB"
+                  placeholder="请输入最大数据大小"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="CPU核心数">
+                <span v-if="ifDialogDetail">{{dialogForm.minVcpus}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.minVcpus"
+                  placeholder="请输入CPU核心数"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="物理接口">
+                <span v-if="ifDialogDetail">{{dialogForm.physicalInterfaces}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.physicalInterfaces"
+                  placeholder="请输入物理接口"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="下载url">
+                <span v-if="ifDialogDetail">{{dialogForm.downloadURL}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.downloadURL"
+                  placeholder="请输入下载url"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="图标url">
+                <span v-if="ifDialogDetail">{{dialogForm.logo}}</span>
+                <el-input v-if="!ifDialogDetail" v-model="dialogForm.logo" placeholder="请输入图标url"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="应用厂商">
-              <span v-if="ifDialogDetail">{{dialogForm.vendor}}</span>
-              <el-input v-if="!ifDialogDetail" v-model="dialogForm.vendor" placeholder="请输入应用厂商"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="发布时间">
-              <span v-if="ifDialogDetail">{{dialogForm.appReleaseTime}}</span>
-              <el-date-picker
-                v-model="dialogForm.appReleaseTime"
-                 v-if="!ifDialogDetail"
-                type="datetime"
-                placeholder="请选择发布时间"
-                style="width:90%"
-              ></el-date-picker>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="容器类型">
-              <span v-if="ifDialogDetail">{{dialogForm.containerType}}</span>
-              <el-input
-                v-if="!ifDialogDetail"
-                v-model="dialogForm.containerType"
-                placeholder="请输入容器类型"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="容器版本">
-              <span v-if="ifDialogDetail">{{dialogForm.containerVersion}}</span>
-              <el-input
-                v-if="!ifDialogDetail"
-                v-model="dialogForm.containerVersion"
-                placeholder="请输入容器版本"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="文件大小(MB)">
-              <span v-if="ifDialogDetail">{{dialogForm.fileSizeMB}}</span>
-              <el-input
-                v-if="!ifDialogDetail"
-                v-model="dialogForm.fileSizeMB"
-                placeholder="请输入文件大小"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="最大数据大小(MB)">
-              <span v-if="ifDialogDetail">{{dialogForm.minDataDiskMB}}</span>
-              <el-input
-                v-if="!ifDialogDetail"
-                v-model="dialogForm.minDataDiskMB"
-                placeholder="请输入最大数据大小"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="CPU核心数">
-              <span v-if="ifDialogDetail">{{dialogForm.minVcpus}}</span>
-              <el-input
-                v-if="!ifDialogDetail"
-                v-model="dialogForm.minVcpus"
-                placeholder="请输入CPU核心数"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="物理接口">
-              <span v-if="ifDialogDetail">{{dialogForm.physicalInterfaces}}</span>
-              <el-input
-                v-if="!ifDialogDetail"
-                v-model="dialogForm.physicalInterfaces"
-                placeholder="请输入物理接口"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          
-          <el-col :span="12">
-            <el-form-item label="下载url">
-              <span v-if="ifDialogDetail">{{dialogForm.downloadURL}}</span>
-              <el-input
-                v-if="!ifDialogDetail"
-                v-model="dialogForm.downloadURL"
-                placeholder="请输入下载url"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="图标url">
-              <span v-if="ifDialogDetail">{{dialogForm.logo}}</span>
-              <el-input v-if="!ifDialogDetail" v-model="dialogForm.logo" placeholder="请输入图标url"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-row>
         <el-row v-show="ifInstallDialog">
-        <el-col :span="18">
-          <el-row style="max-height: 300px;overflow:auto;">
-            <el-table
-              ref="multipleTable"
-              :data="deviceList"
-              tooltip-effect="dark"
-              style="width: 100%"
-              @selection-change="handleSelectionChange"
-            >
-              <el-table-column type="selection" width="55"></el-table-column>
-              <el-table-column prop="deviceId" label="终端ID" width="200"></el-table-column>
-              <el-table-column prop="name" label="终端名称"></el-table-column>
-              <el-table-column prop="deviceType" label="设备类型"></el-table-column>
-              <el-table-column prop="status" label="终端状态">
-                <template slot-scope="scope">
-                  <span v-if="scope.row.status===0" style="color:#67c23a">正常</span>
-                  <span v-if="scope.row.status===1" style="color:orange">告警</span>
-                  <span v-if="scope.row.status===2" style="color:red">故障</span>
-                  <span v-if="scope.row.status===3" style="color:gray">离线</span>
-                  <span v-if="scope.row.status===4" style="color:#000">未注册</span>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-row>
-          <el-row style="text-align: center;margin-top:10px;">
-            <el-pagination
-              @size-change="deviceSizeChange"
-              @current-change="deviceCurrentChange"
-              :current-page="deviceCurrentPage"
-              :page-sizes="[5, 10, 15]"
-              :page-size="devicePageSize"
-              layout="total, prev, pager, next, jumper"
-              :total="deviceTotal"
-            ></el-pagination>
-          </el-row>
-        </el-col>
-        <el-col :span="5" :offset="1">
-          <el-card class="box-card">
-            <div slot="header" class="clearfix">
-              <span>已选设备</span>
-            </div>
-            <div>
-              <ul>
-                <li v-for="(item,index) in selectedDevices" :key="index">
-                  {{item.deviceId}}——
-                  {{item.name}}
-                  <el-button type="text" @click="removeSelected(item)">
-                    <i class="el-icon-close"></i>
-                  </el-button>
-                </li>
-              </ul>
-              <el-button
-                v-show="ifGetInstalled"
-                type="danger"
-                plain
-                icon="el-icon-delete"
-                size="small"
-                @click="unInstallContainer()"
-              >卸载</el-button>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
+          <el-col :span="18">
+            <el-row style="max-height: 300px;overflow:auto;">
+              <el-table
+                ref="multipleTable"
+                :data="deviceList"
+                tooltip-effect="dark"
+                style="width: 100%"
+                @selection-change="handleSelectionChange"
+              >
+                <el-table-column type="selection" width="55"></el-table-column>
+                <el-table-column prop="deviceId" label="终端ID" width="200"></el-table-column>
+                <el-table-column prop="name" label="终端名称"></el-table-column>
+                <el-table-column prop="deviceType" label="设备类型"></el-table-column>
+                <el-table-column prop="status" label="终端状态">
+                  <template slot-scope="scope">
+                    <span v-if="scope.row.status===0" style="color:#67c23a">正常</span>
+                    <span v-if="scope.row.status===1" style="color:orange">告警</span>
+                    <span v-if="scope.row.status===2" style="color:red">故障</span>
+                    <span v-if="scope.row.status===3" style="color:gray">离线</span>
+                    <span v-if="scope.row.status===4" style="color:#000">未注册</span>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-row>
+            <el-row style="text-align: center;margin-top:10px;">
+              <el-pagination
+                @size-change="deviceSizeChange"
+                @current-change="deviceCurrentChange"
+                :current-page="deviceCurrentPage"
+                :page-sizes="[5, 10, 15]"
+                :page-size="devicePageSize"
+                layout="total, prev, pager, next, jumper"
+                :total="deviceTotal"
+              ></el-pagination>
+            </el-row>
+          </el-col>
+          <el-col :span="5" :offset="1">
+            <el-card class="box-card">
+              <div slot="header" class="clearfix">
+                <span>已选设备</span>
+              </div>
+              <div>
+                <ul>
+                  <li v-for="(item,index) in selectedDevices" :key="index">
+                    {{item.deviceId}}——
+                    {{item.name}}
+                    <el-button type="text" @click="removeSelected(item)">
+                      <i class="el-icon-close"></i>
+                    </el-button>
+                  </li>
+                </ul>
+                <el-button
+                  v-show="ifGetInstalled"
+                  type="danger"
+                  plain
+                  icon="el-icon-delete"
+                  size="small"
+                  @click="unInstallContainer()"
+                >卸载</el-button>
+              </div>
+            </el-card>
+          </el-col>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="submitForm('dialogForm')">确 定</el-button>
-        <el-button
-          v-show="ifInstallDialog"
-          type="primary"
-          @click="installContainer()"
-        >安 装</el-button>
+        <el-button v-show="ifInstallDialog" type="primary" @click="installContainer()">安 装</el-button>
         <el-button v-show="ifInstallDialog" @click="dialogFormVisible = false">取 消</el-button>
       </div>
     </el-dialog>
@@ -354,17 +362,17 @@ export default {
       dialogForm: {
         appName: "",
         appType: "",
-        appReleaseTime:"",
+        appReleaseTime: "",
         vendor: "",
         version: "",
         containerType: "",
         containerVersion: "",
-        downloadURL:"",
-        fileSizeMB:"",
-        logo:"",
-        minVcpus:"",
-        minDataDiskMB:"",
-        physicalInterfaces:""
+        downloadURL: "",
+        fileSizeMB: "",
+        logo: "",
+        minVcpus: "",
+        minDataDiskMB: "",
+        physicalInterfaces: ""
       },
       dialogRules: {
         appId: [
@@ -377,11 +385,15 @@ export default {
           { required: true, message: "请选择微应用类型", trigger: "change" }
         ],
         appStoreId: [
-          { required: true, message: "请输入应用中心微应用名称 ", trigger: "change" }
+          {
+            required: true,
+            message: "请输入应用中心微应用名称 ",
+            trigger: "change"
+          }
         ]
       },
-      ifInstallDialog:false,
-      ifGetInstalled:false,
+      ifInstallDialog: false,
+      ifGetInstalled: false,
       deviceList: [],
       selectedDevices: [],
       deviceCurrentPage: 1,
@@ -400,8 +412,8 @@ export default {
         .post(baseUrl + "/admin/app/getAllTypes")
         .then(res => {
           if (res.data.success) {
-            this.appTypeArr.options= res.data.data;
-            this.appTypeArr.options.push({ItemCode:"",ItemName:"全部"});
+            this.appTypeArr.options = res.data.data;
+            this.appTypeArr.options.push({ ItemCode: "", ItemName: "全部" });
           }
         })
         .catch(err => {
@@ -450,7 +462,7 @@ export default {
     },
     detailRow(row) {
       this.$nextTick(() => {
-        this.$refs['dialogForm'].resetFields();
+        this.$refs["dialogForm"].resetFields();
       });
       this.dialogTitle = "微应用详细信息";
       this.ifDialogDetail = true;
@@ -464,21 +476,28 @@ export default {
       this.dialogFormVisible = true;
     },
     delRow(row) {
-      this.$confirm("是否确定删除     '" + row.appName + "'     该微应用?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
+      this.$confirm(
+        "是否确定删除     '" + row.appName + "'     该微应用?",
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }
+      )
         .then(() => {
-          this.$axios.post(baseUrl+'/admin/app/delete?appId='+row.appId).then((res)=>{
-            this.$message({
-            type: "success",
-            message: "删除成功!"
-          });
-            this.search(1);
-          }).catch((err)=>{
-            console.log(err);
-          });
+          this.$axios
+            .post(baseUrl + "/admin/app/delete?appId=" + row.appId)
+            .then(res => {
+              this.$message({
+                type: "success",
+                message: "删除成功!"
+              });
+              this.search(1);
+            })
+            .catch(err => {
+              console.log(err);
+            });
         })
         .catch(() => {
           this.$message({
@@ -490,19 +509,20 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          this.$axios.post(baseUrl+'/admin/app/add',
-            this.dialogForm
-          ).then((res)=>{
-          this.dialogFormVisible = false;
-          this.$message({
-            message: "添加成功",
-            type: "success"
-          });
-          this.$refs[formName].resetFields();
-            this.search(1);
-          }).catch((err)=>{
-            console.log(err);
-          });
+          this.$axios
+            .post(baseUrl + "/admin/app/add", this.dialogForm)
+            .then(res => {
+              this.dialogFormVisible = false;
+              this.$message({
+                message: "添加成功",
+                type: "success"
+              });
+              this.$refs[formName].resetFields();
+              this.search(1);
+            })
+            .catch(err => {
+              console.log(err);
+            });
         } else {
           console.log("error submit!!");
           return false;
@@ -521,7 +541,7 @@ export default {
       // else this.dialogTitle = "安装容器";
       this.ifGetInstalled = ifGetInstalled;
       this.currentContainer = Object.assign({}, row);
-      this.deviceList=[];
+      this.deviceList = [];
       this.selectedDevices = [];
       this.ifInstallDialog = true;
       this.getDeviceDialog(1);
@@ -549,12 +569,10 @@ export default {
           });
       } else {
         //查询已安装终端
-        
       }
     },
     //安装
-    installApp() {
-    },
+    installApp() {},
     handleSelectionChange(val) {
       this.selectedDevices = val;
     },

@@ -1,20 +1,25 @@
 <!--用户管理-->
 <template>
   <div id="userManage">
-    <el-row>
-      <el-form :inline="true" :model="searchItem" ref="searchItem">
+    
+      <el-form :model="searchItem" ref="searchItem" label-width="auto">
+        <el-row>
+          <el-col :span="6">
         <el-form-item label="用户名" prop="userName">
           <el-input v-model="searchItem.userName" placeholder="请输入用户名"></el-input>
         </el-form-item>
+          </el-col>
+          <el-col :span="6">
         <el-form-item label="租户ID" prop="tenantId">
           <el-input v-model="searchItem.tenantId" placeholder="请输入租户ID"></el-input>
         </el-form-item>
-        <el-form-item>
+          </el-col>
+          <el-col :span="6" :offset="1">
           <el-button type="primary" @click="search(1)">查询</el-button>
           <el-button type="default" @click="reset('searchItem')">重置</el-button>
-        </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
-    </el-row>
     <el-row>
       <el-col :span="22">
         <div>

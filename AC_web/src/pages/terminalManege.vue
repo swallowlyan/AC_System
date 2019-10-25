@@ -30,30 +30,36 @@
       </el-tab-pane>
       <!-- 详细列表tab -->
       <el-tab-pane label="详细列表" name="detailView">
-        <el-row>
-          <el-form :inline="true" :model="searchItem" ref="searchItem">
-            <el-form-item label="终端ID" prop="deviceId">
-              <el-input v-model="searchItem.deviceId" placeholder="请输入终端ID"></el-input>
-            </el-form-item>
-            <el-form-item prop="name" label="终端名称">
-              <el-input v-model="searchItem.name" placeholder="请输入设备名称"></el-input>
-            </el-form-item>
-            <el-form-item prop="deviceType" label="终端类型">
-              <el-select v-model="searchItem.deviceType" :placeholder="typeArr.title">
-                <el-option
-                  v-for="item in typeArr.options"
-                  :key="item.deviceType"
-                  :label="item.name"
-                  :value="item.deviceType"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item>
+          <el-form  :model="searchItem" ref="searchItem" label-width="auto">
+            <el-row>
+            <el-col :span="6">
+              <el-form-item label="终端ID" prop="deviceId">
+                <el-input v-model="searchItem.deviceId" placeholder="请输入终端ID"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="6">
+              <el-form-item prop="name" label="终端名称">
+                <el-input v-model="searchItem.name" placeholder="请输入设备名称"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="6">
+              <el-form-item prop="deviceType" label="终端类型">
+                <el-select v-model="searchItem.deviceType" :placeholder="typeArr.title">
+                  <el-option
+                    v-for="item in typeArr.options"
+                    :key="item.deviceType"
+                    :label="item.name"
+                    :value="item.deviceType"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="5" :offset="1">
               <el-button type="primary" @click="search(1)">查询</el-button>
-              <el-button type="default" @click="reset('searchItem')">重置</el-button>
-            </el-form-item>
+                <el-button type="default" @click="reset('searchItem')">重置</el-button>
+            </el-col>
+            </el-row>
           </el-form>
-        </el-row>
         <el-row>
           <el-col :span="22">
             <div>
@@ -119,9 +125,15 @@
                     @click="add('dialogForm')"
                   >新增</el-button>
                 </el-button-group>
-                <vue-xlsx-table @on-select-file="selectExcel" style="margin: 2px 5px;">
-                  <i class="el-icon-upload2"></i>批量导入
-                </vue-xlsx-table>
+                <el-upload
+                  ref="upload"
+                  action="/"
+                  :show-file-list="false"
+                  :on-change="importExcel"
+                  :auto-upload="false"
+                >
+                  <el-button slot="trigger" icon="el-icon-upload" size="small" type="primary" plain>上传文件</el-button>
+                </el-upload>
                 <el-pagination
                   background
                   @size-change="handleSizeChange"
@@ -498,7 +510,8 @@
       </div>
     </el-dialog>
     <!-- 文件预览弹窗  -->
-    <el-dialog title="文件预览" :visible.sync="excelShow">
+    <el-dialog title="文件预览" :visible.sync="excelShow" width="75%">
+      <div class=previewView>
       <table class="previewTable">
         <thead>
           <tr>
@@ -511,6 +524,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="uploadFile()">上 传</el-button>
         <el-button @click="excelShow = false">取 消</el-button>
@@ -1390,16 +1404,6 @@ export default {
         }
       });
     },
-    beforeAvatarUpload(file) {
-      const isXLS =
-        file.type === "application/vnd.ms-excel" ||
-        file.type ===
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-      if (!isXLS) {
-        this.$message.error("上传文件只能是.xls/.xlsx格式!");
-      }
-      return isXLS;
-    },
     handleOpen(key, keyPath) {
       console.log(key, keyPath);
     },
@@ -1424,15 +1428,73 @@ export default {
       // }
       return cellValue;
     },
-    //预览
+    //预览(暂停使用)
     selectExcel(convertedData) {
       this.previewExcel = convertedData;
       this.excelShow = true;
       console.info(convertedData);
     },
+    
+    /////////////////////////////////////////////////////
+    //预览
+    importExcel(file) {
+      // let file = file.files[0] // 使用传统的input方法需要加上这一步
+      const types = file.name.split(".")[1];
+      const fileType = ["xlsx", "xlc", "xlm", "xls", "xlt", "xlw", "csv"].some(
+        item => item === types
+      );
+      if (!fileType) {
+        this.$message("格式错误！请重新选择");
+        return;
+      }
+      this.file2Xce(file).then(tabJson => {
+        if (tabJson && tabJson.length > 0) {
+          this.xlsxJson = tabJson;
+          this.previewExcel.header=Object.keys(tabJson[0].sheet[0]);
+          this.previewExcel.body = tabJson[0].sheet;
+          this.excelShow = true;
+          console.log("数据", this.xlsxJson);
+          // xlsxJson就是解析出来的json数据,数据格式如下
+          // [
+          //   {
+          //     sheetName: sheet1
+          //     sheet: sheetData
+          //   }
+          // ]
+        }
+      });
+    },
+    file2Xce(file) {
+      return new Promise(function(resolve, reject) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const data = e.target.result;
+          this.wb = XLSX.read(data, {
+            type: "binary"
+          });
+          const result = [];
+          this.wb.SheetNames.forEach(sheetName => {
+            result.push({
+              sheetName: sheetName,
+              sheet: XLSX.utils.sheet_to_json(this.wb.Sheets[sheetName])
+            });
+          });
+          resolve(result);
+        };
+        reader.readAsBinaryString(file.raw);
+        // reader.readAsBinaryString(file) // 传统input方法
+      });
+    },
+    //上传
     uploadFile() {
-      let paramArr=[];
-      this.previewExcel.body.forEach((item)=>{
+      const loading = this.$loading({
+          lock: true,
+          text: '正在上传',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
+      let paramArr = [];
+      this.previewExcel.body.forEach(item => {
         paramArr.push(item);
       });
       let config = {
@@ -1440,18 +1502,21 @@ export default {
           "Content-Type": "application/json"
         }
       };
+      console.info(paramArr);
       this.$axios
         .post(baseUrl + "/admin/terminal/devices", paramArr, config)
         .then(res => {
           if (res.data.success) {
+          loading.close();
             this.dialogFormVisible = false;
+            this.excelShow = false;
+            this.search(1);
             this.$message({
               message: "上传成功",
               type: "success"
             });
-            this.excelShow=false;
-            this.search(1);
           } else {
+            loading.close();
             this.$message({
               message: res.data.errmsg,
               type: "error"
@@ -1461,7 +1526,7 @@ export default {
         .catch(err => {
           console.log(err);
         });
-    }
+    },
   }
 };
 </script>
@@ -1548,6 +1613,10 @@ export default {
   width: 160px;
   float: left;
 }
+.previewView{
+max-height: 300px;
+  overflow: auto;
+}
 .previewTable {
   color: #48576a;
   table-layout: fixed;
@@ -1563,5 +1632,6 @@ export default {
 .previewTable > thead {
   background-color: #eff2f7;
 }
+
 </style>
 

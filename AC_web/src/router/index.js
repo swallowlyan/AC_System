@@ -14,6 +14,8 @@ import userManage from '../pages/system/userManage'
 import tenantManage from '../pages/system/tenantManage'
 import userOverview from '../pages/system/userOverview'
 
+import fileService from '../pages/fileService'
+
 Vue.use(Router)
 
 export default new Router({
@@ -67,7 +69,12 @@ export default new Router({
           path:'userOverview',
           name:'userOverview',
           component:userOverview
-        }
+        },
+        {
+          path:'fileService',
+          name:'fileService',
+          component:fileService
+        },
       ]
     },
     {
