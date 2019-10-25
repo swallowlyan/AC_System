@@ -192,6 +192,7 @@ export default {
     else if(window.location.href.indexOf("applicationManege")>-1)this.currentTitle="微应用管理",this.currentIndex="3";
     else if(window.location.href.indexOf("appList")>-1)this.currentTitle="应用商店",this.currentIndex="4";
     else if(window.location.href.indexOf("alarmPush")>-1)this.currentTitle="告警推送",this.currentIndex="5";
+    else if(window.location.href.indexOf("fileService")>-1)this.currentTitle="文件服务",this.currentIndex="7";
     else if(window.location.href.indexOf("tenantManage")>-1)this.currentTitle="系统管理",this.ifChildTitle=true,this.currentIndex="6",this.childTitle="租户管理";
     else if(window.location.href.indexOf("userManage")>-1)this.currentTitle="系统管理",this.ifChildTitle=true,this.currentIndex="6",this.childTitle="用户管理";
     else if(window.location.href.indexOf("userOverview")>-1)this.currentTitle="系统管理",this.ifChildTitle=true,this.currentIndex="6",this.childTitle="用户总览";

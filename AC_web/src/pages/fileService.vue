@@ -34,6 +34,7 @@
                 :data="tableData"
                 border
                 size="medium"
+                height="40px"
                 class="fileService"
                 @selection-change="getRowDatas"
               >
