@@ -1,19 +1,15 @@
 <!--文件服务-->
 <template>
   <div id="fileService">
-    <el-tabs v-model="activeTab" @tab-click="handleClick">
-      <!-- 容器 -->
-      <el-tab-pane label="容器" name="container">
-        <!-- 容器 -->
           <el-form :model="searchItem" ref="searchItem" label-width="auto">
             <el-row>
               <el-col :span="6">
-            <el-form-item label="容器ID" prop="deviceId">
-              <el-input v-model="searchItem.fileId" placeholder="请输入容器ID"></el-input>
+            <el-form-item label="文件ID" prop="fileId">
+              <el-input v-model="searchItem.fileId" placeholder="请输入文件ID"></el-input>
             </el-form-item>
               </el-col>
               <el-col :span="6">
-            <el-form-item prop="deviceType" label="容器类型">
+            <el-form-item prop="fileType" label="文件类型">
               <el-select v-model="searchItem.fileType" :placeholder="typeArr.title">
                 <el-option
                   v-for="item in typeArr.options"
@@ -31,7 +27,6 @@
               </el-col>
             </el-row>
           </el-form>
-        
         <el-row>
           <el-col :span="22">
             <div>
@@ -73,81 +68,6 @@
             </div>
           </el-col>
         </el-row>
-      </el-tab-pane>
-      <!-- 应用 -->
-      <el-tab-pane label="应用" name="application">
-          <el-form :model="searchItem" ref="searchItem" label-width="auto">
-            <el-row>
-              <el-col :span="6">
-            <el-form-item label="应用ID" prop="deviceId">
-              <el-input v-model="searchItem.fileId" placeholder="请输入应用ID"></el-input>
-            </el-form-item>
-              </el-col>
-              <el-col :span="6">
-            <el-form-item prop="deviceType" label="应用类型">
-              <el-select v-model="searchItem.fileType" :placeholder="typeArr.title">
-                <el-option
-                  v-for="item in typeArr.options"
-                  :key="item.itemCode"
-                  :label="item.itemName"
-                  :value="item.itemCode"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-              </el-col>
-              <el-col :span="7" :offset="1">
-              <el-button type="primary" @click="search(1)">查询</el-button>
-              <el-button type="default" @click="reset('searchItem')">重置</el-button>
-              <el-button type="success" icon="el-icon-refresh" @click="search(1)">刷新</el-button>
-              </el-col>
-            </el-row>
-          </el-form>
-        
-        <el-row>
-          <el-col :span="22">
-            <div>
-              <el-table
-                :data="tableData"
-                border
-                size="medium"
-                class="fileService"
-                @selection-change="getRowDatas"
-              >
-                <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column type="index" width="50" label="序号"></el-table-column>
-                <el-table-column prop="deviceId" label="应用ID"></el-table-column>
-                <el-table-column prop="appName" width="120" label="微应用名"></el-table-column>
-                <el-table-column prop="appType" label="微应用类型"></el-table-column>
-                <el-table-column prop="vendor" width="150" label="应用厂商"></el-table-column>
-                <el-table-column prop="version" label="微应用版本"></el-table-column>
-                <el-table-column prop="appReleaseTime" width="120" label="发布时间"></el-table-column>
-                <el-table-column prop="containerType" width="120" label="容器类型"></el-table-column>
-                <el-table-column prop="containerVersion" label="容器版本"></el-table-column>
-                <!-- <el-table-column prop="options" label="操作" width="200">
-                  <template slot-scope="scope">
-                    <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
-                    <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
-                  </template>
-                </el-table-column>-->
-              </el-table>
-              <el-row style="margin:20px 0px">
-                <el-pagination
-                  background
-                  @size-change="handleSizeChange"
-                  @current-change="handleCurrentChange"
-                  :current-page="1"
-                  :page-sizes="[5, 10,15]"
-                  :page-size="tableLimit"
-                  layout="total, sizes, prev, pager, next"
-                  :total="tableSize"
-                  style="float: right"
-                ></el-pagination>
-              </el-row>
-            </div>
-          </el-col>
-        </el-row>
-      </el-tab-pane>
-    </el-tabs>
   </div>
 </template>
 <script>
@@ -155,7 +75,6 @@ export default {
   name: "fileService",
   data() {
     return {
-      activeTab: "container",
       tableData:[],
       tableSize: 0,
       tableLimit: 10,
@@ -180,7 +99,7 @@ export default {
       this.$axios
         .get(baseUrl + "/admin/file/types")
         .then(res => {
-          this.typeArr.options = res.data.data;
+          this.typeArr.options =  res.data.data;
           this.typeArr.options.push({itemCode: "", itemName: "全部" });
         })
         .catch(err => {
