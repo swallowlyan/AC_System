@@ -30,8 +30,8 @@
       </el-tab-pane>
       <!-- 详细列表tab -->
       <el-tab-pane label="详细列表" name="detailView">
-          <el-form  :model="searchItem" ref="searchItem" label-width="auto">
-            <el-row>
+        <el-form :model="searchItem" ref="searchItem" label-width="auto">
+          <el-row>
             <el-col :span="6">
               <el-form-item label="终端ID" prop="deviceId">
                 <el-input v-model="searchItem.deviceId" placeholder="请输入终端ID"></el-input>
@@ -56,10 +56,10 @@
             </el-col>
             <el-col :span="5" :offset="1">
               <el-button type="primary" @click="search(1)">查询</el-button>
-                <el-button type="default" @click="reset('searchItem')">重置</el-button>
+              <el-button type="default" @click="reset('searchItem')">重置</el-button>
             </el-col>
-            </el-row>
-          </el-form>
+          </el-row>
+        </el-form>
         <el-row>
           <el-col :span="24">
             <div>
@@ -132,7 +132,13 @@
                   :on-change="importExcel"
                   :auto-upload="false"
                 >
-                  <el-button slot="trigger" icon="el-icon-upload" size="small" type="primary" plain>批量导入</el-button>
+                  <el-button
+                    slot="trigger"
+                    icon="el-icon-upload"
+                    size="small"
+                    type="primary"
+                    plain
+                  >批量导入</el-button>
                 </el-upload>
                 <el-pagination
                   background
@@ -326,7 +332,7 @@
                       v-for="(item,index) in dialogForm.containerArr"
                       :key="index"
                     >
-                      {{item.containerName}}
+                      {{item.name}}
                       <el-button
                         v-if="!ifDialogDetail"
                         type="text"
@@ -413,43 +419,46 @@
                       @close="handleClose"
                       @select="typeSelect"
                     >
-                    <!-- 容器分类 -->
-                      <div v-if="addTitle.indexOf('容器')!=-1" v-for="(item , index) in addDialogTypes" :key="index">
-                        <!-- addTitle -->
-                        <el-menu-item v-if="!item.child" :index="item.itemCode">
-                          <i class="el-icon-menu"></i>
-                          <span slot="title">{{item.itemName}}</span>
-                        </el-menu-item>
-                        <el-submenu v-if="item.child" :index="item.itemCode">
-                          <template slot="title">
-                            <i class="el-icon-location"></i>
-                            <span>{{item.itemName}}</span>
-                          </template>
-                          <el-menu-item
-                            v-for="(child,ind) in item.child"
-                            :key="ind"
-                            :index="child.itemCode"
-                          >{{child.itemName}}</el-menu-item>
-                        </el-submenu>
+                      <!-- 容器分类 -->
+                      <div v-if="addTitle.indexOf('容器')!=-1">
+                        <div v-for="(item , index) in addDialogTypes" :key="index">
+                          <el-menu-item v-if="!item.child" :index="item.itemCode">
+                            <i class="el-icon-menu"></i>
+                            <span slot="title">{{item.itemName}}</span>
+                          </el-menu-item>
+                          <el-submenu v-if="item.child" :index="item.itemCode">
+                            <template slot="title">
+                              <i class="el-icon-location"></i>
+                              <span>{{item.itemName}}</span>
+                            </template>
+                            <el-menu-item
+                              v-for="(child,ind) in item.child"
+                              :key="ind"
+                              :index="child.itemCode"
+                            >{{child.itemName}}</el-menu-item>
+                          </el-submenu>
+                        </div>
                       </div>
                       <!-- 应用分类 -->
-                      <div v-if="addTitle.indexOf('容器')==-1" v-for="(item , index) in addDialogTypes" :key="index">
-                        <!-- addTitle -->
-                        <el-menu-item v-if="!item.child" :index="item.ItemCode">
-                          <i class="el-icon-menu"></i>
-                          <span slot="title">{{item.ItemName}}</span>
-                        </el-menu-item>
-                        <el-submenu v-if="item.child" :index="item.ItemCode">
-                          <template slot="title">
-                            <i class="el-icon-location"></i>
-                            <span>{{item.ItemName}}</span>
-                          </template>
-                          <el-menu-item
-                            v-for="(child,ind) in item.child"
-                            :key="ind"
-                            :index="child.ItemCode"
-                          >{{child.ItemName}}</el-menu-item>
-                        </el-submenu>
+                      <div v-if="addTitle.indexOf('容器')==-1">
+                        <div v-for="(item , index) in addDialogTypes" :key="index">
+                          <!-- addTitle -->
+                          <el-menu-item v-if="!item.child" :index="item.ItemCode">
+                            <i class="el-icon-menu"></i>
+                            <span slot="title">{{item.ItemName}}</span>
+                          </el-menu-item>
+                          <el-submenu v-if="item.child" :index="item.ItemCode">
+                            <template slot="title">
+                              <i class="el-icon-location"></i>
+                              <span>{{item.ItemName}}</span>
+                            </template>
+                            <el-menu-item
+                              v-for="(child,ind) in item.child"
+                              :key="ind"
+                              :index="child.ItemCode"
+                            >{{child.ItemName}}</el-menu-item>
+                          </el-submenu>
+                        </div>
                       </div>
                     </el-menu>
                   </el-row>
@@ -525,19 +534,19 @@
     </el-dialog>
     <!-- 文件预览dialog  -->
     <el-dialog title="文件预览" :visible.sync="excelShow" width="75%">
-      <div class=previewView>
-      <table class="previewTable">
-        <thead>
-          <tr>
-            <td v-for="(title,titleIndex) in previewExcel.header" :key="titleIndex">{{title}}</td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(trItem,trIndex) in previewExcel.body" :key="trIndex">
-            <td v-for="(tdItem,tdIndex) in trItem" :key="tdIndex">{{tdItem}}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="previewView">
+        <table class="previewTable">
+          <thead>
+            <tr>
+              <td v-for="(title,titleIndex) in previewExcel.header" :key="titleIndex">{{title}}</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(trItem,trIndex) in previewExcel.body" :key="trIndex">
+              <td v-for="(tdItem,tdIndex) in trItem" :key="tdIndex">{{tdItem}}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="uploadFile()">上 传</el-button>
@@ -1100,18 +1109,15 @@ export default {
         )
         .then(res => {
           if (res.data.data !== null && res.data.data.length > 0) {
+            this.dialogForm.containerArr=[];
             res.data.data.forEach(item => {
-              if (
-                item.containerConfig.openServices.substring(
-                  1,
-                  item.containerConfig.openServices.length - 1
-                ) !== ""
-              ) {
-                item.containerConfig.appList = item.containerConfig.openServices
-                  .substring(1, item.containerConfig.openServices.length - 1)
-                  .split(",");
+              let container={ 
+                name: item.containerConfig.containerName
+               };
+              if (item.containerConfig.openServices!== "") {
+                item.containerConfig.appList = item.containerConfig.openServices.split(",");
               }
-              this.dialogForm.containerArr.push(item.containerConfig);
+              this.dialogForm.containerArr.push(container);
             });
           }
           console.info(this.dialogForm);
@@ -1252,7 +1258,7 @@ export default {
       });
     },
     //添加容器/应用dialog
-     chooseFile(type) {
+    chooseFile(type) {
       if (type === "app") {
         this.addSelectTitle = "已选应用";
         this.addTitle = "应用库";
@@ -1286,7 +1292,7 @@ export default {
     getContainer(page) {
       let condition = {};
       condition.name = this.searchFileItem;
-      if(this.selectedType!=="")condition.type = this.selectedType;
+      if (this.selectedType !== "") condition.type = this.selectedType;
       this.$axios
         .post(
           baseUrl + "/admin/containers/files",
@@ -1317,7 +1323,7 @@ export default {
     getApplications(page) {
       let appInfo = {};
       appInfo.name = this.searchFileItem;
-      if(this.selectedType!=="")appInfo.type = this.selectedType;
+      if (this.selectedType !== "") appInfo.type = this.selectedType;
       this.$axios
         .post(
           baseUrl +
@@ -1326,7 +1332,7 @@ export default {
             page +
             "&pageSize=" +
             this.filePageSize,
-           appInfo
+          appInfo
         )
         .then(res => {
           this.fileTotal = res.data.data.total;
@@ -1339,46 +1345,91 @@ export default {
     //添加容器/应用 分类点击
     typeSelect(index, indexPath) {
       this.selectedType = index;
-      if(this.addTitle.indexOf("容器")!=-1)this.getContainer(1);
+      if (this.addTitle.indexOf("容器") != -1) this.getContainer(1);
       else this.getApplications(1);
     },
     //安装容器/应用
     submitFile() {
-      let url = "",
-        param = {};
-      if (this.addTitle === "应用库") {
-        url = baseUrl + "/admin/app/deploy?isUpdate=false";
-        param = { apps: this.fileSelectedList, isUpdate: false };
-      } else if (this.addTitle === "容器库") {
-        url = baseUrl + "/admin/containers/deploy";
-        param = { containerlist: this.fileSelectedList, update: true };
-      }
-      //this.fileSelectedList;
-      this.$axios
-        .post(url, param, {
-          headers: {
-            "Content-Type": "application/json"
-          }
-        })
-        .then(res => {
-          if (res.data.success) {
-            this.$message({
-              message: "安装成功",
-              type: "success"
-            });
-            this.getContainerDetail(this.currentRow);
-            this.ifAddContainer = false;
-            this.dialogForm.containerArr = this.searchFile;
-          } else {
-            this.$message({
-              message: "安装失败",
-              type: "error"
-            });
-          }
-        })
-        .catch(err => {
-          console.log(err);
+      if (this.fileSelectedList.length > 0) {
+        let url = "",
+          param = {},
+          paramList = [];
+        if (this.addTitle === "应用库") {
+          url = baseUrl + "/admin/app/deploy?isUpdate=false";
+          this.fileSelectedList.forEach(item => {
+            let m = {
+              containerName: "",
+              deviceId: this.currentRow.deviceId,
+              name: item.appName,
+              operateType: 0,
+              type: item.appType,
+              vendor: item.vendor,
+              version: item.version
+            };
+            param.push(m);
+          });
+          param = { apps: paramList, isUpdate: false };
+        } else if (this.addTitle === "容器库") {
+          url = baseUrl + "/admin/containers/deploy";
+          this.fileSelectedList.forEach(item => {
+            let m = {
+              containerInfo: {
+                incrementPkg: item.containerFiles.incrementPkg,
+                name: item.name,
+                releaseTime: item.containerFiles.releaseTime,
+                releaseUser: item.containerFiles.releaseUser,
+                type: item.type,
+                vendor: item.vendor,
+                version: item.containerFiles.version
+              },
+              containerconfig: {
+                containerName: item.name,
+                cpuCores: 0,
+                description: item.containerFiles.description,
+                diskSizeMB: 0,
+                memoryMB: 0,
+                openServices: "",
+                physicalInterfaces: "",
+                volumeSizeMB: 0
+              },
+              deviceId: this.currentRow.deviceId
+            };
+            paramList.push(m);
+          });
+
+          param = { containerlist: paramList, update: false };
+        }
+        this.$axios
+          .post(url, param, {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          })
+          .then(res => {
+            if (res.data.errcode ==="0") {
+              this.$message({
+                message: "安装成功",
+                type: "success"
+              });
+              this.getContainerDetail(this.currentRow);
+              this.ifAddContainer = false;
+              this.dialogForm.containerArr = this.searchFile;
+            } else {
+              this.$message({
+                message: "安装失败  " + res.data.errmsg,
+                type: "error"
+              });
+            }
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      } else {
+        this.$message({
+          message: "请选择进行安装",
+          type: "warning"
         });
+      }
     },
     //终端列表分页
     handleSizeChange(val) {
@@ -1390,10 +1441,10 @@ export default {
     },
     //添加容器/应用查询
     searchFile() {
-      if(this.addTitle.indexOf("容器")!=-1)this.getContainer(1);
+      if (this.addTitle.indexOf("容器") != -1) this.getContainer(1);
       else this.getApplications(1);
     },
-/////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
     //批量上传预览
     importExcel(file) {
       // let file = file.files[0] // 使用传统的input方法需要加上这一步
@@ -1403,15 +1454,15 @@ export default {
       );
       if (!fileType) {
         this.$message({
-              message: "格式错误,请重新选择表格文件",
-              type: "error"
-            });
+          message: "格式错误,请重新选择表格文件",
+          type: "error"
+        });
         return;
       }
       this.file2Xce(file).then(tabJson => {
         if (tabJson && tabJson.length > 0) {
           this.xlsxJson = tabJson;
-          this.previewExcel.header=Object.keys(tabJson[0].sheet[0]);
+          this.previewExcel.header = Object.keys(tabJson[0].sheet[0]);
           this.previewExcel.body = tabJson[0].sheet;
           this.excelShow = true;
           console.log("数据", this.xlsxJson);
@@ -1449,11 +1500,11 @@ export default {
     //批量上传
     uploadFile() {
       const loading = this.$loading({
-          lock: true,
-          text: '正在上传',
-          spinner: 'el-icon-loading',
-          background: 'rgba(0, 0, 0, 0.7)'
-        });
+        lock: true,
+        text: "正在上传",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)"
+      });
       let paramArr = [];
       this.previewExcel.body.forEach(item => {
         paramArr.push(item);
@@ -1468,7 +1519,7 @@ export default {
         .post(baseUrl + "/admin/terminal/devices", paramArr, config)
         .then(res => {
           if (res.data.success) {
-          loading.close();
+            loading.close();
             this.dialogFormVisible = false;
             this.excelShow = false;
             this.search(1);
@@ -1550,8 +1601,7 @@ export default {
       this.previewExcel = convertedData;
       this.excelShow = true;
       console.info(convertedData);
-    },
-    
+    }
   }
 };
 </script>
@@ -1638,8 +1688,8 @@ export default {
   width: 160px;
   float: left;
 }
-.previewView{
-max-height: 300px;
+.previewView {
+  max-height: 300px;
   overflow: auto;
 }
 .previewTable {
@@ -1657,6 +1707,5 @@ max-height: 300px;
 .previewTable > thead {
   background-color: #eff2f7;
 }
-
 </style>
 
