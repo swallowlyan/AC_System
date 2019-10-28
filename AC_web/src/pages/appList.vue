@@ -6,7 +6,7 @@
         <el-row class="searchTypes">
           <el-row>
             <el-col :span="22" :offset="1">
-              <el-card class="box-card">
+              <el-card class="box-card" :style="{'padding':'0px 20px'}">
                 <el-row class="type">
                   <el-col :span="3">
                     <span>领域分类：</span>
@@ -59,7 +59,7 @@
         <el-row class="searchTables">
           <el-col :span="22" :offset="1">
             <el-card class="box-card">
-              <div slot="header" class="clearfix" style="height: 50px">
+              <div slot="header" class="clearfix" style="height: 10px">
                 <el-col :span="2" :offset="1">
                   <span>排序：</span>
                 </el-col>

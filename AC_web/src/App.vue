@@ -50,6 +50,10 @@ a:visited{
     background: #fff\7;/*IE*/
     filter: alpha(opacity=0);/*IE*/
   }
+  .el-main {
+    padding: 0px 20px;
+  }
+  td{padding: 0px !important}
 /*.el-table__body-wrapper,.el-table__header-wrapper{*/
   /*background-color: #5A7D87;*/
   /*text-align: center;*/

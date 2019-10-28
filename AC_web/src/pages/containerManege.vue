@@ -20,7 +20,7 @@
       </el-row>
     </el-form>
     <el-row>
-      <el-col :span="22">
+      <el-col :span="24">
         <div>
           <el-table
             :data="tableData"
@@ -30,8 +30,8 @@
             @selection-change="getRowDatas"
           >
             <el-table-column type="selection" width="55"></el-table-column>
-            <el-table-column type="index" width="50" label="序号"></el-table-column>
-            <el-table-column prop="containerName" width="150" label="容器名称">
+            <!-- <el-table-column type="index" width="50" label="序号"></el-table-column> -->
+            <el-table-column prop="containerName" width="130" label="容器名称">
               <template slot-scope="scope">
                 <el-button
                   @click="detailRow(scope.row)"
@@ -50,7 +50,7 @@
                 <span v-if="scope.row.isIncrementPkg">是</span>
               </template>
             </el-table-column>
-            <el-table-column prop="releaseTime" width="150" label="发布时间" :formatter="dateFormat"></el-table-column>
+            <el-table-column prop="releaseTime" width="130" label="发布时间" :formatter="dateFormat"></el-table-column>
             <el-table-column prop="description" width="150" label="说明"></el-table-column>
             <el-table-column prop="options" label="操作" width="180">
               <template slot-scope="scope">
@@ -102,7 +102,8 @@
     </el-row>
     <!-- 新增/编辑弹窗 -->
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="75%">
-      <el-row v-show="!ifInstallDialog">
+      <!-- 容器form -->
+      <el-row v-show="!ifInstallDialog&&!urlSelectVisible">
         <el-form
           :model="dialogForm"
           :rules="dialogRules"
@@ -187,7 +188,12 @@
             <el-col :span="12">
               <el-form-item label="容器url">
                 <span v-if="ifDialogDetail">{{dialogForm.url}}</span>
-                <el-input v-if="!ifDialogDetail" v-model="dialogForm.url" placeholder="请输入容器url"></el-input>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.url"
+                  @focus="urlFocus($event,2)"
+                  placeholder="请输入容器url"
+                ></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -249,7 +255,12 @@
             <el-col :span="24">
               <el-form-item label="图标url">
                 <span v-if="ifDialogDetail">{{dialogForm.logo}}</span>
-                <el-input v-if="!ifDialogDetail" v-model="dialogForm.logo" placeholder="请输入图标url"></el-input>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.logo"
+                  @focus="urlFocus($event,0)"
+                  placeholder="请输入图标url"
+                ></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -268,7 +279,8 @@
           </el-row>
         </el-form>
       </el-row>
-      <el-row v-show="ifInstallDialog">
+      <!-- 安装设备List -->
+      <el-row v-show="ifInstallDialog&&!urlSelectVisible">
         <el-col :span="18">
           <el-row style="max-height: 300px;overflow:auto;">
             <el-table
@@ -331,6 +343,42 @@
             </div>
           </el-card>
         </el-col>
+      </el-row>
+      <!-- 容器url选择 -->
+      <el-row v-show="urlSelectVisible">
+        <el-button
+          type="primary"
+          size="mini"
+          icon="el-icon-d-arrow-left"
+          round
+          @click="urlSelectVisible=false"
+        >返回</el-button>
+        <el-row style="max-height: 300px;overflow:auto;">
+          <el-table :data="urlList" tooltip-effect="dark" style="width: 100%">
+            <el-table-column prop="fileName" label="名称">
+              <template slot-scope="scope">
+                <el-button
+                  @click="selectUrlOption(scope.row)"
+                  type="text"
+                  size="medium"
+                >{{scope.row.fileName}}</el-button>
+              </template>
+            </el-table-column>
+            <el-table-column prop="fileType" label="类型"></el-table-column>
+            <el-table-column prop="fileUrl" label="URL"></el-table-column>
+          </el-table>
+        </el-row>
+        <el-row style="text-align: center;margin-top:10px;">
+          <el-pagination
+            @size-change="urlSizeChange"
+            @current-change="urlCurrentChange"
+            :current-page="urlCurrentPage"
+            :page-sizes="[5, 10, 15]"
+            :page-size="urlPageSize"
+            layout="total, prev, pager, next, jumper"
+            :total="urlTotal"
+          ></el-pagination>
+        </el-row>
       </el-row>
       <div slot="footer" class="dialog-footer">
         <el-button v-show="!ifInstallDialog" @click="dialogFormVisible = false">取 消</el-button>
@@ -405,13 +453,23 @@ export default {
         size: 5,
         sort: "id",
         dir: "asc"
-      }
+      },
+      urlSelectVisible: false,
+      currentUrlType: "",
+      urlList: [
+        { name: "test", url: 123123, logo: "testlogo" },
+        { name: "test1", url: 233333, logo: "testlogo1" }
+      ],
+      urlCurrentPage: 1,
+      urlPageSize: 10,
+      urlTotal: 0
     };
   },
   mounted() {
     this.search(1);
   },
   methods: {
+    //查询容器
     search(page) {
       let condition = {};
       condition.name = this.searchItem.name;
@@ -442,6 +500,7 @@ export default {
           console.log(err);
         });
     },
+    //重置
     reset(formName) {
       this.$refs[formName].resetFields();
     },
@@ -449,6 +508,7 @@ export default {
       this.selectedRow = row;
       console.info(row);
     },
+    //新增dialog
     add(formName) {
       this.ifInstallDialog = false;
       this.dialogTitle = "新增容器";
@@ -456,6 +516,7 @@ export default {
       this.dialogForm = {};
       this.dialogFormVisible = true;
     },
+    //详情dialog
     detailRow(row) {
       this.ifInstallDialog = false;
       this.dialogTitle = "容器详细信息";
@@ -463,6 +524,7 @@ export default {
       this.dialogForm = Object.assign({}, row);
       this.dialogFormVisible = true;
     },
+    //编辑dialog
     editRow(row) {
       this.ifInstallDialog = false;
       this.dialogTitle = "编辑终端";
@@ -470,6 +532,7 @@ export default {
       this.dialogForm = Object.assign({}, row);
       this.dialogFormVisible = true;
     },
+    //删除容器
     delRow(row) {
       // if (this.selectedRow.length === 0) {
       //   this.$message({
@@ -505,66 +568,75 @@ export default {
         });
       // }
     },
+    //提交新增/编辑
     submitForm(formName) {
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          if (this.dialogTitle.indexOf("新增") > -1) {
-            let addParam = {
-              containerId: this.dialogForm.containerId,
-              containerName: this.dialogForm.name,
-              containerType: Number(this.dialogForm.type),
-              isIncrementPkg: true,
-              releaseTime: this.dialogForm.releaseTime,
-              version: this.dialogForm.version,
-              bseVersion: this.dialogForm.baseVersion,
-              developer: this.dialogForm.vendor,
-              url: this.dialogForm.url,
-              description: this.dialogForm.description,
-              logo: this.dialogForm.logo,
-              fileSizeMB: Number(this.dialogForm.fileSizeMB),
-              minVcpus: Number(this.dialogForm.minVcpus),
-              minDataDiskMB: Number(this.dialogForm.minDataDiskMB),
-              minRamMB: Number(this.dialogForm.minRamMB),
-              minRootDiskMB: Number(this.dialogForm.minRootDiskMB)
-            };
-            if (this.dialogForm.isIncrementPkg === "false")
-              addParam.isIncrementPkg = false;
-            let config = {
-              headers: {
-                "Content-Type": "application/json"
-              }
-            };
-            this.$axios
-              .post(baseUrl + "/admin/containers/add", addParam, config)
-              .then(res => {
-                if (res.data.success) {
-                  this.dialogFormVisible = false;
-                  this.$message({
-                    message: "添加成功",
-                    type: "success"
-                  });
-                  this.$refs[formName].resetFields();
-                  this.search(1);
-                } else {
-                  this.$message({
-                    message: res.data.errmsg,
-                    type: "error"
-                  });
+      if (this.urlSelectVisible) {
+        this.$message({
+          message: "请选择容器url后，填写完整的容器信息，进行提交",
+          type: "warning"
+        });
+      } else {
+        this.$refs[formName].validate(valid => {
+          if (valid) {
+            if (this.dialogTitle.indexOf("新增") > -1) {
+              let addParam = {
+                containerId: this.dialogForm.containerId,
+                containerName: this.dialogForm.name,
+                containerType: Number(this.dialogForm.type),
+                isIncrementPkg: true,
+                releaseTime: this.dialogForm.releaseTime,
+                version: this.dialogForm.version,
+                bseVersion: this.dialogForm.baseVersion,
+                developer: this.dialogForm.vendor,
+                url: this.dialogForm.url,
+                description: this.dialogForm.description,
+                logo: this.dialogForm.logo,
+                fileSizeMB: Number(this.dialogForm.fileSizeMB),
+                minVcpus: Number(this.dialogForm.minVcpus),
+                minDataDiskMB: Number(this.dialogForm.minDataDiskMB),
+                minRamMB: Number(this.dialogForm.minRamMB),
+                minRootDiskMB: Number(this.dialogForm.minRootDiskMB)
+              };
+              if (this.dialogForm.isIncrementPkg === "false")
+                addParam.isIncrementPkg = false;
+              let config = {
+                headers: {
+                  "Content-Type": "application/json"
                 }
-              })
-              .catch(err => {
-                console.log(err);
-              });
+              };
+              this.$axios
+                .post(baseUrl + "/admin/containers/add", addParam, config)
+                .then(res => {
+                  if (res.data.success) {
+                    this.dialogFormVisible = false;
+                    this.$message({
+                      message: "添加成功",
+                      type: "success"
+                    });
+                    this.$refs[formName].resetFields();
+                    this.search(1);
+                  } else {
+                    this.$message({
+                      message: res.data.errmsg,
+                      type: "error"
+                    });
+                  }
+                })
+                .catch(err => {
+                  console.log(err);
+                });
+            }
+            //编辑
+            else {
+            }
+          } else {
+            console.log("error submit!!");
+            return false;
           }
-          //编辑
-          else {
-          }
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
-      });
+        });
+      }
     },
+    //容器列表分页操作
     handleSizeChange(val) {
       this.tableLimit = val;
       this.search(1);
@@ -572,6 +644,7 @@ export default {
     handleCurrentChange(val) {
       this.search(val);
     },
+    //安装dialog
     toInstallDialog(row, ifGetInstalled) {
       if (ifGetInstalled) this.dialogTitle = "已安装设备";
       else this.dialogTitle = "安装容器";
@@ -583,6 +656,7 @@ export default {
       this.getDeviceDialog(1);
       this.dialogFormVisible = true;
     },
+    //获取设备
     getDeviceDialog(page) {
       if (!this.ifGetInstalled) {
         //查询可安装终端
@@ -604,7 +678,7 @@ export default {
             console.log(err);
           });
       } else {
-        //查询已安装终端
+        //查询已安装设备
         this.$axios
           .post(baseUrl + "" + this.devicePageSize + "&pageIndex=" + page, {})
           .then(res => {
@@ -756,9 +830,11 @@ export default {
         });
       }
     },
+    //获取选择设备
     handleSelectionChange(val) {
       this.selectedDevices = val;
     },
+    //移除已选设备
     removeSelected(val) {
       this.selectedDevices.forEach((item, index) => {
         if (item.name === val.name) {
@@ -768,6 +844,7 @@ export default {
         }
       });
     },
+    //设备列表操作
     deviceSizeChange(val) {
       this.devicePageSize = val;
       this.getDeviceDialog(1);
@@ -775,6 +852,47 @@ export default {
     deviceCurrentChange(val) {
       this.getDeviceDialog(val);
     },
+    //容器url-dialog
+    urlFocus(event, type) {
+      console.info(event);
+      this.currentUrlType = type;
+      this.getUrls(1);
+      this.urlSelectVisible = true;
+    },
+    //获取Url
+    getUrls(page) {
+      this.$axios
+        .get(
+          baseUrl +
+            "/admin/file/list?pageSize=" +
+            this.urlPageSize +
+            "&pageIndex=" +
+            page +
+            "&fileType=" +
+            this.currentUrlType
+        )
+        .then(res => {
+          this.urlTotal = res.data.data.total;
+          this.urlList = res.data.data.records;
+          return false;
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    //容器url选中
+    selectUrlOption(row) {
+      if (this.currentUrlType === 2) this.dialogForm.url = row.fileUrl;
+      else this.dialogForm.logo = row.fileUrl;
+      this.urlSelectVisible = false;
+    },
+    //容器url列表分页
+    urlSizeChange(val) {
+      this.urlPageSize = val;
+      this.getUrls(1);
+    },
+    urlCurrentChange(val) {this.getUrls(val);},
+    //时间格式化
     dateFormat(row, column, cellValue, index) {
       const daterc = row[column.property];
       if (daterc != null) {

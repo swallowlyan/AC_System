@@ -1,7 +1,7 @@
 <!--终端管理-->
 <template>
   <div id="terminalManege">
-    <el-tabs v-model="activeTab" @tab-click="handleClick">
+    <el-tabs v-model="activeTab">
       <!-- 总览tab页 -->
       <el-tab-pane label="总览" name="allView">
         <!-- 总览数据 -->
@@ -61,7 +61,7 @@
             </el-row>
           </el-form>
         <el-row>
-          <el-col :span="22">
+          <el-col :span="24">
             <div>
               <el-table
                 :data="tableData"
@@ -101,7 +101,7 @@
                   label="激活时间"
                   :formatter="dateFormat"
                 ></el-table-column>
-                <el-table-column prop="options" label="操作" width="200">
+                <el-table-column prop="options" label="操作" width="120">
                   <template slot-scope="scope">
                     <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
                     <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
@@ -132,7 +132,7 @@
                   :on-change="importExcel"
                   :auto-upload="false"
                 >
-                  <el-button slot="trigger" icon="el-icon-upload" size="small" type="primary" plain>上传文件</el-button>
+                  <el-button slot="trigger" icon="el-icon-upload" size="small" type="primary" plain>批量导入</el-button>
                 </el-upload>
                 <el-pagination
                   background
@@ -153,6 +153,7 @@
     </el-tabs>
     <!-- 新增/编辑弹窗 -->
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="75%">
+      <!-- 终端form -->
       <el-row v-show="!ifAddContainer">
         <el-form
           :model="dialogForm"
@@ -220,14 +221,13 @@
             </el-col>
           </el-row>
           <el-row v-if="ifDialogDetail">
-            <el-col :span="12">
+            <el-col :span="24">
               <el-form-item label="终端版本">
                 <span style="float:left">{{dialogForm.version}}</span>
                 <el-button
                   type="primary"
                   plain
                   size="mini"
-                  v-if="ifDialogEdit"
                   style="float:right;margin:5px;"
                   @click="updateRow(dialogForm)"
                 >升级</el-button>
@@ -269,7 +269,7 @@
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="终端ip" prop="ip">
+              <el-form-item label="终端ip">
                 <span v-if="ifDialogDetail||ifDialogEdit">{{dialogForm.ip}}</span>
                 <el-input
                   v-if="!ifDialogDetail&&!ifDialogEdit"
@@ -396,7 +396,7 @@
           </div>
         </el-form>
       </el-row>
-      <!-- 新增服务/容器 -->
+      <!-- 新增服务/容器dialog -->
       <el-row v-show="ifAddContainer">
         <el-col :span="16" :offset="1">
           <el-card class="box-card">
@@ -408,13 +408,33 @@
                 <el-aside width="150px">
                   <el-row>
                     <el-menu
-                      default-active="1"
                       class="el-menu-vertical-demo"
                       @open="handleOpen"
                       @close="handleClose"
                       @select="typeSelect"
                     >
-                      <div v-for="(item , index) in addDialogTypes" :key="index">
+                    <!-- 容器分类 -->
+                      <div v-if="addTitle.indexOf('容器')!=-1" v-for="(item , index) in addDialogTypes" :key="index">
+                        <!-- addTitle -->
+                        <el-menu-item v-if="!item.child" :index="item.itemCode">
+                          <i class="el-icon-menu"></i>
+                          <span slot="title">{{item.itemName}}</span>
+                        </el-menu-item>
+                        <el-submenu v-if="item.child" :index="item.itemCode">
+                          <template slot="title">
+                            <i class="el-icon-location"></i>
+                            <span>{{item.itemName}}</span>
+                          </template>
+                          <el-menu-item
+                            v-for="(child,ind) in item.child"
+                            :key="ind"
+                            :index="child.itemCode"
+                          >{{child.itemName}}</el-menu-item>
+                        </el-submenu>
+                      </div>
+                      <!-- 应用分类 -->
+                      <div v-if="addTitle.indexOf('容器')==-1" v-for="(item , index) in addDialogTypes" :key="index">
+                        <!-- addTitle -->
                         <el-menu-item v-if="!item.child" :index="item.ItemCode">
                           <i class="el-icon-menu"></i>
                           <span slot="title">{{item.ItemName}}</span>
@@ -438,7 +458,7 @@
                   <el-header>
                     <el-row>
                       <el-col :span="16">
-                        <el-input v-model="searchFileItem" placeholder="请输入内容进行查询"></el-input>
+                        <el-input v-model="searchFileItem" placeholder="请输入名称进行查询"></el-input>
                       </el-col>
                       <el-col :span="2" :offset="1">
                         <el-button type="primary" icon="el-icon-search" @click="searchFile()">搜索</el-button>
@@ -455,16 +475,10 @@
                         style="width: 100%"
                         @selection-change="handleSelectionChange"
                       >
-                        <el-table-column type="selection" width="55"></el-table-column>
-                        <el-table-column label="排序" width="60">
-                          <template>
-                            <!-- <template slot-scope="scope"> -->
-                            <img src="../assets/img/soft_demo1.jpg" height="60" width="100%" />
-                          </template>
-                        </el-table-column>
-                        <el-table-column prop="name" label="名称" width="100"></el-table-column>
-                        <el-table-column prop="count" label="下载量" width="100"></el-table-column>
-                        <el-table-column prop="time" label="上架时间" width="180"></el-table-column>
+                        <el-table-column type="selection"></el-table-column>
+                        <el-table-column prop="name" label="名称"></el-table-column>
+                        <el-table-column prop="type" label="类型"></el-table-column>
+                        <el-table-column prop="vendor" label="开发商"></el-table-column>
                       </el-table>
                     </el-row>
                     <el-row style="text-align: center;margin-top:10px;">
@@ -509,7 +523,7 @@
         <el-button v-show="ifAddContainer" @click="ifAddContainer = false">取 消</el-button>
       </div>
     </el-dialog>
-    <!-- 文件预览弹窗  -->
+    <!-- 文件预览dialog  -->
     <el-dialog title="文件预览" :visible.sync="excelShow" width="75%">
       <div class=previewView>
       <table class="previewTable">
@@ -530,7 +544,6 @@
         <el-button @click="excelShow = false">取 消</el-button>
       </div>
     </el-dialog>
-    <!-- 文件预览弹窗  -->
   </div>
 </template>
 <script>
@@ -725,6 +738,7 @@ export default {
           console.log(err);
         });
     },
+    //终端列表
     search(page) {
       let param = {
         deviceId: this.searchItem.deviceId,
@@ -761,7 +775,7 @@ export default {
       this.selectedRow = row;
       console.info(row);
     },
-    //获取地图数据
+    //获取总览数据
     getMapData() {
       this.$axios
         .post(baseUrl + "/admin/snapshoot/queryTerminalStatistic")
@@ -1000,7 +1014,7 @@ export default {
       }
       return res;
     },
-    //查看
+    //详情dialog
     detailRow(row) {
       this.ifAddContainer = false;
       this.ifDialogEdit = false;
@@ -1014,7 +1028,7 @@ export default {
       // });
       // this.dialogFormVisible = true;
     },
-    //新增
+    //新增dialog
     add(formName) {
       this.ifAddContainer = false;
       this.ifDialogEdit = false;
@@ -1026,7 +1040,7 @@ export default {
       //   this.$refs[formName].resetFields();
       // });
     },
-    //编辑
+    //编辑dialog
     editRow(row) {
       this.ifAddContainer = false;
       this.ifDialogEdit = true;
@@ -1166,9 +1180,6 @@ export default {
           });
         });
     },
-    //批量导入
-    importRows() {},
-
     //提交新增/编辑
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
@@ -1240,10 +1251,42 @@ export default {
         }
       });
     },
+    //添加容器/应用dialog
+     chooseFile(type) {
+      if (type === "app") {
+        this.addSelectTitle = "已选应用";
+        this.addTitle = "应用库";
+        this.getApplications(1);
+      } else {
+        this.addSelectTitle = "已选容器";
+        this.addTitle = "容器库";
+        this.getContainer(1);
+      }
+      this.getAddDialogType();
+      this.fileSelectedList = [];
+      this.ifAddContainer = true;
+    },
+    //获取容器/应用分类
+    getAddDialogType() {
+      let url = "";
+      if (this.addTitle.indexOf("容器") > -1) url = "/admin/containers/types";
+      else url = "/admin/app/getAllTypes";
+      this.$axios
+        .post(baseUrl + url)
+        .then(res => {
+          if (res.data.success) {
+            this.addDialogTypes = res.data.data;
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
     //获取容器列表
     getContainer(page) {
       let condition = {};
       condition.name = this.searchFileItem;
+      if(this.selectedType!=="")condition.type = this.selectedType;
       this.$axios
         .post(
           baseUrl + "/admin/containers/files",
@@ -1270,24 +1313,11 @@ export default {
           console.log(err);
         });
     },
-    //获取应用分类
-    getAddDialogType() {
-      let url = "";
-      if (this.addTitle.indexOf("容器") > -1) url = "";
-      else url = "/admin/app/getAllTypes";
-      this.$axios
-        .post(baseUrl + url)
-        .then(res => {
-          if (res.data.success) {
-            this.addDialogTypes = res.data.data;
-          }
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    },
     //获取应用列表
     getApplications(page) {
+      let appInfo = {};
+      appInfo.name = this.searchFileItem;
+      if(this.selectedType!=="")appInfo.type = this.selectedType;
       this.$axios
         .post(
           baseUrl +
@@ -1296,8 +1326,7 @@ export default {
             page +
             "&pageSize=" +
             this.filePageSize,
-          { appInfo: this.searchFileItem },
-          { headers: { "Content-Type": "application/json" } }
+           appInfo
         )
         .then(res => {
           this.fileTotal = res.data.data.total;
@@ -1307,23 +1336,11 @@ export default {
           console.log(err);
         });
     },
-    chooseFile(type) {
-      if (type === "app") {
-        this.addSelectTitle = "已选应用";
-        this.addTitle = "应用库";
-        this.getApplications(1);
-      } else {
-        this.addSelectTitle = "已选容器";
-        this.addTitle = "容器库";
-        this.getContainer(1);
-      }
-      // this.getAddDialogType();
-      this.fileSelectedList = [];
-      this.ifAddContainer = true;
-    },
+    //添加容器/应用 分类点击
     typeSelect(index, indexPath) {
       this.selectedType = index;
-      this.searchFile("");
+      if(this.addTitle.indexOf("容器")!=-1)this.getContainer(1);
+      else this.getApplications(1);
     },
     //安装容器/应用
     submitFile() {
@@ -1363,8 +1380,7 @@ export default {
           console.log(err);
         });
     },
-    //tab点击事件
-    handleClick() {},
+    //终端列表分页
     handleSizeChange(val) {
       this.tableLimit = val;
       this.search(1);
@@ -1372,7 +1388,108 @@ export default {
     handleCurrentChange(val) {
       this.search(val);
     },
-    searchFile() {},
+    //添加容器/应用查询
+    searchFile() {
+      if(this.addTitle.indexOf("容器")!=-1)this.getContainer(1);
+      else this.getApplications(1);
+    },
+/////////////////////////////////////////////////////
+    //批量上传预览
+    importExcel(file) {
+      // let file = file.files[0] // 使用传统的input方法需要加上这一步
+      const types = file.name.split(".")[1];
+      const fileType = ["xlsx", "xlc", "xlm", "xls", "xlt", "xlw", "csv"].some(
+        item => item === types
+      );
+      if (!fileType) {
+        this.$message({
+              message: "格式错误,请重新选择表格文件",
+              type: "error"
+            });
+        return;
+      }
+      this.file2Xce(file).then(tabJson => {
+        if (tabJson && tabJson.length > 0) {
+          this.xlsxJson = tabJson;
+          this.previewExcel.header=Object.keys(tabJson[0].sheet[0]);
+          this.previewExcel.body = tabJson[0].sheet;
+          this.excelShow = true;
+          console.log("数据", this.xlsxJson);
+          // xlsxJson就是解析出来的json数据,数据格式如下
+          // [
+          //   {
+          //     sheetName: sheet1
+          //     sheet: sheetData
+          //   }
+          // ]
+        }
+      });
+    },
+    file2Xce(file) {
+      return new Promise(function(resolve, reject) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const data = e.target.result;
+          this.wb = XLSX.read(data, {
+            type: "binary"
+          });
+          const result = [];
+          this.wb.SheetNames.forEach(sheetName => {
+            result.push({
+              sheetName: sheetName,
+              sheet: XLSX.utils.sheet_to_json(this.wb.Sheets[sheetName])
+            });
+          });
+          resolve(result);
+        };
+        reader.readAsBinaryString(file.raw);
+        // reader.readAsBinaryString(file) // 传统input方法
+      });
+    },
+    //批量上传
+    uploadFile() {
+      const loading = this.$loading({
+          lock: true,
+          text: '正在上传',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
+      let paramArr = [];
+      this.previewExcel.body.forEach(item => {
+        paramArr.push(item);
+      });
+      let config = {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      };
+      console.info(paramArr);
+      this.$axios
+        .post(baseUrl + "/admin/terminal/devices", paramArr, config)
+        .then(res => {
+          if (res.data.success) {
+          loading.close();
+            this.dialogFormVisible = false;
+            this.excelShow = false;
+            this.search(1);
+            this.$message({
+              message: "上传成功",
+              type: "success"
+            });
+          } else {
+            loading.close();
+            this.$message({
+              message: res.data.errmsg,
+              type: "error"
+            });
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    ///////////////////////////////////
+    //容器/应用列表分页
     fileSizeChange(val) {
       this.filePageSize = val;
       this.fileParam = {
@@ -1435,105 +1552,13 @@ export default {
       console.info(convertedData);
     },
     
-    /////////////////////////////////////////////////////
-    //预览
-    importExcel(file) {
-      // let file = file.files[0] // 使用传统的input方法需要加上这一步
-      const types = file.name.split(".")[1];
-      const fileType = ["xlsx", "xlc", "xlm", "xls", "xlt", "xlw", "csv"].some(
-        item => item === types
-      );
-      if (!fileType) {
-        this.$message("格式错误！请重新选择");
-        return;
-      }
-      this.file2Xce(file).then(tabJson => {
-        if (tabJson && tabJson.length > 0) {
-          this.xlsxJson = tabJson;
-          this.previewExcel.header=Object.keys(tabJson[0].sheet[0]);
-          this.previewExcel.body = tabJson[0].sheet;
-          this.excelShow = true;
-          console.log("数据", this.xlsxJson);
-          // xlsxJson就是解析出来的json数据,数据格式如下
-          // [
-          //   {
-          //     sheetName: sheet1
-          //     sheet: sheetData
-          //   }
-          // ]
-        }
-      });
-    },
-    file2Xce(file) {
-      return new Promise(function(resolve, reject) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const data = e.target.result;
-          this.wb = XLSX.read(data, {
-            type: "binary"
-          });
-          const result = [];
-          this.wb.SheetNames.forEach(sheetName => {
-            result.push({
-              sheetName: sheetName,
-              sheet: XLSX.utils.sheet_to_json(this.wb.Sheets[sheetName])
-            });
-          });
-          resolve(result);
-        };
-        reader.readAsBinaryString(file.raw);
-        // reader.readAsBinaryString(file) // 传统input方法
-      });
-    },
-    //上传
-    uploadFile() {
-      const loading = this.$loading({
-          lock: true,
-          text: '正在上传',
-          spinner: 'el-icon-loading',
-          background: 'rgba(0, 0, 0, 0.7)'
-        });
-      let paramArr = [];
-      this.previewExcel.body.forEach(item => {
-        paramArr.push(item);
-      });
-      let config = {
-        headers: {
-          "Content-Type": "application/json"
-        }
-      };
-      console.info(paramArr);
-      this.$axios
-        .post(baseUrl + "/admin/terminal/devices", paramArr, config)
-        .then(res => {
-          if (res.data.success) {
-          loading.close();
-            this.dialogFormVisible = false;
-            this.excelShow = false;
-            this.search(1);
-            this.$message({
-              message: "上传成功",
-              type: "success"
-            });
-          } else {
-            loading.close();
-            this.$message({
-              message: res.data.errmsg,
-              type: "error"
-            });
-          }
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    },
   }
 };
 </script>
 
 <style scoped>
 .terminalTable {
-  max-height: 500px;
+  /* max-height: 500px; */
   overflow: auto;
 }
 .pull-right {

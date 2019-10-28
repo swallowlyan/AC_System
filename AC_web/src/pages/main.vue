@@ -92,8 +92,8 @@
             </el-col>
           </el-row>
         </el-aside>
-        <el-main>
-          <el-breadcrumb separator-class="el-icon-arrow-right" style="margin-bottom:10px">
+        <el-main style="margin-top:10px">
+          <el-breadcrumb v-show="false" separator-class="el-icon-arrow-right" style="margin-bottom:10px">
             <el-breadcrumb-item :to="{ path: '/' }">
               <i class="fa fa-home" aria-hidden="true" style="font-size:25px;color:rgb(75,131,178)"></i>
             </el-breadcrumb-item>
@@ -139,22 +139,29 @@ export default {
           icon: "fa fa-th-large"
         },
         {
-          title: "应用商店",
+          title: "文件服务",
           index: "4",
+          url: "/fileService",
+          ifChild: false,
+          icon: "el-icon-folder"
+        },
+        {
+          title: "应用商店",
+          index: "5",
           url: "/appList",
           ifChild: false,
           icon: "el-icon-s-goods"
         },
         {
           title: "告警推送",
-          index: "5",
+          index: "6",
           url: "/alarmPush",
           ifChild: false,
           icon: "fa fa-warning"
         },
         {
           title: "系统管理",
-          index: "6",
+          index: "7",
           url: "/",
           ifChild: true,
           icon: "el-icon-s-tools",
@@ -176,13 +183,7 @@ export default {
             }
           ]
         },
-        {
-          title: "文件服务",
-          index: "7",
-          url: "/fileService",
-          ifChild: false,
-          icon: "el-icon-folder"
-        }
+        
       ]
     };
   },

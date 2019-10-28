@@ -21,14 +21,13 @@
           </el-form-item>
         </el-col>
         <el-col :span="6" :offset="1">
-            <el-button type="primary" @click="search(1)">查询</el-button>
-            <el-button type="default" @click="reset('searchItem')">重置</el-button>
+          <el-button type="primary" @click="search(1)">查询</el-button>
+          <el-button type="default" @click="reset('searchItem')">重置</el-button>
         </el-col>
       </el-row>
     </el-form>
-
     <el-row>
-      <el-col :span="22">
+      <el-col :span="24">
         <div>
           <el-table
             :data="tableData"
@@ -49,12 +48,12 @@
             </el-table-column>
             <el-table-column prop="appName" width="120" label="微应用名"></el-table-column>
             <el-table-column prop="appType" label="微应用类型"></el-table-column>
-            <el-table-column prop="vendor" width="150" label="应用厂商"></el-table-column>
+            <el-table-column prop="vendor" width="120" label="应用厂商"></el-table-column>
             <el-table-column prop="version" label="微应用版本"></el-table-column>
-            <el-table-column prop="appReleaseTime" width="120" label="发布时间"></el-table-column>
-            <el-table-column prop="containerType" width="120" label="容器类型"></el-table-column>
+            <el-table-column prop="appReleaseTime" width="130" label="发布时间"></el-table-column>
+            <el-table-column prop="containerType" label="容器类型"></el-table-column>
             <el-table-column prop="containerVersion" label="容器版本"></el-table-column>
-            <el-table-column prop="options" label="操作">
+            <el-table-column prop="options" label="操作" width="100">
               <template slot-scope="scope">
                 <!-- <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</!-->
                 <el-button @click="toInstallDialog(scope.row,false)" type="text" size="medium">安装</el-button>
@@ -81,14 +80,15 @@
     </el-row>
     <!-- 新增/编辑弹窗 -->
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="70%">
-      <el-form
-        :model="dialogForm"
-        :rules="dialogRules"
-        ref="dialogForm"
-        label-width="150px"
-        class="acForm"
-      >
-        <el-row v-show="!ifInstallDialog">
+      <!-- 微应用form -->
+      <el-row v-show="!ifInstallDialog&&!urlSelectVisible">
+        <el-form
+          :model="dialogForm"
+          :rules="dialogRules"
+          ref="dialogForm"
+          label-width="150px"
+          class="acForm"
+        >
           <el-row>
             <!-- <el-col :span="12">
             <el-form-item label="微应用ID" prop="appId">
@@ -235,6 +235,7 @@
                 <span v-if="ifDialogDetail">{{dialogForm.downloadURL}}</span>
                 <el-input
                   v-if="!ifDialogDetail"
+                  @focus="urlFocus($event,1)"
                   v-model="dialogForm.downloadURL"
                   placeholder="请输入下载url"
                 ></el-input>
@@ -243,81 +244,123 @@
             <el-col :span="12">
               <el-form-item label="图标url">
                 <span v-if="ifDialogDetail">{{dialogForm.logo}}</span>
-                <el-input v-if="!ifDialogDetail" v-model="dialogForm.logo" placeholder="请输入图标url"></el-input>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.logo"
+                  @focus="urlFocus($event,0)"
+                  placeholder="请输入图标url"
+                ></el-input>
               </el-form-item>
             </el-col>
           </el-row>
-        </el-row>
-        <el-row v-show="ifInstallDialog">
-          <el-col :span="18">
-            <el-row style="max-height: 300px;overflow:auto;">
-              <el-table
-                ref="multipleTable"
-                :data="deviceList"
-                tooltip-effect="dark"
-                style="width: 100%"
-                @selection-change="handleSelectionChange"
-              >
-                <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column prop="deviceId" label="终端ID" width="200"></el-table-column>
-                <el-table-column prop="name" label="终端名称"></el-table-column>
-                <el-table-column prop="deviceType" label="设备类型"></el-table-column>
-                <el-table-column prop="status" label="终端状态">
-                  <template slot-scope="scope">
-                    <span v-if="scope.row.status===0" style="color:#67c23a">正常</span>
-                    <span v-if="scope.row.status===1" style="color:orange">告警</span>
-                    <span v-if="scope.row.status===2" style="color:red">故障</span>
-                    <span v-if="scope.row.status===3" style="color:gray">离线</span>
-                    <span v-if="scope.row.status===4" style="color:#000">未注册</span>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-row>
-            <el-row style="text-align: center;margin-top:10px;">
-              <el-pagination
-                @size-change="deviceSizeChange"
-                @current-change="deviceCurrentChange"
-                :current-page="deviceCurrentPage"
-                :page-sizes="[5, 10, 15]"
-                :page-size="devicePageSize"
-                layout="total, prev, pager, next, jumper"
-                :total="deviceTotal"
-              ></el-pagination>
-            </el-row>
-          </el-col>
-          <el-col :span="5" :offset="1">
-            <el-card class="box-card">
-              <div slot="header" class="clearfix">
-                <span>已选设备</span>
-              </div>
-              <div>
-                <ul>
-                  <li v-for="(item,index) in selectedDevices" :key="index">
-                    {{item.deviceId}}——
-                    {{item.name}}
-                    <el-button type="text" @click="removeSelected(item)">
-                      <i class="el-icon-close"></i>
-                    </el-button>
-                  </li>
-                </ul>
+        </el-form>
+      </el-row>
+      <!-- 安装dialog -->
+      <el-row v-show="ifInstallDialog&&!urlSelectVisible">
+        <el-col :span="18">
+          <el-row style="max-height: 300px;overflow:auto;">
+            <el-table
+              ref="multipleTable"
+              :data="deviceList"
+              tooltip-effect="dark"
+              style="width: 100%"
+              @selection-change="handleSelectionChange"
+            >
+              <el-table-column type="selection" width="55"></el-table-column>
+              <el-table-column prop="deviceId" label="终端ID" width="200"></el-table-column>
+              <el-table-column prop="name" label="终端名称"></el-table-column>
+              <el-table-column prop="deviceType" label="设备类型"></el-table-column>
+              <el-table-column prop="status" label="终端状态">
+                <template slot-scope="scope">
+                  <span v-if="scope.row.status===0" style="color:#67c23a">正常</span>
+                  <span v-if="scope.row.status===1" style="color:orange">告警</span>
+                  <span v-if="scope.row.status===2" style="color:red">故障</span>
+                  <span v-if="scope.row.status===3" style="color:gray">离线</span>
+                  <span v-if="scope.row.status===4" style="color:#000">未注册</span>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-row>
+          <el-row style="text-align: center;margin-top:10px;">
+            <el-pagination
+              @size-change="deviceSizeChange"
+              @current-change="deviceCurrentChange"
+              :current-page="deviceCurrentPage"
+              :page-sizes="[5, 10, 15]"
+              :page-size="devicePageSize"
+              layout="total, prev, pager, next, jumper"
+              :total="deviceTotal"
+            ></el-pagination>
+          </el-row>
+        </el-col>
+        <el-col :span="5" :offset="1">
+          <el-card class="box-card">
+            <div slot="header" class="clearfix">
+              <span>已选设备</span>
+            </div>
+            <div>
+              <ul>
+                <li v-for="(item,index) in selectedDevices" :key="index">
+                  {{item.deviceId}}——
+                  {{item.name}}
+                  <el-button type="text" @click="removeSelected(item)">
+                    <i class="el-icon-close"></i>
+                  </el-button>
+                </li>
+              </ul>
+              <el-button
+                v-show="ifGetInstalled"
+                type="danger"
+                plain
+                icon="el-icon-delete"
+                size="small"
+                @click="unInstallContainer()"
+              >卸载</el-button>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
+      <!-- 下载Url选择 -->
+      <el-row v-show="urlSelectVisible">
+        <el-button
+          type="primary"
+          size="mini"
+          icon="el-icon-d-arrow-left"
+          round
+          @click="urlSelectVisible=false"
+        >返回</el-button>
+        <el-row style="max-height: 300px;overflow:auto;">
+          <el-table :data="urlList" tooltip-effect="dark" style="width: 100%">
+            <el-table-column prop="fileName" label="名称">
+              <template slot-scope="scope">
                 <el-button
-                  v-show="ifGetInstalled"
-                  type="danger"
-                  plain
-                  icon="el-icon-delete"
-                  size="small"
-                  @click="unInstallContainer()"
-                >卸载</el-button>
-              </div>
-            </el-card>
-          </el-col>
+                  @click="selectUrlOption(scope.row)"
+                  type="text"
+                  size="medium"
+                >{{scope.row.fileName}}</el-button>
+              </template>
+            </el-table-column>
+            <el-table-column prop="fileType" label="类型"></el-table-column>
+            <el-table-column prop="fileUrl" label="URL"></el-table-column>
+          </el-table>
         </el-row>
-      </el-form>
+        <el-row style="text-align: center;margin-top:10px;">
+          <el-pagination
+            @size-change="urlSizeChange"
+            @current-change="urlCurrentChange"
+            :current-page="urlCurrentPage"
+            :page-sizes="[5, 10, 15]"
+            :page-size="urlPageSize"
+            layout="total, prev, pager, next, jumper"
+            :total="urlTotal"
+          ></el-pagination>
+        </el-row>
+      </el-row>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submitForm('dialogForm')">确 定</el-button>
-        <el-button v-show="ifInstallDialog" type="primary" @click="installContainer()">安 装</el-button>
-        <el-button v-show="ifInstallDialog" @click="dialogFormVisible = false">取 消</el-button>
+        <el-button v-show="!ifInstallDialog" @click="dialogFormVisible = false">取 消</el-button>
+        <el-button v-show="!ifInstallDialog" type="primary" @click="submitForm('dialogForm')">确 定</el-button>
+        <el-button v-show="ifInstallDialog&&!ifGetInstalled" type="primary" @click="installApp()">安 装</el-button>
+        <el-button v-show="ifInstallDialog&&!ifGetInstalled" @click="dialogFormVisible = false">取 消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -398,7 +441,16 @@ export default {
       selectedDevices: [],
       deviceCurrentPage: 1,
       devicePageSize: 10,
-      deviceTotal: 0
+      deviceTotal: 0,
+      urlSelectVisible: false,
+      currentUrlType: "",
+      urlList: [
+        { name: "test", url: 123123, logo: "testlogo" },
+        { name: "test1", url: 233333, logo: "testlogo1" }
+      ],
+      urlCurrentPage: 1,
+      urlPageSize: 10,
+      urlTotal: 0
     };
   },
   mounted() {
@@ -420,6 +472,7 @@ export default {
           console.log(err);
         });
     },
+    //微应用列表
     search(page) {
       let param = {};
       Object.keys(this.searchItem).forEach(item => {
@@ -444,6 +497,7 @@ export default {
           console.log(err);
         });
     },
+    //搜索重置
     reset(formName) {
       this.$refs[formName].resetFields();
     },
@@ -451,6 +505,7 @@ export default {
       this.selectedRow = row;
       console.info(row);
     },
+    //新增dialog
     add(formName) {
       this.dialogTitle = "新增微应用";
       this.ifDialogDetail = false;
@@ -460,6 +515,7 @@ export default {
       //   this.$refs[formName].resetFields();
       // });
     },
+    //详情dialog
     detailRow(row) {
       this.$nextTick(() => {
         this.$refs["dialogForm"].resetFields();
@@ -469,12 +525,14 @@ export default {
       this.dialogForm = Object.assign({}, row);
       this.dialogFormVisible = true;
     },
+    //编辑dialog
     editRow(row) {
       this.dialogTitle = "编辑微应用";
       this.dialogForm = Object.assign({}, row);
       this.ifDialogDetail = false;
       this.dialogFormVisible = true;
     },
+    //删除dialog
     delRow(row) {
       this.$confirm(
         "是否确定删除     '" + row.appName + "'     该微应用?",
@@ -506,6 +564,7 @@ export default {
           });
         });
     },
+    //新增/编辑提交
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
@@ -529,6 +588,7 @@ export default {
         }
       });
     },
+    //微应用列表分页
     handleSizeChange(val) {
       this.tableLimit = val;
       this.search(1);
@@ -536,6 +596,7 @@ export default {
     handleCurrentChange(val) {
       this.search(val);
     },
+    //安装dialog
     toInstallDialog(row, ifGetInstalled) {
       // if (ifGetInstalled) this.dialogTitle = "已安装设备";
       // else this.dialogTitle = "安装容器";
@@ -547,6 +608,7 @@ export default {
       this.getDeviceDialog(1);
       this.dialogFormVisible = true;
     },
+    //选择设备
     getDeviceDialog(page) {
       if (!this.ifGetInstalled) {
         //查询可安装终端
@@ -573,6 +635,7 @@ export default {
     },
     //安装
     installApp() {},
+    //选择设备操作
     handleSelectionChange(val) {
       this.selectedDevices = val;
     },
@@ -585,13 +648,54 @@ export default {
         }
       });
     },
+    //设备列表分页
     deviceSizeChange(val) {
       this.devicePageSize = val;
       this.getDeviceDialog(1);
     },
     deviceCurrentChange(val) {
       this.getDeviceDialog(val);
-    }
+    },
+    //下载Url-dialog
+    urlFocus(event, type) {
+      console.info(event);
+      this.currentUrlType = type;
+      this.getUrls(1);
+      this.urlSelectVisible = true;
+    },
+    //获取Url
+    getUrls(page) {
+      this.$axios
+        .get(
+          baseUrl +
+            "/admin/file/list?pageSize=" +
+            this.urlPageSize +
+            "&pageIndex=" +
+            page +
+            "&fileType=" +
+            this.currentUrlType
+        )
+        .then(res => {
+          this.urlTotal = res.data.data.total;
+          this.urlList = res.data.data.records;
+          return false;
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    //下载Url选中
+    selectUrlOption(row) {
+      if (this.currentUrlType === 1) this.dialogForm.downloadURL = row.fileUrl;
+      else this.dialogForm.logo = row.fileUrl;
+      this.urlSelectVisible = false;
+    },
+    //下载Url列表分页
+    urlSizeChange(val) {
+      this.urlPageSize = val;
+      this.getUrls(1);
+    },
+    urlCurrentChange(val) {this.getUrls(val);}
   }
 };
 </script>

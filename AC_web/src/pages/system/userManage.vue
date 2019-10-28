@@ -21,7 +21,7 @@
         </el-row>
       </el-form>
     <el-row>
-      <el-col :span="22">
+      <el-col :span="24">
         <div>
           <el-table
             :data="tableData"
