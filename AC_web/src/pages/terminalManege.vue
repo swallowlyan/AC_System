@@ -340,6 +340,7 @@
                         circle
                         size="mini"
                         icon="el-icon-delete"
+                        @click='uninstallContainer(item)'
                       ></el-button>
                     </div>
                     <div class="el-col addConfig">
@@ -391,7 +392,7 @@
                           circle
                           size="mini"
                           icon="el-icon-plus"
-                          @click="chooseFile('app')"
+                          @click="chooseFile('app',item.name)"
                         ></el-button>
                       </div>
                     </div>
@@ -404,7 +405,7 @@
       </el-row>
       <!-- 新增服务/容器dialog -->
       <el-row v-show="ifAddContainer">
-        <el-col :span="16" :offset="1">
+        <el-col :span="17">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
               <span>{{addTitle}}</span>
@@ -474,7 +475,7 @@
                       </el-col>
                     </el-row>
                   </el-header>
-                  <el-main>
+                  <el-main :style="{'padding':'0px'}">
                     <!-- 文件服务/容器循环 -->
                     <el-row style="max-height: 300px;overflow:auto;">
                       <el-table
@@ -485,8 +486,14 @@
                         @selection-change="handleSelectionChange"
                       >
                         <el-table-column type="selection"></el-table-column>
-                        <el-table-column prop="name" label="名称"></el-table-column>
-                        <el-table-column prop="type" label="类型"></el-table-column>
+                        <!-- 容器column -->
+                        <el-table-column v-if="addTitle!=='应用库'" prop="name" label="名称"></el-table-column>
+                        <el-table-column v-if="addTitle!=='应用库'" prop="type" label="类型"></el-table-column>
+                        <!-- 应用库column -->
+                        <el-table-column v-if="addTitle==='应用库'" prop="appName" label="名称"></el-table-column>
+                        <el-table-column v-if="addTitle==='应用库'" prop="appType" label="类型"></el-table-column>
+                        <el-table-column v-if="addTitle==='应用库'" prop="version" label="版本"></el-table-column>
+
                         <el-table-column prop="vendor" label="开发商"></el-table-column>
                       </el-table>
                     </el-row>
@@ -507,15 +514,25 @@
             </div>
           </el-card>
         </el-col>
-        <el-col :span="5" :offset="1">
+        <el-col :span="6" :offset="1">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
               <span>{{addSelectTitle}}</span>
             </div>
             <div>
-              <ul>
+              <!-- 已选容器 -->
+              <ul v-if="addTitle!=='应用库'">
                 <li v-for="(item,index) in fileSelectedList" :key="index">
                   {{item.name}}
+                  <el-button type="text" @click="removeSelected(item)">
+                    <i class="el-icon-close"></i>
+                  </el-button>
+                </li>
+              </ul>
+              <!-- 已选应用 -->
+              <ul v-if="addTitle==='应用库'">
+                <li v-for="(item,index) in fileSelectedList" :key="index">
+                  {{item.appName}}
                   <el-button type="text" @click="removeSelected(item)">
                     <i class="el-icon-close"></i>
                   </el-button>
@@ -526,7 +543,7 @@
         </el-col>
       </el-row>
       <div slot="footer" class="dialog-footer">
-        <el-button v-show="!ifAddContainer" type="primary" @click="submitForm('dialogForm')">确 定</el-button>
+        <el-button v-show="!ifAddContainer&&(!ifDialogDetail||ifDialogEdit)" type="primary" @click="submitForm('dialogForm')">确 定</el-button>
         <el-button v-show="!ifAddContainer" @click="dialogFormVisible = false">取 消</el-button>
         <el-button v-show="ifAddContainer" type="primary" @click="submitFile()">安 装</el-button>
         <el-button v-show="ifAddContainer" @click="ifAddContainer = false">取 消</el-button>
@@ -702,6 +719,7 @@ export default {
       addTitle: "容器库",
       addDialogTypes: [],
       selectedType: "",
+      currentSelectedContainer:"",
       appList: [],
       fileList: [
         { id: 0, fileName: "软件名1", count: 50, time: "2019年8月20日" },
@@ -1104,23 +1122,28 @@ export default {
       this.$axios
         .post(
           baseUrl +
-            "/admin/containers/devicedeployinfo?deviceId=" +
+            "/admin/containers/devicedeploystatus?deviceId=" +
             row.deviceId
         )
         .then(res => {
           if (res.data.data !== null && res.data.data.length > 0) {
-            this.dialogForm.containerArr=[];
+            this.dialogForm.containerArr = [];
             res.data.data.forEach(item => {
-              let container={ 
-                name: item.containerConfig.containerName
-               };
-              if (item.containerConfig.openServices!== "") {
-                item.containerConfig.appList = item.containerConfig.openServices.split(",");
+              let container = {
+                name: item.containerConfig.containerName,
+                status: item.containerDeployStatus.deployStatus
+              };
+              if (item.containerConfig.openServices !== "") {
+                item.containerConfig.appList = item.containerConfig.openServices.split(
+                  ","
+                );
               }
               this.dialogForm.containerArr.push(container);
             });
+            this.$forceUpdate();//v-for页面重新渲染
           }
           console.info(this.dialogForm);
+          if (this.ifAddContainer) this.ifAddContainer = false;
           this.dialogFormVisible = true;
         })
         .catch(err => {
@@ -1258,10 +1281,11 @@ export default {
       });
     },
     //添加容器/应用dialog
-    chooseFile(type) {
+    chooseFile(type,containerName) {
       if (type === "app") {
         this.addSelectTitle = "已选应用";
         this.addTitle = "应用库";
+        this.currentSelectedContainer=containerName;
         this.getApplications(1);
       } else {
         this.addSelectTitle = "已选容器";
@@ -1322,7 +1346,7 @@ export default {
     //获取应用列表
     getApplications(page) {
       let appInfo = {};
-      appInfo.name = this.searchFileItem;
+      if (this.searchFileItem !== "") appInfo.name = this.searchFileItem;
       if (this.selectedType !== "") appInfo.type = this.selectedType;
       this.$axios
         .post(
@@ -1358,7 +1382,7 @@ export default {
           url = baseUrl + "/admin/app/deploy?isUpdate=false";
           this.fileSelectedList.forEach(item => {
             let m = {
-              containerName: "",
+              containerName:this.currentSelectedContainer,
               deviceId: this.currentRow.deviceId,
               name: item.appName,
               operateType: 0,
@@ -1366,9 +1390,9 @@ export default {
               vendor: item.vendor,
               version: item.version
             };
-            param.push(m);
+            paramList.push(m);
           });
-          param = { apps: paramList, isUpdate: false };
+          param = paramList;
         } else if (this.addTitle === "容器库") {
           url = baseUrl + "/admin/containers/deploy";
           this.fileSelectedList.forEach(item => {
@@ -1396,7 +1420,6 @@ export default {
             };
             paramList.push(m);
           });
-
           param = { containerlist: paramList, update: false };
         }
         this.$axios
@@ -1406,14 +1429,12 @@ export default {
             }
           })
           .then(res => {
-            if (res.data.errcode ==="0") {
+            if (res.data.errcode === "0") {
               this.$message({
                 message: "安装成功",
                 type: "success"
               });
               this.getContainerDetail(this.currentRow);
-              this.ifAddContainer = false;
-              this.dialogForm.containerArr = this.searchFile;
             } else {
               this.$message({
                 message: "安装失败  " + res.data.errmsg,
@@ -1429,6 +1450,49 @@ export default {
           message: "请选择进行安装",
           type: "warning"
         });
+      }
+    },
+    //卸载容器
+    uninstallContainer(item) {
+      if (item.status !== 1) {
+        this.$message({
+          message: "该容器处于不可卸载状态，请重新选择",
+          type: "warning"
+        });
+      } else {
+        this.$confirm("是否卸载容器——'" + item.name + "'?", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        })
+          .then(() => {
+            let containers = [
+              {
+                containerNames: [item.name],
+                deviceId: this.currentRow.deviceId
+              }
+            ];
+            this.$axios
+              .post(baseUrl + "/admin/containers/uninstall", containers)
+              .then(res => {
+                if (res.data.errcode === "0") {
+                  this.getContainerDetail(this.currentRow);
+                  this.$message({
+                    message: "已提交卸载信息，等待卸载",
+                    type: "success"
+                  });
+                }
+              })
+              .catch(err => {
+                console.log(err);
+              });
+          })
+          .catch(() => {
+            this.$message({
+              type: "info",
+              message: "已取消卸载"
+            });
+          });
       }
     },
     //终端列表分页
@@ -1565,10 +1629,18 @@ export default {
     },
     removeSelected(val) {
       this.fileSelectedList.forEach((item, index) => {
-        if (item.name === val.name) {
-          this.fileSelectedList.splice(index, 1);
-          this.$refs.multipleTable.toggleRowSelection(item, false);
-          return false;
+        if (this.addTitle === "应用库") {
+          if (item.appName === val.appName) {
+            this.fileSelectedList.splice(index, 1);
+            this.$refs.multipleTable.toggleRowSelection(item, false);
+            return false;
+          }
+        } else {
+          if (item.name === val.name) {
+            this.fileSelectedList.splice(index, 1);
+            this.$refs.multipleTable.toggleRowSelection(item, false);
+            return false;
+          }
         }
       });
     },

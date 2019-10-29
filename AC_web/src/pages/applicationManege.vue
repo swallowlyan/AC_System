@@ -357,8 +357,8 @@
         </el-row>
       </el-row>
       <div slot="footer" class="dialog-footer">
+        <el-button v-show="!ifInstallDialog&&!ifDialogDetail" type="primary" @click="submitForm('dialogForm')">确 定</el-button>
         <el-button v-show="!ifInstallDialog" @click="dialogFormVisible = false">取 消</el-button>
-        <el-button v-show="!ifInstallDialog" type="primary" @click="submitForm('dialogForm')">确 定</el-button>
         <el-button v-show="ifInstallDialog&&!ifGetInstalled" type="primary" @click="installApp()">安 装</el-button>
         <el-button v-show="ifInstallDialog&&!ifGetInstalled" @click="dialogFormVisible = false">取 消</el-button>
       </div>
@@ -509,6 +509,7 @@ export default {
     add(formName) {
       this.dialogTitle = "新增微应用";
       this.ifDialogDetail = false;
+      this.ifInstallDialog=false;
       this.dialogForm = {};
       this.dialogFormVisible = true;
       // this.$nextTick(() => {
@@ -522,6 +523,7 @@ export default {
       });
       this.dialogTitle = "微应用详细信息";
       this.ifDialogDetail = true;
+      this.ifInstallDialog=false;
       this.dialogForm = Object.assign({}, row);
       this.dialogFormVisible = true;
     },
@@ -530,6 +532,7 @@ export default {
       this.dialogTitle = "编辑微应用";
       this.dialogForm = Object.assign({}, row);
       this.ifDialogDetail = false;
+      this.ifInstallDialog=false;
       this.dialogFormVisible = true;
     },
     //删除dialog
@@ -604,6 +607,7 @@ export default {
       this.currentContainer = Object.assign({}, row);
       this.deviceList = [];
       this.selectedDevices = [];
+      this.ifDialogDetail = false;
       this.ifInstallDialog = true;
       this.getDeviceDialog(1);
       this.dialogFormVisible = true;

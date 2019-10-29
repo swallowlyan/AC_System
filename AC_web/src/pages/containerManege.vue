@@ -82,9 +82,9 @@
                 @click="add('dialogForm')"
               >新增</el-button>
             </el-button-group>
-            <el-button type="primary" round size="small">
+            <!-- <el-button type="primary" round size="small">
               <i class="el-icon-upload"></i>同步容器
-            </el-button>
+            </el-button> -->
             <el-pagination
               background
               @size-change="handleSizeChange"
@@ -381,8 +381,8 @@
         </el-row>
       </el-row>
       <div slot="footer" class="dialog-footer">
+        <el-button v-show="!ifInstallDialog&&!ifDialogDetail" type="primary" @click="submitForm('dialogForm')">确 定</el-button>
         <el-button v-show="!ifInstallDialog" @click="dialogFormVisible = false">取 消</el-button>
-        <el-button v-show="!ifInstallDialog" type="primary" @click="submitForm('dialogForm')">确 定</el-button>
         <el-button
           v-show="ifInstallDialog&&!ifGetInstalled"
           type="primary"
@@ -680,10 +680,20 @@ export default {
       } else {
         //查询已安装设备
         this.$axios
-          .post(baseUrl + "" + this.devicePageSize + "&pageIndex=" + page, {})
+          .post(
+            baseUrl + "/admin/containers/containerdeployinfo"
+            +"?containerDeployStatus=1&deviceSort="+''
+            +"&pageSize="+this.devicePageSize 
+            + "&pageIndex=" + page
+             +"&name="+this.currentContainer.name,{})
           .then(res => {
+            if(res.data.data.devices!==null&&res.data.data.devices.length>0){
+              this.deviceList=[];
+              res.data.data.devices.forEach((item)=>{
+                this.deviceList.push(item.deviceQueryResult);
+              })
+            }
             this.deviceTotal = res.data.data.totalRecord;
-            this.deviceList = res.data.data.data;
             this.ifInstallDialog = true;
           })
           .catch(err => {
@@ -796,7 +806,7 @@ export default {
             this.$axios
               .post(
                 baseUrl + "/admin/containers/uninstall",
-                { containers: paramList },
+                paramList,
                 { headers: { "Content-Type": "application/json" } }
               )
               .then(res => {
@@ -805,7 +815,9 @@ export default {
                     type: "success",
                     message: "已完成卸载"
                   });
-                  this.dialogFormVisible = false;
+                  this.getDeviceDialog(1);
+                  // this.dialogFormVisible = false;
+
                 } else {
                   this.$message({
                     type: "error",
