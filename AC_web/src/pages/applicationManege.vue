@@ -357,9 +357,17 @@
         </el-row>
       </el-row>
       <div slot="footer" class="dialog-footer">
-        <el-button v-show="!ifInstallDialog&&!ifDialogDetail" type="primary" @click="submitForm('dialogForm')">确 定</el-button>
+        <el-button
+          v-show="!ifInstallDialog&&!ifDialogDetail"
+          type="primary"
+          @click="submitForm('dialogForm')"
+        >确 定</el-button>
         <el-button v-show="!ifInstallDialog" @click="dialogFormVisible = false">取 消</el-button>
-        <el-button v-show="ifInstallDialog&&!ifGetInstalled" type="primary" @click="installApp()">安 装</el-button>
+        <el-button
+          v-show="ifInstallDialog&&!ifGetInstalled"
+          type="primary"
+          @click="installApp()"
+        >安 装</el-button>
         <el-button v-show="ifInstallDialog&&!ifGetInstalled" @click="dialogFormVisible = false">取 消</el-button>
       </div>
     </el-dialog>
@@ -509,7 +517,7 @@ export default {
     add(formName) {
       this.dialogTitle = "新增微应用";
       this.ifDialogDetail = false;
-      this.ifInstallDialog=false;
+      this.ifInstallDialog = false;
       this.dialogForm = {};
       this.dialogFormVisible = true;
       // this.$nextTick(() => {
@@ -523,7 +531,7 @@ export default {
       });
       this.dialogTitle = "微应用详细信息";
       this.ifDialogDetail = true;
-      this.ifInstallDialog=false;
+      this.ifInstallDialog = false;
       this.dialogForm = Object.assign({}, row);
       this.dialogFormVisible = true;
     },
@@ -532,7 +540,7 @@ export default {
       this.dialogTitle = "编辑微应用";
       this.dialogForm = Object.assign({}, row);
       this.ifDialogDetail = false;
-      this.ifInstallDialog=false;
+      this.ifInstallDialog = false;
       this.dialogFormVisible = true;
     },
     //删除dialog
@@ -604,7 +612,7 @@ export default {
       // if (ifGetInstalled) this.dialogTitle = "已安装设备";
       // else this.dialogTitle = "安装容器";
       this.ifGetInstalled = ifGetInstalled;
-      this.currentContainer = Object.assign({}, row);
+      this.currentApp = Object.assign({}, row);
       this.deviceList = [];
       this.selectedDevices = [];
       this.ifDialogDetail = false;
@@ -638,7 +646,76 @@ export default {
       }
     },
     //安装
-    installApp() {},
+    installApp() {
+      let optionNameArr = "",paramList=[];
+        paramList = [];
+      if (this.selectedDevices.length > 0) {
+        this.selectedDevices.forEach(item => {
+          optionNameArr += item.name + ",";
+        });
+        this.$confirm(
+          "是否确定在设备——'" +
+            optionNameArr +
+            "'中安装应用'" +
+            this.currentApp.appName +
+            "'?",
+          "提示",
+          {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          }
+        )
+          .then(() => {
+            this.selectedDevices.forEach(item => {
+              let m = {
+                containerName: "",
+                deviceId: item.deviceId,
+                name: this.currentApp.appName,
+                operateType: 0,
+                type: this.currentApp.appType,
+                vendor: this.currentApp.vendor,
+                version: this.currentApp.version
+              };
+              paramList.push(m);
+            });
+            this.$axios
+              .post(baseUrl + "/admin/app/deploy?isUpdate=false", paramList, {
+                headers: {
+                  "Content-Type": "application/json"
+                }
+              })
+              .then(res => {
+                if (res.data.errcode === "0") {
+                  this.$message({
+                    message: "安装成功",
+                    type: "success"
+                  });
+                  this.getContainerDetail(this.currentRow);
+                } else {
+                  this.$message({
+                    message: "安装失败  " + res.data.errmsg,
+                    type: "error"
+                  });
+                }
+              })
+              .catch(err => {
+                console.log(err);
+              });
+          })
+          .catch(() => {
+            this.$message({
+              type: "info",
+              message: "已取消安装"
+            });
+          });
+      } else {
+        this.$message({
+          message: "请选择设备进行安装",
+          type: "warning"
+        });
+      }
+    },
     //选择设备操作
     handleSelectionChange(val) {
       this.selectedDevices = val;
@@ -699,7 +776,9 @@ export default {
       this.urlPageSize = val;
       this.getUrls(1);
     },
-    urlCurrentChange(val) {this.getUrls(val);}
+    urlCurrentChange(val) {
+      this.getUrls(val);
+    }
   }
 };
 </script>

@@ -69,23 +69,23 @@
                       </span>
                     </el-menu-item>
                   </router-link>
-                  <el-submenu  v-if="button.ifChild" :index="button.index" class="childMenu">
-                  <template slot="title">
-                    <i :class="button.icon"></i>
-                    <span>{{button.title}}</span>
-                  </template>
-                  <div v-for="(child,childIndex) in button.child" :key="childIndex">
-                  <router-link
-                    v-if="button.ifChild"
-                    :to="child.url"
-                    @click.native="changeTitle(button,childIndex)"
-                  >
-                    <el-menu-item :index="button.index+child.index">
-                     <i :class="child.icon" aria-hidden="true"></i>
-                     {{child.title}}
-                     </el-menu-item>
+                  <el-submenu v-if="button.ifChild" :index="button.index" class="childMenu">
+                    <template slot="title">
+                      <i :class="button.icon"></i>
+                      <span>{{button.title}}</span>
+                    </template>
+                    <div v-for="(child,childIndex) in button.child" :key="childIndex">
+                      <router-link
+                        v-if="button.ifChild"
+                        :to="child.url"
+                        @click.native="changeTitle(button,childIndex)"
+                      >
+                        <el-menu-item :index="button.index+child.index">
+                          <i :class="child.icon" aria-hidden="true"></i>
+                          {{child.title}}
+                        </el-menu-item>
                       </router-link>
-                  </div>
+                    </div>
                   </el-submenu>
                 </div>
               </el-menu>
@@ -93,12 +93,16 @@
           </el-row>
         </el-aside>
         <el-main style="margin-top:10px">
-          <el-breadcrumb v-show="false" separator-class="el-icon-arrow-right" style="margin-bottom:10px">
+          <el-breadcrumb
+            v-show="false"
+            separator-class="el-icon-arrow-right"
+            style="margin-bottom:10px"
+          >
             <el-breadcrumb-item :to="{ path: '/' }">
               <i class="fa fa-home" aria-hidden="true" style="font-size:25px;color:rgb(75,131,178)"></i>
             </el-breadcrumb-item>
             <el-breadcrumb-item>{{currentTitle}}</el-breadcrumb-item>
-             <el-breadcrumb-item v-if="ifChildTitle">{{childTitle}}</el-breadcrumb-item>
+            <el-breadcrumb-item v-if="ifChildTitle">{{childTitle}}</el-breadcrumb-item>
           </el-breadcrumb>
           <router-view :to="{ path:'/'}" />
         </el-main>
@@ -113,9 +117,9 @@ export default {
   data() {
     return {
       currentTitle: "终端管理",
-      currentIndex:"1",
-      ifChildTitle:false,
-      childTitle:"",
+      currentIndex: "1",
+      ifChildTitle: false,
+      childTitle: "",
       buttons: [
         {
           title: "终端管理",
@@ -146,71 +150,77 @@ export default {
           icon: "el-icon-folder"
         },
         {
-          title: "应用商店",
+          title: "任务模块",
           index: "5",
+          url: "/taskList",
+          ifChild: false,
+          icon: "el-icon-s-order"
+        },
+        {
+          title: "应用商店",
+          index: "6",
           url: "/appList",
           ifChild: false,
           icon: "el-icon-s-goods"
         },
         {
           title: "告警推送",
-          index: "6",
+          index: "7",
           url: "/alarmPush",
           ifChild: false,
           icon: "fa fa-warning"
         },
         {
           title: "系统管理",
-          index: "7",
+          index: "8",
           url: "/",
           ifChild: true,
           icon: "el-icon-s-tools",
-          child:[
-            {title:"租户管理",
-            index:"1",
-            url:"/tenantManage",
-            icon:""
-            },
-            {title:"用户管理",
-            index:"2",
-            url:"/userManage",
-            icon:""
-            },
-            {title:"用户总览",
-            index:"3",
-            url:"/userOverview",
-            icon:""
-            }
+          child: [
+            { title: "租户管理", index: "1", url: "/tenantManage", icon: "" },
+            { title: "用户管理", index: "2", url: "/userManage", icon: "" },
+            { title: "用户总览", index: "3", url: "/userOverview", icon: "" }
           ]
-        },
-        
+        }
       ]
     };
   },
   mounted() {
-    this.ifChildTitle=false;
-    if(window.location.href.indexOf("containerManege")>-1)this.currentTitle="容器管理",this.currentIndex="2";
-    else if(window.location.href.indexOf("applicationManege")>-1)this.currentTitle="微应用管理",this.currentIndex="3";
-    else if(window.location.href.indexOf("appList")>-1)this.currentTitle="应用商店",this.currentIndex="4";
-    else if(window.location.href.indexOf("alarmPush")>-1)this.currentTitle="告警推送",this.currentIndex="5";
-    else if(window.location.href.indexOf("fileService")>-1)this.currentTitle="文件服务",this.currentIndex="7";
-    else if(window.location.href.indexOf("tenantManage")>-1)this.currentTitle="系统管理",this.ifChildTitle=true,this.currentIndex="6",this.childTitle="租户管理";
-    else if(window.location.href.indexOf("userManage")>-1)this.currentTitle="系统管理",this.ifChildTitle=true,this.currentIndex="6",this.childTitle="用户管理";
-    else if(window.location.href.indexOf("userOverview")>-1)this.currentTitle="系统管理",this.ifChildTitle=true,this.currentIndex="6",this.childTitle="用户总览";
-    else this.currentTitle="终端管理",this.currentIndex="1";
+    this.ifChildTitle = false;
+    let url = window.location.href;
+    this.buttons.forEach(item => {
+      if (item.ifChild) {
+        item.child.forEach(child => {
+          if (url.indexOf(child.url.substr(1)) > -1) {
+            this.currentTitle = child.title;
+            this.currentIndex = item.index;
+          }
+        });
+      } else {
+        if (url !== "/") {
+          if (url.indexOf(item.url.substr(1)) > -1) {
+            this.currentTitle = item.title;
+            this.currentIndex = item.index;
+          }
+        } else {
+          this.currentTitle = this.buttons[0].title;
+          this.currentIndex = this.buttons[0].index;
+        }
+      }
+    });
   },
   methods: {
     loginOut() {
       sessionStorage.clear();
       this.$router.push({ path: "/login" });
     },
-    changeTitle(e,index) {
-      this.currentTitle=e.title;
-      if(index===undefined){
-        this.ifChildTitle=false;
-      }else{
-          this.ifChildTitle=true;
-          this.childTitle=e.child[index].title;
+    changeTitle(e, index) {
+      this.currentTitle = e.title;
+      if (index === undefined) {
+        this.ifChildTitle = false;
+      } else {
+        this.ifChildTitle = true;
+        this.childTitle = e.child[index].title;
       }
     },
     handleOpen(key, keyPath) {
@@ -239,10 +249,11 @@ export default {
   color: #ffffff;
   cursor: pointer;
 }
-.el-menu-item,.childMenu span{
+.el-menu-item,
+.childMenu span {
   font-size: 16px;
 }
-.childMenu .el-menu-item{
+.childMenu .el-menu-item {
   font-size: 14px;
 }
 .el-breadcrumb {
@@ -285,10 +296,10 @@ export default {
 .lineHeight .el-form-item__label {
   line-height: 100px;
 }
-.acForm .el-textarea__inner{
+.acForm .el-textarea__inner {
   height: 100%;
 }
-.acForm span{
+.acForm span {
   /* margin-left: 30px; */
 }
 </style>

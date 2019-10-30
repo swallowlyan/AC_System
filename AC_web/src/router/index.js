@@ -15,6 +15,7 @@ import tenantManage from '../pages/system/tenantManage'
 import userOverview from '../pages/system/userOverview'
 
 import fileService from '../pages/fileService'
+import taskList from '../pages/taskList'
 
 Vue.use(Router)
 
@@ -75,6 +76,11 @@ export default new Router({
           name:'fileService',
           component:fileService
         },
+        {
+          path:'taskList',
+          name:'taskList',
+          component:taskList
+        }
       ]
     },
     {

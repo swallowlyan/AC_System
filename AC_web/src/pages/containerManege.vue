@@ -690,8 +690,8 @@ export default {
             if(res.data.data.devices!==null&&res.data.data.devices.length>0){
               this.deviceList=[];
               res.data.data.devices.forEach((item)=>{
-                this.deviceList.push(item.deviceQueryResult);
-              })
+                if(item.containerDeployStatus.deployStatus===1)this.deviceList.push(item.deviceQueryResult);
+              });
             }
             this.deviceTotal = res.data.data.totalRecord;
             this.ifInstallDialog = true;
