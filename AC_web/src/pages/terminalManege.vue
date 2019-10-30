@@ -93,7 +93,6 @@
                     <span v-if="scope.row.status===4" style="color:#000">未注册</span>
                   </template>
                 </el-table-column>
-                <!-- <el-table-column prop="vendor" label="制造商"></el-table-column> -->
                 <el-table-column
                   prop="registerTime"
                   width="180"
@@ -1150,7 +1149,43 @@ export default {
         });
     },
     //重启
-    restart(row) {},
+    restart(row) {
+      this.$confirm("是否确定重启终端——'" + row.name + "'?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          this.$axios
+            .post(
+              baseUrl +
+                "/admin/terminal/restart?deviceId=" +
+                row.deviceId
+            )
+            .then(res => {
+              if (res.data.errcode==="0") {
+                this.$message({
+                  message: res.data.errmsg,
+                  type: "success"
+                });
+              } else {
+                this.$message({
+                  message: res.data.errmsg,
+                  type: "error"
+                });
+              }
+            })
+            .catch(err => {
+              console.log(err);
+            });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消操作"
+          });
+        });
+    },
     //进入维护状态
     maintenance(row) {
       this.$confirm("是否确定进入维护状态——'" + row.name + "'?", "提示", {
