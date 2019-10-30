@@ -51,64 +51,22 @@
       </el-col>
     </el-row>
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="70%">
-      <!-- 任务form -->
+      <!-- 任务详情List -->
       <el-row>
-        <el-form
-          :model="dialogForm"
-          ref="dialogForm"
-          label-width="150px"
-          class="acForm"
-        >
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="任务ID">
-                <span>{{dialogForm.taskID}}</span>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="任务名称">
-                <span>{{dialogForm.taskName}}</span>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="任务类型">
-                <span>{{dialogForm.taskTypeName}}</span>
-                </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="任务状态">
-                <span>{{dialogForm.taskStatusName}}</span>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="终端ID">
-                <span>{{dialogForm.terminalId}}</span>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="创建时间">
-                <span>{{dialogForm.CreateTime}}</span>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="任务进度">
-                <span>{{dialogForm.taskprogress}}</span>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="任务步骤">
-                <span>{{dialogForm.taskStep}}</span>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-form>
-      </el-row>
+      <el-col :span="24">
+        <div>
+          <el-table :data="detailData" border size="medium" class="detailTable">
+            <el-table-column type="index" width="50" label="序号"></el-table-column>
+            <el-table-column prop="id" width="200" label="ID"></el-table-column>
+            <el-table-column prop="taskId" width="200" label="任务ID"></el-table-column>
+            <el-table-column prop="terminalId" label="设备ID" width="100"></el-table-column>
+            <el-table-column prop="taskStatusName" label="任务状态" width="150" ></el-table-column>
+            <el-table-column prop="taskprogress" label="任务进度"></el-table-column>
+            <el-table-column prop="taskStep" label="任务步骤"></el-table-column>
+          </el-table>
+        </div>
+      </el-col>
+    </el-row>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">关 闭</el-button>
       </div>
@@ -128,18 +86,9 @@ export default {
       },
       dialogTitle: "",
       dialogFormVisible: false,
-      dialogForm: {
-        taskID: "",
-        taskName: "",
-        taskTypeName: "",
-        taskStatusName: "",
-        uid: "",
-        CreateTime: "",
-        taskprogress: "",
-        terminalId: "",
-        taskStep: ""
-      },
-      selectedRow: []
+      detailData: [],
+      detailSize: 0,
+      detailLimit: 10,
     };
   },
   mounted() {
@@ -174,26 +123,15 @@ export default {
     //详情dialog
     detailRow(row) {
       this.dialogTitle = "任务详细信息";
-      this.dialogForm.taskID = row.taskID;
-      this.dialogForm.taskName = row.taskName;
-      this.dialogForm.taskTypeName = row.taskTypeName;
-      this.dialogForm.taskStatusName = row.taskStatusName;
-      this.dialogForm.CreateTime = row.CreateTime;
       this.$axios
         .post(baseUrl + "/admin/task-item/selTaskItemList?taskId=" + row.taskID)
         .then(res => {
-          this.dialogForm.terminalId = res.data.data[0].terminalId;
-          this.dialogForm.taskprogress = res.data.data[0].taskprogress;
-          this.dialogForm.taskStep = res.data.data[0].taskStep;
+          this.detailData=res.data.data;
           this.dialogFormVisible = true;
         })
         .catch(err => {
           console.log(err);
         });
-    },
-    getRowDatas(row) {
-      this.selectedRow = row;
-      console.info(row);
     },
     handleSizeChange(val) {
       this.tableLimit = val;
@@ -207,7 +145,7 @@ export default {
 </script>
 
 <style scoped>
-.fileService {
+.detailTable {
   max-height: 500px;
   overflow: auto;
 }
