@@ -265,12 +265,17 @@
               tooltip-effect="dark"
               style="width: 100%"
               @selection-change="handleSelectionChange"
+              row-key="deviceId"
+              border
+              lazy
+              :load="load"
+              :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
             >
               <el-table-column type="selection" width="55"></el-table-column>
-              <el-table-column prop="deviceId" label="终端ID" width="200"></el-table-column>
-              <el-table-column prop="name" label="终端名称"></el-table-column>
-              <el-table-column prop="deviceType" label="设备类型"></el-table-column>
-              <el-table-column prop="status" label="终端状态">
+              <el-table-column prop="deviceId" label="终端ID" width="330"></el-table-column>
+              <el-table-column prop="name" label="名称" width="100"></el-table-column>
+              <el-table-column prop="type" label="类型" width="120"></el-table-column>
+              <el-table-column prop="status" label="状态" width="50">
                 <template slot-scope="scope">
                   <span v-if="scope.row.status===0" style="color:#67c23a">正常</span>
                   <span v-if="scope.row.status===1" style="color:orange">告警</span>
@@ -296,12 +301,11 @@
         <el-col :span="5" :offset="1">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
-              <span>已选设备</span>
+              <span>已选容器</span>
             </div>
             <div>
               <ul>
-                <li v-for="(item,index) in selectedDevices" :key="index">
-                  {{item.deviceId}}——
+                <li v-for="(item,index) in selectedContainer" :key="index">
                   {{item.name}}
                   <el-button type="text" @click="removeSelected(item)">
                     <i class="el-icon-close"></i>
@@ -446,7 +450,7 @@ export default {
       ifInstallDialog: false,
       ifGetInstalled: false,
       deviceList: [],
-      selectedDevices: [],
+      selectedContainer: [],
       deviceCurrentPage: 1,
       devicePageSize: 10,
       deviceTotal: 0,
@@ -614,7 +618,7 @@ export default {
       this.ifGetInstalled = ifGetInstalled;
       this.currentApp = Object.assign({}, row);
       this.deviceList = [];
-      this.selectedDevices = [];
+      this.selectedContainer = [];
       this.ifDialogDetail = false;
       this.ifInstallDialog = true;
       this.getDeviceDialog(1);
@@ -634,27 +638,69 @@ export default {
             {}
           )
           .then(res => {
-            this.deviceTotal = res.data.data.totalRecord;
-            this.deviceList = res.data.data.data;
-            this.ifInstallDialog = true;
+            this.deviceList = [];
+            if (res.data.data.data.length > 0) {
+              res.data.data.data.forEach(item => {
+                item.hasChildren = true;
+                item.type = item.deviceType;
+                this.deviceList.push(item);
+              });
+              this.deviceTotal = res.data.data.totalRecord;
+              this.ifInstallDialog = true;
+            }
           })
           .catch(err => {
             console.log(err);
           });
-      } else {
-        //查询已安装终端
       }
+    },
+    //设备-加载容器
+    load(tree, treeNode, resolve) {
+      let childList = [];
+      this.$axios
+        .post(
+          baseUrl +
+            "/admin/containers/devicedeploystatus?deviceId=" +
+            tree.deviceId
+        )
+        .then(res => {
+          if (res.data.errcode === "0") {
+            if (res.data.data !== null && res.data.data.length > 0) {
+              this.dialogForm.containerArr = [];
+              res.data.data.forEach((item, index) => {
+                let child = {
+                  deviceId: "容器" + (index + 1),
+                  name: item.containerInfo.name,
+                  type: item.containerInfo.type,
+                  parentId:tree.deviceId
+                };
+                childList.push(child);
+              });
+              resolve(childList);
+            }
+          } else {
+            this.$message({
+              message: "无安装信息，请重新选择",
+              type: "error"
+            });
+            resolve(childList);
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
     //安装
     installApp() {
-      let optionNameArr = "",paramList=[];
+      let optionNameArr = "",
         paramList = [];
-      if (this.selectedDevices.length > 0) {
-        this.selectedDevices.forEach(item => {
+      paramList = [];
+      if (this.selectedContainer.length > 0) {
+        this.selectedContainer.forEach(item => {
           optionNameArr += item.name + ",";
         });
         this.$confirm(
-          "是否确定在设备——'" +
+          "是否确定在容器——'" +
             optionNameArr +
             "'中安装应用'" +
             this.currentApp.appName +
@@ -667,10 +713,10 @@ export default {
           }
         )
           .then(() => {
-            this.selectedDevices.forEach(item => {
+            this.selectedContainer.forEach(item => {
               let m = {
-                containerName: "",
-                deviceId: item.deviceId,
+                containerName: item.name,
+                deviceId: item.parentId,
                 name: this.currentApp.appName,
                 operateType: 0,
                 type: this.currentApp.appType,
@@ -691,7 +737,7 @@ export default {
                     message: "安装成功",
                     type: "success"
                   });
-                  this.getContainerDetail(this.currentRow);
+                  this.dialogFormVisible = false;
                 } else {
                   this.$message({
                     message: "安装失败  " + res.data.errmsg,
@@ -716,14 +762,25 @@ export default {
         });
       }
     },
-    //选择设备操作
+    //选择设备容器操作
     handleSelectionChange(val) {
-      this.selectedDevices = val;
+      this.selectedContainer = val;
+      this.selectedContainer.forEach((item, index) => {
+        if (Object.keys(item).length > 4) {
+          this.selectedContainer.splice(index, 1);
+          this.$refs.multipleTable.toggleRowSelection(item, false);
+          this.$message({
+            message: "请选择终端下的容器",
+            type: "warning"
+          });
+          return false;
+        }
+      });
     },
     removeSelected(val) {
-      this.selectedDevices.forEach((item, index) => {
+      this.selectedContainer.forEach((item, index) => {
         if (item.name === val.name) {
-          this.selectedDevices.splice(index, 1);
+          this.selectedContainer.splice(index, 1);
           this.$refs.multipleTable.toggleRowSelection(item, false);
           return false;
         }

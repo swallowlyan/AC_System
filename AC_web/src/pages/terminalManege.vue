@@ -230,13 +230,13 @@
             <el-col :span="24">
               <el-form-item label="终端版本">
                 <span style="float:left">{{dialogForm.version}}</span>
-                <el-button
+                <!-- <el-button
                   type="primary"
                   plain
                   size="mini"
                   style="float:right;margin:5px;"
                   @click="updateRow(dialogForm)"
-                >升级</el-button>
+                >升级</el-button> -->
               </el-form-item>
             </el-col>
           </el-row>
@@ -1153,7 +1153,43 @@ export default {
     //重启
     restart(row) {},
     //进入维护状态
-    maintenance(row) {},
+    maintenance(row) {
+      this.$confirm("是否确定进入维护状态——'" + row.name + "'?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          this.$axios
+            .post(
+              baseUrl +
+                "/admin/terminal/operation?deviceId=" +
+                row.deviceId+"&status=0"
+            )
+            .then(res => {
+              if (res.data.errcode==="0") {
+                this.$message({
+                  message: res.data.errmsg,
+                  type: "success"
+                });
+              } else {
+                this.$message({
+                  message: res.data.errmsg,
+                  type: "error"
+                });
+              }
+            })
+            .catch(err => {
+              console.log(err);
+            });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消操作"
+          });
+        });
+    },
     //升级
     updateRow() {
       this.$confirm("是否确定升级——'" + row.name + "'?", "提示", {

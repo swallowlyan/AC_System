@@ -287,13 +287,14 @@
               ref="multipleTable"
               :data="deviceList"
               tooltip-effect="dark"
+              border
               style="width: 100%"
               @selection-change="handleSelectionChange"
             >
               <el-table-column type="selection" width="55"></el-table-column>
-              <el-table-column prop="deviceId" label="终端ID" width="200"></el-table-column>
+              <el-table-column prop="deviceId" label="终端ID" width="320"></el-table-column>
               <el-table-column prop="name" label="终端名称"></el-table-column>
-              <el-table-column prop="deviceType" label="设备类型"></el-table-column>
+              <el-table-column prop="deviceType" label="设备类型" width="120"></el-table-column>
               <el-table-column prop="status" label="终端状态">
                 <template slot-scope="scope">
                   <span v-if="scope.row.status===0" style="color:#67c23a">正常</span>
@@ -708,22 +709,29 @@ export default {
       if (this.selectedDevices.length > 0) {
         this.selectedDevices.forEach(item => {
           optionNameArr += item.name + ",";
-          let param = {};
-          param.containerInfo = {
-            incrementPkg: this.currentContainer.incrementPkg,
-            name: this.currentContainer.name,
-            releaseTime: this.currentContainer.releaseTime,
-            releaseUser: this.currentContainer.releaseUser,
-            type: this.currentContainer.type,
-            vendor: this.currentContainer.vendor,
-            version: this.currentContainer.version
-          };
-          param.containerconfig = {
-            containerName: this.currentContainer.name,
-            description: this.currentContainer.description
-          };
-          param.deviceId = item.deviceId;
-          paramList.push(param);
+          let m = {
+              containerInfo: {
+                incrementPkg: this.currentContainer.incrementPkg,
+                name: this.currentContainer.name,
+                releaseTime: this.currentContainer.releaseTime,
+                releaseUser: this.currentContainer.releaseUser,
+                type: this.currentContainer.type,
+                vendor: this.currentContainer.vendor,
+                version: this.currentContainer.version
+              },
+              containerconfig: {
+                containerName: this.currentContainer.name,
+                cpuCores: 0,
+                description: this.currentContainer.description,
+                diskSizeMB: 0,
+                memoryMB: 0,
+                openServices: "",
+                physicalInterfaces: "",
+                volumeSizeMB: 0
+              },
+              deviceId: item.deviceId
+            };
+          paramList.push(m);
         });
         this.$confirm(
           "是否确定在设备——'" +
@@ -742,11 +750,11 @@ export default {
             this.$axios
               .post(
                 baseUrl + "/admin/containers/deploy",
-                { containerlist: paramList, update: true },
-                { headers: { "Content-Type": "application/json" } }
+                { containerlist: paramList, update: false },
+                { headers: { "Content-Type": "application/json" }}
               )
               .then(res => {
-                if (res.data.success) {
+                if (res.data.errcode==="0") {
                   this.$message({
                     type: "success",
                     message: "已完成安装"
@@ -755,7 +763,7 @@ export default {
                 } else {
                   this.$message({
                     type: "error",
-                    message: "安装失败"
+                    message: "安装失败,"+res.data.errmsg
                   });
                 }
               })
