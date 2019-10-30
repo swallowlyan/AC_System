@@ -29,31 +29,8 @@
               </template>
             </el-table-column>
             <el-table-column prop="taskName" label="任务名称"></el-table-column>
-            <el-table-column prop="taskType" label="任务类型">
-              <template slot-scope="scope">
-                <span v-if="scope.row.taskType===0">---</span>
-                <span v-if="scope.row.taskType===1">设置终端维护状态</span>
-                <span v-if="scope.row.taskType===3">删除终端</span>
-                <span v-if="scope.row.taskType===4">查询终端信息</span>
-                <span v-if="scope.row.taskType===11">安装微应用</span>
-                <span v-if="scope.row.taskType===12">卸载微应用</span>
-                <span v-if="scope.row.taskType===13">升级微应用</span>
-                <span v-if="scope.row.taskType===14">启停微应用</span>
-                <span v-if="scope.row.taskType===21">安装容器</span>
-                <span v-if="scope.row.taskType===22">卸载容器</span>
-                <span v-if="scope.row.taskType===23">升级容器</span>
-                <span v-if="scope.row.taskType===24">启停容器</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="taskStatus" label="任务状态">
-              <template slot-scope="scope">
-                <span v-if="scope.row.taskStatus===0">未开始</span>
-                <span v-if="scope.row.taskStatus===1">任务开始，执行中</span>
-                <span v-if="scope.row.taskStatus===2">任务成功完成</span>
-                <span v-if="scope.row.taskStatus===3">任务完成，部分成功</span>
-                <span v-if="scope.row.taskStatus===9">任务失败</span>
-              </template>
-            </el-table-column>
+            <el-table-column prop="taskTypeName" label="任务类型"></el-table-column>
+            <el-table-column prop="taskStatusName" label="任务状态"></el-table-column>
             <el-table-column prop="CreateTime" label="创建时间"></el-table-column>
           </el-table>
           <el-row style="margin:20px 0px">
@@ -96,29 +73,12 @@
           <el-row>
             <el-col :span="12">
               <el-form-item label="任务类型">
-                <span v-if="dialogForm.taskType===0">---</span>
-                <span v-if="dialogForm.taskType===1">设置终端维护状态</span>
-                <span v-if="dialogForm.taskType===3">删除终端</span>
-                <span v-if="dialogForm.taskType===4">查询终端信息</span>
-                <span v-if="dialogForm.taskType===11">安装微应用</span>
-                <span v-if="dialogForm.taskType===12">卸载微应用</span>
-                <span v-if="dialogForm.taskType===13">升级微应用</span>
-                <span v-if="dialogForm.taskType===14">启停微应用</span>
-                <span v-if="dialogForm.taskType===21">安装容器</span>
-                <span v-if="dialogForm.taskType===22">卸载容器</span>
-                <span v-if="dialogForm.taskType===23">升级容器</span>
-                <span v-if="dialogForm.taskType===24">启停容器</span>
-              </el-form-item>
+                <span>{{dialogForm.taskTypeName}}</span>
+                </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="任务状态">
-                <span v-if="dialogForm.taskStatus===0">未开始</span>
-                <span v-if="dialogForm.taskStatus===1">开始</span>
-                <span v-if="dialogForm.taskStatus===2">收到回复,终端正在执行命令</span>
-                <span v-if="dialogForm.taskStatus===3">终端执行命令成功，已完成</span>
-                <span v-if="dialogForm.taskStatus===7">终端执行命令失败</span>
-                <span v-if="dialogForm.taskStatus===8">回复超时（失败）</span>
-                <span v-if="dialogForm.taskStatus===9">收到回复（回复失败）</span>
+                <span>{{dialogForm.taskStatusName}}</span>
               </el-form-item>
             </el-col>
           </el-row>
@@ -170,8 +130,8 @@ export default {
       dialogForm: {
         taskID: "",
         taskName: "",
-        taskType: "",
-        taskStatus: "",
+        taskTypeName: "",
+        taskStatusName: "",
         uid: "",
         CreateTime: "",
         taskprogress: "",
@@ -215,8 +175,8 @@ export default {
       this.dialogTitle = "任务详细信息";
       this.dialogForm.taskID = row.taskID;
       this.dialogForm.taskName = row.taskName;
-      this.dialogForm.taskType = row.taskType;
-      this.dialogForm.taskStatus = row.taskStatus;
+      this.dialogForm.taskTypeName = row.taskTypeName;
+      this.dialogForm.taskStatusName = row.taskStatusName;
       this.dialogForm.CreateTime = row.CreateTime;
       this.$axios
         .post(baseUrl + "/admin/task-item/selTaskItemList?taskId=" + row.taskID)
