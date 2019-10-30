@@ -13,9 +13,9 @@
               <el-select v-model="searchItem.fileType" :placeholder="typeArr.title">
                 <el-option
                   v-for="item in typeArr.options"
-                  :key="item.itemCode"
-                  :label="item.itemName"
-                  :value="item.itemCode"
+                  :key="item.ItemCode"
+                  :label="item.ItemName"
+                  :value="item.ItemCode"
                 ></el-option>
               </el-select>
             </el-form-item>
@@ -35,11 +35,9 @@
                 border
                 size="medium"
                 class="fileService"
-                @selection-change="getRowDatas"
               >
-                <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column type="index" width="50" label="序号"></el-table-column>
-                <el-table-column prop="id" label="ID"></el-table-column>
+                <el-table-column prop="id" label="ID" width="300"></el-table-column>
                 <el-table-column prop="fileName" label="名称"></el-table-column>
                 <el-table-column prop="fileType" label="类型"></el-table-column>
                 <el-table-column prop="fileUrl" label="url"></el-table-column>
@@ -85,8 +83,7 @@ export default {
       typeArr: {
         title: "请选择类型",
         options: []
-      },
-      selectedRow:[]
+      }
     };
   },
   mounted() {
@@ -100,7 +97,7 @@ export default {
         .get(baseUrl + "/admin/file/types")
         .then(res => {
           this.typeArr.options =  res.data.data;
-          this.typeArr.options.push({itemCode: "", itemName: "全部" });
+          this.typeArr.options.push({ItemCode: "", ItemName: "全部" });
         })
         .catch(err => {
           console.log(err);
@@ -132,10 +129,6 @@ export default {
     },
     reset(formName) {
       this.$refs[formName].resetFields();
-    },
-    getRowDatas(row) {
-      this.selectedRow = row;
-      console.info(row);
     },
     //tab点击事件
     handleClick() {},

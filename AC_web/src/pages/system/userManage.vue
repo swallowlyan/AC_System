@@ -31,7 +31,6 @@
             @selection-change="getRowDatas"
           >
             <el-table-column type="selection" width="55"></el-table-column>
-            <el-table-column type="index" width="50" label="序号"></el-table-column>
             <el-table-column prop="uid" width="120" label="用户ID" v-if="false"></el-table-column>
             <el-table-column prop="username" width="120" label="用户名"></el-table-column>
             <el-table-column prop="usertype" label="用户类型">

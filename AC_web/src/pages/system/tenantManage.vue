@@ -54,7 +54,6 @@
                 @selection-change="getRowDatas"
               >
                 <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column type="index" width="50" label="序号"></el-table-column>
                 <el-table-column prop="tenantName" width="120" label="租户名"></el-table-column>
                 <el-table-column prop="parentId" label="上级租户"></el-table-column>
                 <el-table-column prop="status" label="租户状态">
@@ -157,25 +156,39 @@
                   <el-row style="max-height: 300px;overflow:auto;">
                     <el-table
                       ref="multipleTable"
-                      :data="tableData"
+                      :data="userData"
                       tooltip-effect="dark"
                       style="width: 100%"
                       @selection-change="dialogSelectionChange"
                     >
                       <el-table-column type="selection" width="55"></el-table-column>
-                      <el-table-column prop="name" label="用户名称" width="100"></el-table-column>
-                      <el-table-column prop="time" label="创建日期" width="180"></el-table-column>
+                      <el-table-column prop="uid" width="120" label="用户ID" v-if="false"></el-table-column>
+                      <el-table-column prop="username" width="120" label="用户名"></el-table-column>
+                      <el-table-column prop="usertype" label="用户类型">
+                        <template slot-scope="scope">
+                          <span v-if="scope.row.usertype===1">管理员</span>
+                          <span v-if="scope.row.usertype===0">普通</span>
+                        </template>
+                      </el-table-column>
+                      <el-table-column prop="tenantid" label="上级租户"></el-table-column>
+                      <el-table-column prop="status" label="用户状态">
+                        <template slot-scope="scope">
+                          <span v-if="scope.row.status===1" style="color:#67c23a">正常</span>
+                          <span v-if="scope.row.status===8" style="color:gray">停用</span>
+                          <span v-if="scope.row.status===9" style="color:red">删除</span>
+                        </template>
+                      </el-table-column>
                     </el-table>
                   </el-row>
                   <el-row style="text-align: center;margin-top:10px;">
                     <el-pagination
-                      @size-change="dialogSizeChange"
-                      @current-change="dialogCurrentChange"
-                      :current-page="dialogCurrentPage"
+                      @size-change="userSizeChange"
+                      @current-change="userCurrentChange"
+                      :current-page="userCurrentPage"
                       :page-sizes="[5, 10, 15]"
-                      :page-size="dialogPageSize"
+                      :page-size="userPageSize"
                       layout="total, prev, pager, next, jumper"
-                      :total="dialogTotal"
+                      :total="userTotal"
                     ></el-pagination>
                   </el-row>
                 </el-main>
@@ -258,6 +271,7 @@ export default {
         ],
         status: [{ required: true, message: "请选择租户状态", trigger: "blur" }]
       },
+      userData: [],
       userSelectedList: [
         { id: 0, username: "用户1", time: "2019年8月20日" },
         { id: 1, username: "用户2", time: "2019年8月20日" },
@@ -265,15 +279,10 @@ export default {
       ],
       dialogAddUser: false,
       searchUserItem: "",
-      dialogCurrentPage: 1,
-      dialogPageSize: 10,
-      dialogTotal: 0,
-      dialogParam: {
-        current: 1,
-        size: 5,
-        sort: "id",
-        dir: "asc"
-      }
+      userLimit: 10,
+      userCurrentPage: 1,
+      userPageSize: 10,
+      userTotal: 0
     };
   },
   mounted() {
@@ -282,23 +291,13 @@ export default {
   methods: {
     search(page) {
       this.$axios
-        .get(baseUrl+"/admin/tenant/list", {
-          pageSize: this.tableLimit,
+        .get(baseUrl + "/admin/tenant/list", {
+          pageSize: this.userLimit,
           pageIndex: page
         })
         .then(res => {
           this.tableSize = res.data.data.total;
           this.tableData = res.data.data.records;
-          //parent
-          this.areaData = [];
-          this.tableData.forEach(item => {
-            let parent = {};
-            parent.index = item.tenantId;
-            parent.name = item.tenantName;
-            if (parent.children !== undefined) {
-            }
-            this.areaData.push(parent);
-          });
         })
         .catch(err => {
           console.log(err);
@@ -336,7 +335,7 @@ export default {
       } else {
         if (this.selectedRow.length === 1) {
           this.dialogTitle = "编辑租户";
-          this.dialogForm = Object.assign({},this.selectedRow[0]);
+          this.dialogForm = Object.assign({}, this.selectedRow[0]);
           this.dialogFormVisible = true;
         } else {
           this.$message({
@@ -356,7 +355,9 @@ export default {
           .then(() => {
             this.$axios
               .delete(
-                baseUrl+"/admin/tenant/remove?tenantId=" + this.selectedRow[0].tenantId
+                baseUrl +
+                  "/admin/tenant/remove?tenantId=" +
+                  this.selectedRow[0].tenantId
               )
               .then(res => {
                 this.$message({
@@ -394,7 +395,7 @@ export default {
               param[item] = this.dialogForm[item];
             });
             this.$axios
-              .post(baseUrl+"/admin/tenant/save?" + this.$qs.stringify(param))
+              .post(baseUrl + "/admin/tenant/save?" + this.$qs.stringify(param))
               .then(res => {
                 this.dialogFormVisible = false;
                 this.$message({
@@ -421,7 +422,9 @@ export default {
                 param[item] = this.dialogForm[item];
             });
             this.$axios
-              .put(baseUrl+"/admin/tenant/update?" + this.$qs.stringify(param))
+              .put(
+                baseUrl + "/admin/tenant/update?" + this.$qs.stringify(param)
+              )
               .then(res => {
                 this.dialogFormVisible = false;
                 this.$message({
@@ -449,6 +452,7 @@ export default {
     removeRow() {},
     addUserDialog() {
       if (this.selectedRow.length === 1) {
+        this.searchUser(1);
         this.dialogAddUser = true;
       } else {
         this.$message({
@@ -457,7 +461,21 @@ export default {
         });
       }
     },
-    searchUser() {},
+    searchUser(page) {
+      let param = {};
+      param.pageSize = this.tableLimit;
+      param.pageIndex = page;
+      if (this.searchUserItem !== "") param.userName = this.searchUserItem;
+      this.$axios
+        .get(baseUrl + "/admin/user/list?" + this.$qs.stringify(param))
+        .then(res => {
+          this.userTotal = res.data.data.total;
+          this.userData = res.data.data.records;
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
     submitAddUser() {},
     handleSizeChange(val) {
       this.tableLimit = val;
@@ -466,24 +484,12 @@ export default {
     handleCurrentChange(val) {
       this.search(val);
     },
-    dialogSizeChange(val) {
-      this.dialogPageSize = val;
-      this.dialogParam = {
-        current: 1,
-        size: val,
-        sort: "id",
-        dir: "asc"
-      };
-      this.searchFile("");
+    userSizeChange(val) {
+      this.userPageSize = val;
+      this.searchUser(1);
     },
-    dialogCurrentChange(val) {
-      this.dialogParam = {
-        current: val,
-        size: this.dialogPageSize,
-        sort: "id",
-        dir: "asc"
-      };
-      this.searchFile("");
+    userCurrentChange(val) {
+      this.searchUser(value);
     },
     dialogSelectionChange() {},
     handleOpen(key, keyPath) {

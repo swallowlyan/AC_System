@@ -19,6 +19,7 @@
       <el-col :span="24">
         <div>
           <el-table :data="tableData" border size="medium" class="fileService">
+            <el-table-column type="index" width="50" label="序号"></el-table-column>
             <el-table-column type="taskID" width="300" label="任务ID">
               <template slot-scope="scope">
                 <el-button

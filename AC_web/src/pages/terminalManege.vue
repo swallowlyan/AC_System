@@ -71,8 +71,7 @@
                 @selection-change="getRowDatas"
               >
                 <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column type="index" width="50" label="序号"></el-table-column>
-                <el-table-column prop="deviceId" label="终端ID">
+                <el-table-column prop="deviceId" label="终端ID" width="300">
                   <template slot-scope="scope">
                     <el-button
                       @click="detailRow(scope.row)"
