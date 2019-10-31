@@ -862,7 +862,7 @@ export default {
         visualMap: {
           show: true,
           min: 0,
-          max: 200,
+          max: 400,
           left: "10%",
           top: "bottom",
           calculable: true,
