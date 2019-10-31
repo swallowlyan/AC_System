@@ -179,7 +179,7 @@ export default {
           child: [
             { title: "租户管理", index: "1", url: "/tenantManage", icon: "" },
             { title: "用户管理", index: "2", url: "/userManage", icon: "" },
-            { title: "用户总览", index: "3", url: "/userOverview", icon: "" }
+            // { title: "用户总览", index: "3", url: "/userOverview", icon: "" }
           ]
         }
       ]

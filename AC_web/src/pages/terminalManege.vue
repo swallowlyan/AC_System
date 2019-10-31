@@ -571,7 +571,7 @@
   </div>
 </template>
 <script>
-import "../../node_modules/echarts/map/js/china.js";
+import shandongJson from "../../static/shandongData";//山东地图json
 import XLSX from "xlsx"; // npm导入库，命令：npm i xlsx@^0.14.1 -s
 const geoCoordMap = {};
 export default {
@@ -647,33 +647,44 @@ export default {
           color: "orange"
         }
       ],
+      geoCoordMap: {
+        济南市: [117.121225, 36.66466],
+        菏泽市: [115.480656, 35.23375],
+        济宁市: [116.59, 35.38],
+        德州市: [116.39, 37.45],
+        聊城市: [115.97, 36.45],
+        泰安市: [117.13, 36.18],
+        临沂市: [118.35, 35.05],
+        淄博市: [118.05, 36.78],
+        枣庄市: [117.57, 34.86],
+        滨州市: [118.03, 37.36],
+        潍坊市: [119.1, 36.62],
+        东营市: [118.49, 37.46],
+        青岛市: [120.3, 36.62],
+        烟台市: [120.9, 37.32],
+        威海市: [122.1, 37.2],
+        日照市: [119.1, 35.62],
+        济宁市: [116.7, 35.42],
+        莱芜市: [117.7, 36.28]
+      },
       mapData: [
-        { name: "河北", value: 102 },
-        { name: "山西", value: 81 },
-        { name: "内蒙古", value: 47 },
-        { name: "辽宁", value: 67 },
-        { name: "黑龙江", value: 123 },
-        { name: "江苏", value: 92 },
-        { name: "浙江", value: 114 },
-        { name: "安徽", value: 109 },
-        { name: "福建", value: 116 },
-        { name: "江西", value: 91 },
-        { name: "山东", value: 119 },
-        { name: "河南", value: 137 },
-        { name: "湖北", value: 116 },
-        { name: "湖南", value: 114 },
-        { name: "四川", value: 125 },
-        { name: "贵州", value: 62 },
-        { name: "云南", value: 83 },
-        { name: "西藏", value: 9 },
-        { name: "陕西", value: 80 },
-        { name: "甘肃", value: 56 },
-        { name: "青海", value: 10 },
-        { name: "宁夏", value: 18 },
-        { name: "新疆", value: 180 },
-        { name: "广东", value: 123 },
-        { name: "广西", value: 59 },
-        { name: "海南", value: 14 }
+        { name: "济南市", value: 390 },
+        { name: "菏泽市", value: 158 },
+        { name: "德州市", value: 252 },
+        { name: "聊城市", value: 99 },
+        { name: "泰安市", value: 189 },
+        { name: "临沂市", value: 52 },
+        { name: "淄博市", value: 158 },
+        { name: "枣庄市", value: 152 },
+        { name: "滨州市", value: 189 },
+        { name: "潍坊市", value: 160 },
+        { name: "东营市", value: 80 },
+        { name: "青岛市", value: 180 },
+        { name: "烟台市", value: 190 },
+        { name: "威海市", value: 290 },
+        { name: "日照市", value: 190 },
+        { name: "济宁市", value: 190 },
+        { name: "莱芜市", value: 290 }
       ],
       tableData: [],
       dialogTitle: "新增",
@@ -823,69 +834,29 @@ export default {
     },
     drawMap() {
       let myChart = this.$echarts.init(document.getElementById("mapChart"));
-      myChart.showLoading();
-      let mapFeatures = this.$echarts.getMap("china").geoJson.features;
-      myChart.hideLoading();
-      mapFeatures.forEach(function(v) {
-        // 地区名称
-        let name = v.properties.name;
-        // 地区经纬度
-        geoCoordMap[name] = v.properties.cp;
-      });
-      let option = {
+      this.$echarts.registerMap("shandong", shandongJson);
+      var max = 480,
+        min = 9; // todo
+      var maxSize4Pin = 100,
+        minSize4Pin = 20;
+      var option = {
         tooltip: {
-          padding: 0,
-          enterable: true,
-          transitionDuration: 1,
-          textStyle: {
-            color: "#000",
-            decoration: "none"
-          },
-          // alwaysShowContent:true,
+          trigger: "item",
           formatter: function(params) {
-            var tipHtml = "";
-            if (params.value !== undefined && !Number.isNaN(params.value)) {
-              if (typeof params.value === "object")
-                params.value = params.value[2];
-              tipHtml =
-                '<div style="width:200px;height:80px;background:rgba(22,80,158,0.8);border:1px solid rgba(7,166,255,0.7)">' +
-                '<div style="width:90%;height:30px;line-height:30px;border-bottom:2px solid rgba(7,166,255,0.7);padding-left:15px">' +
-                '<i style="display:inline-block;width:8px;height:8px;background:#16d6ff;border-radius:40px;"></i>' +
-                '<span style="margin-left:10px;color:#fff;font-size:14px;">' +
-                params.name +
-                "</span>" +
-                "</div>" +
-                '<div style="padding:15px 5px">' +
-                '<p style="color:#fff;font-size:12px;">' +
-                '<i style="display:inline-block;width:10px;height:10px;background:#16d6ff;border-radius:40px;margin:0 8px"></i>' +
-                "总数：" +
-                '<span style="color:#11ee7d;margin:0 6px;">' +
-                params.value +
-                "</span>" +
-                "个" +
-                "</p>" +
-                "</div>" +
-                "</div>";
+            if (typeof params.value[2] == "undefined") {
+              return params.name + " : " + params.value;
             } else {
-              tipHtml =
-                '<div style="width:200px;height:80px;background:rgba(22,80,158,0.8);border:1px solid rgba(7,166,255,0.7)">' +
-                '<div style="width:90%;height:30px;line-height:30px;border-bottom:2px solid rgba(7,166,255,0.7);padding-left:15px">' +
-                '<i style="display:inline-block;width:8px;height:8px;background:#16d6ff;border-radius:40px;"></i>' +
-                '<span style="margin-left:10px;color:#fff;font-size:14px;">' +
-                params.name +
-                "</span>" +
-                "</div>" +
-                '<div style="padding:15px 5px">' +
-                '<p style="color:#fff;font-size:12px;">' +
-                '<i style="display:inline-block;width:10px;height:10px;background:#16d6ff;border-radius:40px;margin:0 8px"></i>' +
-                "总数：" +
-                '<span style="color:#11ee7d;margin:0 6px;">---</span>' +
-                "个" +
-                "</p>" +
-                "</div>" +
-                "</div>";
+              return params.name + " : " + params.value[2];
             }
-            return tipHtml;
+          }
+        },
+        legend: {
+          orient: "vertical",
+          y: "bottom",
+          x: "right",
+          data: ["pm2.5"],
+          textStyle: {
+            color: "#fff"
           }
         },
         visualMap: {
@@ -902,8 +873,7 @@ export default {
         },
         geo: {
           show: true,
-          map: "china",
-          zoom: 1.2,
+          map: "shandong",
           label: {
             normal: {
               show: false
@@ -912,11 +882,11 @@ export default {
               show: false
             }
           },
-          // roam: true,
+          roam: true,
           itemStyle: {
             normal: {
               areaColor: "#023677",
-              borderColor: "#1180c7"
+              borderColor: "#3fdaff"
             },
             emphasis: {
               areaColor: "#4499d0"
@@ -925,12 +895,12 @@ export default {
         },
         series: [
           {
-            name: "散点",
+            name: "light",
             type: "scatter",
             coordinateSystem: "geo",
             data: this.convertData(this.mapData),
             symbolSize: function(val) {
-              return val[2] / 10;
+              return val[2] / 30;
             },
             label: {
               normal: {
@@ -944,19 +914,19 @@ export default {
             },
             itemStyle: {
               normal: {
-                color: "#fff"
+                color: "#F4E925"
               }
             }
           },
           {
             type: "map",
-            map: "china",
+            map: "shandong",
             geoIndex: 0,
-            aspectScale: 0.85, //长宽比
+            aspectScale: 0.75, //长宽比
             showLegendSymbol: false, // 存在legend时显示
             label: {
               normal: {
-                show: true
+                show: false
               },
               emphasis: {
                 show: false,
@@ -969,7 +939,7 @@ export default {
             itemStyle: {
               normal: {
                 areaColor: "#031525",
-                borderColor: "#3B5077"
+                borderColor: "#FFFFFF"
               },
               emphasis: {
                 areaColor: "#2B91B7"
@@ -977,12 +947,6 @@ export default {
             },
             animation: false,
             data: this.mapData
-          },
-          {
-            name: "点",
-            type: "scatter",
-            coordinateSystem: "geo",
-            zlevel: 6
           },
           {
             name: "Top 5",
@@ -996,7 +960,7 @@ export default {
                 .slice(0, 5)
             ),
             symbolSize: function(val) {
-              return val[2] / 10;
+              return val[2] / 30;
             },
             showEffectOn: "render",
             rippleEffect: {
@@ -1006,15 +970,15 @@ export default {
             label: {
               normal: {
                 formatter: "{b}",
-                position: "left",
-                show: false
+                position: "right",
+                show: true
               }
             },
             itemStyle: {
               normal: {
-                color: "yellow",
+                color: "#F4E925",
                 shadowBlur: 10,
-                shadowColor: "yellow"
+                shadowColor: "#05C3F9"
               }
             },
             zlevel: 1
@@ -1025,10 +989,9 @@ export default {
       myChart.resize();
     },
     convertData(data) {
-      let res = [];
-      for (let i = 0; i < data.length; i++) {
-        if (geoCoordMap[data[i].name] !== undefined) {
-          let geoCoord = geoCoordMap[data[i].name];
+        var res = [];
+        for (var i = 0; i < data.length; i++) {
+          var geoCoord = this.geoCoordMap[data[i].name];
           if (geoCoord) {
             res.push({
               name: data[i].name,
@@ -1036,9 +999,8 @@ export default {
             });
           }
         }
-      }
-      return res;
-    },
+        return res;
+      },
     //详情dialog
     detailRow(row) {
       this.ifAddContainer = false;
