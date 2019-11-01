@@ -1,7 +1,7 @@
 <!--租户管理-->
 <template>
   <div id="tenantManage">
-    <el-form :model="searchItem" ref="searchItem" label-width="auto">
+    <el-form :model="searchItem" ref="searchItem" label-width="auto" class="searchForm">
       <el-row>
         <el-col :span="6">
           <el-form-item label="租户名称" prop="tenantName">
@@ -29,19 +29,19 @@
             class="userTable"
             @selection-change="getRowDatas"
           >
-            <el-table-column type="selection" width="55"></el-table-column>
-            <el-table-column prop="tenantId" width="120" label="租户ID" v-if="false"></el-table-column>
-            <el-table-column prop="tenantName" width="120" label="租户名"></el-table-column>
-            <el-table-column prop="parentId" label="上级租户"></el-table-column>
-            <el-table-column prop="status" label="租户状态">
+            <!-- <el-table-column type="selection" width="55"></el-table-column> -->
+            <el-table-column prop="tenantId" label="租户ID" align="center"></el-table-column>
+            <el-table-column prop="tenantName" label="租户名" align="center"></el-table-column>
+            <el-table-column prop="parentId" label="上级租户ID" align="center"></el-table-column>
+            <el-table-column prop="status" label="租户状态" align="center">
               <template slot-scope="scope">
                 <span v-if="scope.row.status===1" style="color:#67c23a">正常</span>
                 <span v-if="scope.row.status===8" style="color:gray">停用</span>
                 <span v-if="scope.row.status===9" style="color:red">删除</span>
               </template>
             </el-table-column>
-            <el-table-column prop="description" label="描述"></el-table-column>
-            <el-table-column prop="options" width="150" label="操作">
+            <el-table-column prop="description" label="描述" align="center"></el-table-column>
+            <el-table-column prop="options" width="150" label="操作" align="center">
               <template slot-scope="scope">
                 <!-- <el-button @click="disableUser(scope.row)" type="text" size="medium">禁用</el-button> -->
                 <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
@@ -52,13 +52,13 @@
           </el-table>
           <el-row style="margin:20px 0px">
             <el-button-group>
-              <el-button
+              <!-- <el-button
                 type="success"
                 round
                 size="small"
                 icon="el-icon-refresh"
                 @click="search(1,10)"
-              >刷新</el-button>
+              >刷新</el-button> -->
               <el-button
                 type="primary"
                 round
@@ -118,7 +118,7 @@
           </el-row>
           <el-row>
             <el-col :span="24">
-              <el-form-item label="描述信息">
+              <el-form-item label="描述信息" style="height:53px">
                 <el-input
                   v-model="dialogForm.description"
                   type="textarea"
@@ -131,7 +131,7 @@
       </el-row>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submitForm('dialogForm')">确 定</el-button>
+        <el-button type="primary" @click="submitForm('dialogForm')">保 存</el-button>
       </div>
     </el-dialog>
   </div>

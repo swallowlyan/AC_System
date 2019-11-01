@@ -1,272 +1,111 @@
 <template>
   <div id="appList">
-    <el-tabs v-model="activeTab" @tab-click="handleClick">
-      <!-- 应用商店tab页 -->
-      <el-tab-pane label="应用商店" name="appList">
-        <el-row class="searchTypes">
-          <el-row>
-            <el-col :span="22" :offset="1">
-              <el-card class="box-card" :style="{'padding':'0px 20px'}">
-                <el-row class="type">
-                  <el-col :span="3">
-                    <span>领域分类：</span>
-                  </el-col>
-                  <el-col :span="2">
-                    <el-button type="text" @click="getSoft('')">全部</el-button>
-                  </el-col>
-                  <el-col :span="3" v-for="(item,index) in areaTypeList" :key="index">
-                    <el-button
-                      :class="{active:active==index}"
-                      type="text"
-                      @click="getSoft(item.id,index)"
-                    >{{item.name}}</el-button>
-                  </el-col>
-                </el-row>
-                <el-row class="type">
-                  <el-col :span="3">
-                    <span>开发商：</span>
-                  </el-col>
-                  <el-col :span="2">
-                    <el-button type="text" @click="getSoft('')">全部</el-button>
-                  </el-col>
-                  <el-col :span="3" v-for="(item,index) in developersList" :key="index">
-                    <el-button
-                      type="text"
-                      :class="{active:active_b==index}"
-                      @click="getSoft_b(item.id,index)"
-                    >{{item.name}}</el-button>
-                  </el-col>
-                </el-row>
-                <el-row class="type">
-                  <el-col :span="3">
-                    <span>应用级别：</span>
-                  </el-col>
-                  <el-col :span="2">
-                    <el-button type="text" @click="getSoft('')">全部</el-button>
-                  </el-col>
-                  <el-col :span="3" v-for="(item,index) in levelList" :key="index">
-                    <el-button
-                      type="text"
-                      :class="{active:active_c==index}"
-                      @click="getSoft_c(item.id,index)"
-                    >{{item.name}}</el-button>
-                  </el-col>
-                </el-row>
-              </el-card>
+    <el-row class="searchTables" style="padding:20px 0px">
+      <el-col :span="22" :offset="1">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix" style="height: 10px">
+            <el-col :span="2" :offset="1">
+              <span>排序：</span>
             </el-col>
-          </el-row>
-        </el-row>
-        <el-row class="searchTables">
-          <el-col :span="22" :offset="1">
-            <el-card class="box-card">
-              <div slot="header" class="clearfix" style="height: 10px">
-                <el-col :span="2" :offset="1">
-                  <span>排序：</span>
-                </el-col>
-                <el-col :span="2">
-                  <el-button type="text" @click="getSoft()">默认</el-button>
-                </el-col>
-                <el-col :span="2">
-                  <el-button type="text" @click="getSoft()">
-                    下载量
-                    <i class="el-icon-top"></i>
+            <el-col :span="2">
+              <el-button type="text" @click="getSoft()">默认</el-button>
+            </el-col>
+            <el-col :span="2">
+              <el-button type="text" @click="getSoft()">
+                下载量
+                <i class="el-icon-top"></i>
+              </el-button>
+            </el-col>
+            <el-col :span="3">
+              <el-button type="text" @click="getSoft()">
+                上架时间
+                <i class="el-icon-top"></i>
+              </el-button>
+            </el-col>
+            <el-col :span="2">
+              <el-button type="text" @click="getSoft()">
+                评分
+                <i class="el-icon-top"></i>
+              </el-button>
+            </el-col>
+          </div>
+          <div class="softContent">
+            <!--softInfo-->
+            <div v-for="(item,index) in appList" :key="index">
+              <el-row>
+                <el-col :span="2" class="softImg">
+                  <el-button type="text" @click="toDetail(item)" style="padding:0px">
+                    <img
+                      v-if="item.softIcon===''||item.softIcon===null||item.softIcon===undefined"
+                      src="../assets/img/soft_demo1.jpg"
+                      height="80"
+                      width="80"
+                    />
+                    <img
+                      v-if="item.softIcon!==''&&item.softIcon!==null&&item.softIcon!==undefined"
+                      :src="'data:image/jpg;base64,'+item.softIcon"
+                      height="80"
+                      width="80"
+                    />
                   </el-button>
                 </el-col>
-                <el-col :span="3">
-                  <el-button type="text" @click="getSoft()">
-                    上架时间
-                    <i class="el-icon-top"></i>
-                  </el-button>
+                <el-col :span="5" :offset="1" class="softInfo">
+                  <el-row v-if="item.softCategory3Id!=='1'">
+                    <div v-if="username!==null" style="cursor: pointer">
+                      <h3 class="appName">{{item.appName}}</h3>
+                    </div>
+                    <div v-if="username===null">
+                      <h3 class="appName">{{item.appName}}</h3>
+                    </div>
+                  </el-row>
+                  <el-row style="margin-top:20px">
+                    <span class="company">开发商：{{item.creator}}</span>
+                  </el-row>
                 </el-col>
-                <el-col :span="2">
-                  <el-button type="text" @click="getSoft()">
-                    评分
-                    <i class="el-icon-top"></i>
-                  </el-button>
-                </el-col>
-              </div>
-              <div class="softContent">
-                <!--softInfo-->
-                <div v-for="(item,index) in appList" :key="index">
+                <el-col :span="6" :offset="1" style="margin-top: 10px">
                   <el-row>
-                    <el-col :span="2" class="softImg">
-                      <el-button type="text" @click="toDetail(item)" style="padding:0px">
-                        <img
-                          v-if="item.softIcon===''||item.softIcon===null||item.softIcon===undefined"
-                          src="../assets/img/soft_demo1.jpg"
-                          height="80"
-                          width="80"
-                        />
-                        <img
-                          v-if="item.softIcon!==''&&item.softIcon!==null&&item.softIcon!==undefined"
-                          :src="'data:image/jpg;base64,'+item.softIcon"
-                          height="80"
-                          width="80"
-                        />
-                      </el-button>
-                    </el-col>
-                    <el-col :span="5" :offset="1" class="softInfo">
-                      <el-row v-if="item.softCategory3Id!=='1'">
-                        <div v-if="username!==null" style="cursor: pointer">
-                          <h3 class="appName">{{item.appName}}</h3>
-                        </div>
-                        <div v-if="username===null">
-                          <h3 class="appName">{{item.appName}}</h3>
-                        </div>
-                      </el-row>
-                      <el-row style="margin-top:20px">
-                        <span class="company">开发商：{{item.creator}}</span>
-                      </el-row>
-                    </el-col>
-                    <el-col :span="6" :offset="1" style="margin-top: 10px">
-                      <el-row>
-                        <el-col :span="6">评分：</el-col>
-                        <el-col :span="16">
-                          <el-rate
-                            v-model="testScore"
-                            disabled
-                            text-color="#ff9900"
-                            score-template="{value}"
-                          ></el-rate>
-                        </el-col>
-                      </el-row>
-                      <el-row style="margin-top: 15px;">
-                        <span class="downCount">下载量{{item.downCount}}件</span>
-                      </el-row>
-                    </el-col>
-                    <el-col :span="3" :offset="1" style="margin-top: 5px">
-                      <el-row v-if="item.auth==='true'">
-                        <el-button type="button" size="medium" disabled>已获取</el-button>
-                      </el-row>
-                      <el-row v-if="item.auth==='false'||item.auth===undefined">
-                        <el-button type="button" size="medium" @click="downSoft(item.id)">点击获取</el-button>
-                      </el-row>
+                    <el-col :span="6">评分：</el-col>
+                    <el-col :span="16">
+                      <el-rate
+                        v-model="testScore"
+                        disabled
+                        text-color="#ff9900"
+                        score-template="{value}"
+                      ></el-rate>
                     </el-col>
                   </el-row>
-                  <el-divider></el-divider>
-                </div>
-                <!--softInfo-->
-                <!--page-->
-                <el-row style="text-align: center">
-                  <el-pagination
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
-                    :current-page="currentPage"
-                    :page-sizes="[5, 10, 15]"
-                    :page-size="pageSize"
-                    layout="total, prev, pager, next, jumper"
-                    :total="total"
-                  ></el-pagination>
-                </el-row>
-              </div>
-            </el-card>
-          </el-col>
-        </el-row>
-      </el-tab-pane>
-      <!-- 本地文件库TAB -->
-      <el-tab-pane label="本地文件库" name="fileList">
-        <el-container>
-          <el-aside width="200px">
-            <el-row>
-              <el-menu
-                default-active="1"
-                class="el-menu-vertical-demo"
-                @open="handleOpen"
-                @close="handleClose"
-                @select="fileTypeSelect"
-              >
-              <div v-for="(item , index) in fileType" :key="index">
-              <el-menu-item v-if="!item.child" :index="item.itemCode">
-                <i class="el-icon-menu"></i>
-                <span slot="title">{{item.itemName}}</span>
-              </el-menu-item>
-              <el-submenu v-if="item.child" :index="item.itemCode">
-                <template slot="title">
-                  <i class="el-icon-location"></i>
-                  <span>{{item.itemName}}</span>
-                </template>
-                <el-menu-item
-                  v-for="(child,ind) in item.child"
-                  :key="ind"
-                  :index="child.itemCode"
-                >{{child.itemName}}</el-menu-item>
-              </el-submenu>
+                  <el-row style="margin-top: 15px;">
+                    <span class="downCount">下载量{{item.downCount}}件</span>
+                  </el-row>
+                </el-col>
+                <el-col :span="3" :offset="1" style="margin-top: 5px">
+                  <el-row v-if="item.auth==='true'">
+                    <el-button type="button" size="medium" disabled>已获取</el-button>
+                  </el-row>
+                  <el-row v-if="item.auth==='false'||item.auth===undefined">
+                    <el-button type="button" size="medium" @click="downSoft(item.id)">点击获取</el-button>
+                  </el-row>
+                </el-col>
+              </el-row>
+              <el-divider></el-divider>
             </div>
-              </el-menu>
+            <!--softInfo-->
+            <!--page-->
+            <el-row style="text-align: center">
+              <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="currentPage"
+                :page-sizes="[5, 10, 15]"
+                :page-size="pageSize"
+                layout="total, prev, pager, next, jumper"
+                :total="total"
+              ></el-pagination>
             </el-row>
-          </el-aside>
-          <el-container>
-            <el-header>
-              <el-row>
-                <el-col :span="16">
-                  <el-input v-model="searchFileItem" placeholder="请输入文件ID"></el-input>
-                </el-col>
-                <el-col :span="2" :offset="1">
-                  <el-button type="primary" icon="el-icon-search" @click="searchFile(1)">搜索</el-button>
-                </el-col>
-              </el-row>
-            </el-header>
-            <el-main>
-              <el-row style="max-height: 500px;">
-                <!-- 文件服务循环 -->
-                <el-col
-                  :span="4"
-                  :offset="1"
-                  v-for="(item,index) in fileList"
-                  :key="index"
-                  style="padding:5px"
-                >
-                  <el-card class="box-card fileCard" :body-style="{padding:'10px'}">
-                    <el-row>
-                      <img src="../assets/img/soft_demo1.jpg" height="100%" width="100%" />
-                    </el-row>
-                    <el-row>
-                      <h5>{{item.fileName}}</h5>
-                    </el-row>
-                    <el-row>
-                      <el-col :span="11" :offset="13">
-                        <el-button type="text">
-                          <i class="el-icon-download"></i>
-                        </el-button>
-                        <el-button type="text">
-                          <i class="el-icon-delete-solid"></i>
-                        </el-button>
-                      </el-col>
-                    </el-row>
-                  </el-card>
-                </el-col>
-                <!-- 新增服务 -->
-                <el-col :span="4" :offset="1" style="padding:5px">
-                  <el-card class="box-card fileCard" :body-style="{padding:'30px'}">
-                    <el-row style="height:80px;text-align:center;">
-                      <el-upload action :limit="1">
-                        <el-button type="text">
-                          <i class="el-icon-circle-plus-outline" style="font-size:50px"></i>
-                        </el-button>
-                      </el-upload>
-                    </el-row>
-                    <el-row>
-                      <h5>添加新服务</h5>
-                    </el-row>
-                  </el-card>
-                </el-col>
-              </el-row>
-              <el-row style="text-align: center;margin-top:10px;">
-                <el-pagination
-                  @size-change="fileSizeChange"
-                  @current-change="fileCurrentChange"
-                  :current-page="fileCurrentPage"
-                  :page-sizes="[5, 10, 15]"
-                  :page-size="filePageSize"
-                  layout="total, prev, pager, next, jumper"
-                  :total="fileTotal"
-                ></el-pagination>
-              </el-row>
-            </el-main>
-          </el-container>
-        </el-container>
-      </el-tab-pane>
-    </el-tabs>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
@@ -327,9 +166,9 @@ export default {
         dir: "asc"
       },
       searchFileItem: "",
-      fileType:[],
+      fileType: [],
       fileList: [],
-      selectedFileType:""
+      selectedFileType: ""
     };
   },
   mounted() {
@@ -341,9 +180,9 @@ export default {
     //获取分类
     getAreaType() {
       this.$axios
-        .get(baseUrl+"")
+        .get(baseUrl + "")
         .then(res => {
-          if(res.data.success)this.areaTypeList = res.data.data;
+          if (res.data.success) this.areaTypeList = res.data.data;
         })
         .catch(err => {
           console.log(err);
@@ -351,7 +190,7 @@ export default {
     },
     getIndustryType() {
       this.$axios
-        .get(baseUrl+"")
+        .get(baseUrl + "")
         .then(res => {
           if (res.data.data.length > 0) this.developersList = res.data.data;
         })
@@ -361,7 +200,7 @@ export default {
     },
     getPayType() {
       this.$axios
-        .get(baseUrl+"")
+        .get(baseUrl + "")
         .then(res => {
           if (res.data.data.length > 0) this.levelList = res.data.data;
         })
@@ -371,9 +210,9 @@ export default {
     },
     getFileType() {
       this.$axios
-        .get(baseUrl+"/admin/file/types")
+        .get(baseUrl + "/admin/file/types")
         .then(res => {
-          if(res.data.success)this.fileType = res.data.data;
+          if (res.data.success) this.fileType = res.data.data;
         })
         .catch(err => {
           console.log(err);
@@ -388,7 +227,7 @@ export default {
       this.param.softMenu = this.menuId;
       this.param.softCategory = val;
       this.$axios
-        .post(baseUrl+"", this.param)
+        .post(baseUrl + "", this.param)
         .then(res => {
           this.total = res.data.data.total;
           this.currentPage = res.data.data.current;
@@ -407,7 +246,7 @@ export default {
       this.param.softMenu = this.menuId;
       this.param.softCategory = val;
       this.$axios
-        .post(baseUrl+"", this.param)
+        .post(baseUrl + "", this.param)
         .then(res => {
           this.total = res.data.data.total;
           this.currentPage = res.data.data.current;
@@ -426,7 +265,7 @@ export default {
       this.param.softMenu = this.menuId;
       this.param.softCategory = val;
       this.$axios
-        .post(baseUrl+"", this.param)
+        .post(baseUrl + "", this.param)
         .then(res => {
           this.total = res.data.data.total;
           this.currentPage = res.data.data.current;
@@ -481,7 +320,7 @@ export default {
           softId: softId
         };
         this.$axios
-          .get(baseUrl+"/soft-auth/soft-order", { params: param })
+          .get(baseUrl + "/soft-auth/soft-order", { params: param })
           .then(res => {
             this.$message({
               message: "已成功获取该服务",
@@ -497,20 +336,19 @@ export default {
     ////////////////////////////文件
     //查找文件
     searchFile(page) {
-      let param={
-          pageIndex:page,
-          pageSize:this.filePageSize
-        };
-        if(this.searchFileItem!=="")param.fileId= this.searchFileItem;
-        if(this.selectedFileType!=="")param.fileType= this.selectedFileType;
+      let param = {
+        pageIndex: page,
+        pageSize: this.filePageSize
+      };
+      if (this.searchFileItem !== "") param.fileId = this.searchFileItem;
+      if (this.selectedFileType !== "") param.fileType = this.selectedFileType;
       this.$axios
-        .get(baseUrl+"/admin/file/list?"+this.$qs.stringify(param))
+        .get(baseUrl + "/admin/file/list?" + this.$qs.stringify(param))
         .then(res => {
-          this.fileTotal=res.data.data.total;
-          this.fileList=res.data.data.records;
+          this.fileTotal = res.data.data.total;
+          this.fileList = res.data.data.records;
         })
-        .catch(err => {
-        });
+        .catch(err => {});
     },
     fileSizeChange(val) {
       this.filePageSize = val;
@@ -520,7 +358,7 @@ export default {
       this.searchFile(val);
     },
     //选中文件分类
-    fileTypeSelect(index, indexPath){
+    fileTypeSelect(index, indexPath) {
       this.selectedFileType = index;
       this.searchFile(1);
     },

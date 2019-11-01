@@ -4,6 +4,7 @@ import main from '../pages/main.vue'
 import loginPage from '../pages/LoginPage'
 import registerPage from '../pages/registerPage'
 
+import homePage from '../pages/homePage'
 import terminalManege from '../pages/terminalManege'
 import applicationManege from '../pages/applicationManege'
 import containerManege from '../pages/containerManege'
@@ -28,13 +29,18 @@ export default new Router({
       children:[
         {
           path:'',
-          name:'terminalManege',
-          component:terminalManege,
+          name:'homePage',
+          component:homePage,
           meta:{
             // ifFooter:"show",
             // ifMenu:"show",
             // ifHome:"none"
             },
+        },
+        {
+          path:'terminalManege',
+          name:'terminalManege',
+          component:terminalManege
         },
         {
           path:'applicationManege',

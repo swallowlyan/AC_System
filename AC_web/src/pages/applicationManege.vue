@@ -1,7 +1,7 @@
 <!--微应用管理-->
 <template>
   <div id="applicationManage">
-    <el-form :model="searchItem" ref="searchItem" label-width="auto">
+    <el-form :model="searchItem" ref="searchItem" label-width="auto" class="searchForm">
       <el-row>
         <el-col :span="6">
           <el-form-item label="微应用名称" prop="name">
@@ -36,8 +36,8 @@
             class="applicationTable"
             @selection-change="getRowDatas"
           >
-            <el-table-column type="selection" width="55"></el-table-column>
-            <el-table-column prop="appId" width="120" label="微应用ID">
+            <!-- <el-table-column type="selection" width="55"></el-table-column> -->
+            <el-table-column prop="appId" width="120" label="微应用ID" align="center">
               <template slot-scope="scope">
                 <el-button
                   @click="detailRow(scope.row)"
@@ -46,14 +46,14 @@
                 >{{scope.row.appId}}</el-button>
               </template>
             </el-table-column>
-            <el-table-column prop="appName" width="120" label="微应用名"></el-table-column>
-            <el-table-column prop="appType" label="微应用类型"></el-table-column>
-            <el-table-column prop="vendor" width="120" label="应用厂商"></el-table-column>
-            <el-table-column prop="version" label="微应用版本"></el-table-column>
-            <el-table-column prop="appReleaseTime" width="130" label="发布时间"></el-table-column>
-            <el-table-column prop="containerType" label="容器类型"></el-table-column>
-            <el-table-column prop="containerVersion" label="容器版本"></el-table-column>
-            <el-table-column prop="options" label="操作" width="100">
+            <el-table-column prop="appName" width="120" label="微应用名" align="center"></el-table-column>
+            <el-table-column prop="appType" label="微应用类型" align="center"></el-table-column>
+            <el-table-column prop="vendor" width="120" label="应用厂商" align="center"></el-table-column>
+            <el-table-column prop="version" label="微应用版本" align="center"></el-table-column>
+            <el-table-column prop="appReleaseTime" width="130" label="发布时间" align="center"></el-table-column>
+            <el-table-column prop="containerType" label="容器类型" align="center"></el-table-column>
+            <el-table-column prop="containerVersion" label="容器版本" align="center"></el-table-column>
+            <el-table-column prop="options" label="操作" width="100" align="center">
               <template slot-scope="scope">
                 <!-- <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</!-->
                 <el-button @click="toInstallDialog(scope.row,false)" type="text" size="medium">安装</el-button>
@@ -62,7 +62,7 @@
             </el-table-column>
           </el-table>
           <el-row style="margin:20px 0px">
-            <el-button type="primary" round icon="el-icon-plus" @click="add('dialogForm')">新增</el-button>
+            <el-button type="primary" round icon="el-icon-plus" size="small" @click="add('dialogForm')">新增</el-button>
             <el-pagination
               background
               @size-change="handleSizeChange"
@@ -79,7 +79,11 @@
       </el-col>
     </el-row>
     <!-- 新增/编辑弹窗 -->
-    <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="70%">
+    <el-dialog 
+    :title="dialogTitle" 
+    :visible.sync="dialogFormVisible"
+    :before-close="handleDialogClose"
+     width="85%">
       <!-- 微应用form -->
       <el-row v-show="!ifInstallDialog&&!urlSelectVisible">
         <el-form
@@ -197,51 +201,19 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="最大数据大小(MB)">
-                <span v-if="ifDialogDetail">{{dialogForm.minDataDiskMB}}</span>
-                <el-input
-                  v-if="!ifDialogDetail"
-                  v-model="dialogForm.minDataDiskMB"
-                  placeholder="请输入最大数据大小"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="CPU核心数">
-                <span v-if="ifDialogDetail">{{dialogForm.minVcpus}}</span>
-                <el-input
-                  v-if="!ifDialogDetail"
-                  v-model="dialogForm.minVcpus"
-                  placeholder="请输入CPU核心数"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="物理接口">
-                <span v-if="ifDialogDetail">{{dialogForm.physicalInterfaces}}</span>
-                <el-input
-                  v-if="!ifDialogDetail"
-                  v-model="dialogForm.physicalInterfaces"
-                  placeholder="请输入物理接口"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="下载url">
+              <el-form-item label="应用url">
                 <span v-if="ifDialogDetail">{{dialogForm.downloadURL}}</span>
                 <el-input
                   v-if="!ifDialogDetail"
                   @focus="urlFocus($event,1)"
                   v-model="dialogForm.downloadURL"
-                  placeholder="请输入下载url"
+                  placeholder="请输入应用url"
                 ></el-input>
               </el-form-item>
             </el-col>
-            <el-col :span="12">
+          </el-row>
+          <el-row>
+            <el-col :span="24">
               <el-form-item label="图标url">
                 <span v-if="ifDialogDetail">{{dialogForm.logo}}</span>
                 <el-input
@@ -257,7 +229,7 @@
       </el-row>
       <!-- 安装dialog -->
       <el-row v-show="ifInstallDialog&&!urlSelectVisible">
-        <el-col :span="18">
+        <el-col :span="15">
           <el-row style="max-height: 300px;overflow:auto;">
             <el-table
               ref="multipleTable"
@@ -272,7 +244,7 @@
               :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
             >
               <el-table-column type="selection" width="55"></el-table-column>
-              <el-table-column prop="deviceId" label="终端ID" width="330"></el-table-column>
+              <el-table-column prop="deviceId" label="终端ID" width="300"></el-table-column>
               <el-table-column prop="name" label="名称" width="100"></el-table-column>
               <el-table-column prop="type" label="类型" width="120"></el-table-column>
               <el-table-column prop="status" label="状态" width="50">
@@ -298,12 +270,12 @@
             ></el-pagination>
           </el-row>
         </el-col>
-        <el-col :span="5" :offset="1">
+        <el-col :span="8" :offset="1">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
               <span>已选容器</span>
             </div>
-            <div>
+            <div style="max-height:250px;overflow: auto;">
               <ul>
                 <li v-for="(item,index) in selectedContainer" :key="index">
                   {{item.name}}
@@ -324,18 +296,11 @@
           </el-card>
         </el-col>
       </el-row>
-      <!-- 下载Url选择 -->
+      <!-- 应用Url选择 -->
       <el-row v-show="urlSelectVisible">
-        <el-button
-          type="primary"
-          size="mini"
-          icon="el-icon-d-arrow-left"
-          round
-          @click="urlSelectVisible=false"
-        >返回</el-button>
         <el-row style="max-height: 300px;overflow:auto;">
           <el-table :data="urlList" tooltip-effect="dark" style="width: 100%">
-            <el-table-column prop="fileName" label="名称">
+            <el-table-column prop="fileName" label="名称" align="center">
               <template slot-scope="scope">
                 <el-button
                   @click="selectUrlOption(scope.row)"
@@ -344,8 +309,13 @@
                 >{{scope.row.fileName}}</el-button>
               </template>
             </el-table-column>
-            <el-table-column prop="fileType" label="类型"></el-table-column>
-            <el-table-column prop="fileUrl" label="URL"></el-table-column>
+            <el-table-column prop="fileType" label="类型" v-if="false"></el-table-column>
+            <el-table-column prop="fileUrl" label="URL" align="center">
+              <template slot-scope="scope">
+                <img v-if="scope.row.fileType===0" :src="scope.row.fileUrl" height="30" width="30" />
+                <span v-if="scope.row.fileType!==0">{{scope.row.fileUrl}}</span>
+              </template>
+            </el-table-column>
           </el-table>
         </el-row>
         <el-row style="text-align: center;margin-top:10px;">
@@ -361,18 +331,24 @@
         </el-row>
       </el-row>
       <div slot="footer" class="dialog-footer">
+        <!-- 新增/编辑footer -->
         <el-button
-          v-show="!ifInstallDialog&&!ifDialogDetail"
+          v-show="!ifInstallDialog&&!ifDialogDetail&&!urlSelectVisible"
           type="primary"
           @click="submitForm('dialogForm')"
-        >确 定</el-button>
-        <el-button v-show="!ifInstallDialog" @click="dialogFormVisible = false">取 消</el-button>
+        >保 存</el-button>
+        <el-button v-show="!ifInstallDialog&&!ifDialogDetail&&!urlSelectVisible" @click="dialogFormVisible = false">取 消</el-button>
+        <!-- url footer -->
+        <el-button v-show="urlSelectVisible" @click="dialogTitle = '新增微应用',urlSelectVisible = false">返 回</el-button>
+        <!-- 安装footer -->
         <el-button
           v-show="ifInstallDialog&&!ifGetInstalled"
           type="primary"
           @click="installApp()"
         >安 装</el-button>
         <el-button v-show="ifInstallDialog&&!ifGetInstalled" @click="dialogFormVisible = false">取 消</el-button>
+        <!-- 详情footer -->
+        <el-button v-show="ifDialogDetail" @click="dialogFormVisible = false">关 闭</el-button>
       </div>
     </el-dialog>
   </div>
@@ -424,10 +400,7 @@ export default {
         containerVersion: "",
         downloadURL: "",
         fileSizeMB: "",
-        logo: "",
-        minVcpus: "",
-        minDataDiskMB: "",
-        physicalInterfaces: ""
+        logo: ""
       },
       dialogRules: {
         appId: [
@@ -516,6 +489,17 @@ export default {
     getRowDatas(row) {
       this.selectedRow = row;
       console.info(row);
+    },
+    //监听"x"操作
+    handleDialogClose() {
+      if (this.urlSelectVisible) {
+        //url选择的返回事件
+        this.dialogTitle = "新增微应用";
+        this.urlSelectVisible = false;
+        return false;
+      } else {
+        this.dialogFormVisible = false;
+      }
     },
     //新增dialog
     add(formName) {
@@ -613,8 +597,8 @@ export default {
     },
     //安装dialog
     toInstallDialog(row, ifGetInstalled) {
-      // if (ifGetInstalled) this.dialogTitle = "已安装设备";
-      // else this.dialogTitle = "安装容器";
+      if (ifGetInstalled) this.dialogTitle = "已安装设备";
+      else this.dialogTitle = "安装容器";
       this.ifGetInstalled = ifGetInstalled;
       this.currentApp = Object.assign({}, row);
       this.deviceList = [];
@@ -794,12 +778,13 @@ export default {
     deviceCurrentChange(val) {
       this.getDeviceDialog(val);
     },
-    //下载Url-dialog
+    //应用Url-dialog
     urlFocus(event, type) {
       console.info(event);
+      if (type === 1) this.dialogTitle = "应用url";
+      else this.dialogTitle = "图标url";
       this.currentUrlType = type;
       this.getUrls(1);
-      this.urlSelectVisible = true;
     },
     //获取Url
     getUrls(page) {
@@ -816,19 +801,21 @@ export default {
         .then(res => {
           this.urlTotal = res.data.data.total;
           this.urlList = res.data.data.records;
+          this.urlSelectVisible = true;
           return false;
         })
         .catch(err => {
           console.log(err);
         });
     },
-    //下载Url选中
+    //应用Url选中
     selectUrlOption(row) {
       if (this.currentUrlType === 1) this.dialogForm.downloadURL = row.fileUrl;
       else this.dialogForm.logo = row.fileUrl;
+      this.dialogTitle = "新增微应用";
       this.urlSelectVisible = false;
     },
-    //下载Url列表分页
+    //应用Url列表分页
     urlSizeChange(val) {
       this.urlPageSize = val;
       this.getUrls(1);

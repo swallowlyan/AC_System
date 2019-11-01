@@ -1,7 +1,7 @@
 <!--用户管理-->
 <template>
   <div id="userManage">
-    <el-form :model="searchItem" ref="searchItem" label-width="auto">
+    <el-form :model="searchItem" ref="searchItem" label-width="auto" class="searchForm">
       <el-row>
         <el-col :span="6">
           <el-form-item label="用户名" prop="userName">
@@ -29,24 +29,24 @@
             class="userTable"
             @selection-change="getRowDatas"
           >
-            <el-table-column type="selection" width="55"></el-table-column>
+            <!-- <el-table-column type="selection" width="55"></el-table-column> -->
             <el-table-column prop="uid" width="120" label="用户ID" v-if="false"></el-table-column>
-            <el-table-column prop="username" width="120" label="用户名"></el-table-column>
-            <el-table-column prop="usertype" label="用户类型">
+            <el-table-column prop="username" label="用户名" align="center"></el-table-column>
+            <el-table-column prop="usertype" label="用户类型" align="center">
               <template slot-scope="scope">
                 <span v-if="scope.row.usertype===1">管理员</span>
                 <span v-if="scope.row.usertype===0">普通</span>
               </template>
             </el-table-column>
-            <el-table-column prop="tenantid" label="上级租户"></el-table-column>
-            <el-table-column prop="status" label="用户状态">
+            <el-table-column prop="tenantid" label="上级租户" align="center"></el-table-column>
+            <el-table-column prop="status" label="用户状态" align="center">
               <template slot-scope="scope">
                 <span v-if="scope.row.status===1" style="color:#67c23a">正常</span>
                 <span v-if="scope.row.status===8" style="color:gray">停用</span>
                 <span v-if="scope.row.status===9" style="color:red">删除</span>
               </template>
             </el-table-column>
-            <el-table-column prop="options" width="150" label="操作">
+            <el-table-column prop="options" width="150" label="操作" align="center">
               <template slot-scope="scope">
                 <!-- <el-button @click="disableUser(scope.row)" type="text" size="medium">禁用</el-button> -->
                 <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
@@ -57,13 +57,13 @@
           </el-table>
           <el-row style="margin:20px 0px">
             <el-button-group>
-              <el-button
+              <!-- <el-button
                 type="success"
                 round
                 size="small"
                 icon="el-icon-refresh"
                 @click="search(1,10)"
-              >刷新</el-button>
+              >刷新</el-button> -->
               <el-button
                 type="primary"
                 round
@@ -107,7 +107,7 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row>
+          <el-row v-show="!ifUpdate">
             <el-col :span="24">
               <el-form-item label="密码:" prop="passwd">
                 <el-input v-model="dialogForm.passwd" placeholder="请输入密码"></el-input>
@@ -115,7 +115,7 @@
             </el-col>
           </el-row>
           <el-row>
-            <el-col :span="24">
+            <el-col :span="24" v-if="!ifUpdate">
               <el-form-item label="租户:" prop="tenantid">
                 <el-select v-model="dialogForm.tenantid" :placeholder="tenantArr.title">
                   <el-option
@@ -127,6 +127,11 @@
                 </el-select>
               </el-form-item>
             </el-col>
+            <el-col :span="24" v-if="ifUpdate">
+              <el-form-item label="租户ID:">
+                <span>{{dialogForm.tenantid}}</span>
+              </el-form-item>
+            </el-col>
           </el-row>
           <el-row>
             <el-col :span="24">
@@ -136,19 +141,11 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row>
-            <el-col :span="24">
-              <el-form-item label="用户状态" prop="status">
-                <el-radio v-model="dialogForm.status" label="1">正常</el-radio>
-                <el-radio v-model="dialogForm.status" label="8">停用</el-radio>
-              </el-form-item>
-            </el-col>
-          </el-row>
         </el-form>
       </el-row>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submitForm('dialogForm')">确 定</el-button>
+        <el-button type="primary" @click="submitForm('dialogForm')">保 存</el-button>
       </div>
     </el-dialog>
   </div>
@@ -176,8 +173,7 @@ export default {
         username: "",
         passwd: "",
         tenantid: "",
-        usertype: "",
-        status: ""
+        usertype: ""
       },
       dialogRules: {
         username: [
@@ -189,9 +185,6 @@ export default {
         ],
         usertype: [
           { required: true, message: "请选择用户类型", trigger: "change" }
-        ],
-        status: [
-          { required: true, message: "请选择用户状态", trigger: "change" }
         ]
       },
       ifUpdate: false

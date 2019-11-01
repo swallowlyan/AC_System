@@ -53,7 +53,7 @@
                 class="userTable"
                 @selection-change="getRowDatas"
               >
-                <el-table-column type="selection" width="55"></el-table-column>
+                <!-- <el-table-column type="selection" width="55"></el-table-column> -->
                 <el-table-column prop="tenantName" width="120" label="租户名"></el-table-column>
                 <el-table-column prop="parentId" label="上级租户"></el-table-column>
                 <el-table-column prop="status" label="租户状态">
@@ -72,13 +72,13 @@
               </el-table>
               <el-row style="margin:20px 0px">
                 <el-button-group>
-                  <el-button
+                  <!-- <el-button
                     type="success"
                     round
                     size="small"
                     icon="el-icon-refresh"
                     @click="search(1)"
-                  >刷新</el-button>
+                  >刷新</el-button> -->
                   <el-button
                     type="primary"
                     round
@@ -128,7 +128,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submitForm('dialogForm')">确 定</el-button>
+        <el-button type="primary" @click="submitForm('dialogForm')">保 存</el-button>
       </div>
     </el-dialog>
     <!-- 添加用户 -->
@@ -215,7 +215,7 @@
         </el-col>
       </el-row>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitAddUser()">确 定</el-button>
+        <el-button type="primary" @click="submitAddUser()">保 存</el-button>
         <el-button @click="dialogAddUser = false">取 消</el-button>
       </div>
     </el-dialog>

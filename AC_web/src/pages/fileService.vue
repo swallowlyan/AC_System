@@ -1,94 +1,114 @@
 <!--文件服务-->
 <template>
   <div id="fileService">
-          <el-form :model="searchItem" ref="searchItem" label-width="auto">
+    <el-container>
+          <el-aside width="200px">
             <el-row>
-              <el-col :span="6">
-            <el-form-item label="文件ID" prop="fileId">
-              <el-input v-model="searchItem.fileId" placeholder="请输入文件ID"></el-input>
-            </el-form-item>
-              </el-col>
-              <el-col :span="6">
-            <el-form-item prop="fileType" label="文件类型">
-              <el-select v-model="searchItem.fileType" :placeholder="typeArr.title">
-                <el-option
-                  v-for="item in typeArr.options"
-                  :key="item.ItemCode"
-                  :label="item.ItemName"
-                  :value="item.ItemCode"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-              </el-col>
-              <el-col :span="7" :offset="1">
-              <el-button type="primary" @click="search(1)">查询</el-button>
-              <el-button type="default" @click="reset('searchItem')">重置</el-button>
-              <el-button type="success" icon="el-icon-refresh" @click="search(1)">刷新</el-button>
-              </el-col>
-            </el-row>
-          </el-form>
-        <el-row>
-          <el-col :span="24">
-            <div>
-              <el-table
-                :data="tableData"
-                border
-                size="medium"
-                class="fileService"
+              <el-menu
+                default-active="-1"
+                class="el-menu-vertical-demo"
+                @select="fileTypeSelect"
               >
-                <el-table-column type="index" width="50" label="序号"></el-table-column>
-                <el-table-column prop="id" label="ID" width="300"></el-table-column>
-                <el-table-column prop="fileName" label="名称"></el-table-column>
-                <el-table-column prop="fileType" label="类型"></el-table-column>
-                <el-table-column prop="fileUrl" label="url"></el-table-column>
-                <el-table-column prop="version" label="版本"></el-table-column>
-                <el-table-column prop="tenantId" label="租户ID"></el-table-column>
-                <!-- <el-table-column prop="options" label="操作" width="200">
-                  <template slot-scope="scope">
-                    <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
-                    <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
-                  </template>
-                </el-table-column>-->
-              </el-table>
-              <el-row style="margin:20px 0px">
+              <el-menu-item index="-1">
+                <i class="el-icon-menu"></i>
+                <span slot="title">全部</span>
+              </el-menu-item>
+              <div v-for="(item , index) in typeArr" :key="index">
+              <el-menu-item v-if="!item.child" :index="item.ItemCode">
+                <i class="el-icon-menu"></i>
+                <span slot="title">{{item.ItemName}}</span>
+              </el-menu-item>
+              <el-submenu v-if="item.child" :index="item.ItemCode">
+                <template slot="title">
+                  <i class="el-icon-location"></i>
+                  <span>{{item.ItemName}}</span>
+                </template>
+                <el-menu-item
+                  v-for="(child,ind) in item.child"
+                  :key="ind"
+                  :index="child.ItemCode"
+                >{{child.ItemName}}</el-menu-item>
+              </el-submenu>
+            </div>
+              </el-menu>
+            </el-row>
+          </el-aside>
+          <el-container>
+            <el-header>
+              <el-row>
+                <el-col :span="16">
+                  <el-input v-model="fileId" placeholder="请输入关键字搜索"></el-input>
+                </el-col>
+                <el-col :span="2" :offset="1">
+                  <el-button type="primary" icon="el-icon-search" @click="searchFile(1)">搜索</el-button>
+                </el-col>
+              </el-row>
+            </el-header>
+            <el-main>
+              <el-row style="max-height: 500px;">
+                <!-- 文件服务循环 -->
+                <el-col
+                  :span="4"
+                  :offset="1"
+                  v-for="(item,index) in tableData"
+                  :key="index"
+                  style="padding:5px"
+                >
+                  <el-card class="box-card fileCard" :body-style="{padding:'10px'}">
+                    <el-row style="height:110px;width:110px;">
+                      <img v-if="item.fileType===0" :src="item.fileUrl" height="100%" width="100%" />
+                      <img v-if="item.fileType===1" src="./../../dist/static/img/application.png" height="100%" width="100%" />
+                      <img v-if="item.fileType===2" src="./../../dist/static/img/container.png" height="100%" width="100%" />
+                    </el-row>
+                    <el-row>
+                      <h5>{{item.fileName}}</h5>
+                    </el-row>
+                    <!-- <el-row>
+                      <el-col :span="11" :offset="13">
+                        <el-button type="text">
+                          <i class="el-icon-download"></i>
+                        </el-button>
+                        <el-button type="text">
+                          <i class="el-icon-delete-solid"></i>
+                        </el-button>
+                      </el-col>
+                    </el-row> -->
+                  </el-card>
+                </el-col>
+              </el-row>
+              <el-row style="text-align: center;margin-top:10px;">
                 <el-pagination
-                  background
                   @size-change="handleSizeChange"
                   @current-change="handleCurrentChange"
                   :current-page="1"
-                  :page-sizes="[5, 10,15]"
+                  :page-sizes="[5, 10, 15]"
                   :page-size="tableLimit"
-                  layout="total, sizes, prev, pager, next"
+                  layout="total, prev, pager, next, jumper"
                   :total="tableSize"
-                  style="float: right"
                 ></el-pagination>
               </el-row>
-            </div>
-          </el-col>
-        </el-row>
+            </el-main>
+          </el-container>
+        </el-container>
   </div>
 </template>
+
 <script>
 export default {
   name: "fileService",
   data() {
     return {
+      typeArr:[],
       tableData:[],
       tableSize: 0,
       tableLimit: 10,
-      searchItem: {
-        fileId: "",
-        fileType: ""
-      },
-      typeArr: {
-        title: "请选择类型",
-        options: []
-      }
+      fileId: "",
+      selectedFileType:""
     };
   },
   mounted() {
+    this.searchFile(1);
     this.getFileType();
-    this.search(1);
   },
   methods: {
     //获取文件类型
@@ -96,19 +116,19 @@ export default {
       this.$axios
         .get(baseUrl + "/admin/file/types")
         .then(res => {
-          this.typeArr.options =  res.data.data;
-          this.typeArr.options.push({ItemCode: "", ItemName: "全部" });
+          this.typeArr =  res.data.data;
         })
         .catch(err => {
           console.log(err);
         });
     },
-    search(page) {
+    searchFile(page) {
+      this.tableData=[],this.tableSize=0;
       let param = "";
-      if (this.searchItem.fileId !== "")
-        param += "&fileId=" + this.searchItem.fileId;
-      else if (this.searchItem.fileType !== "")
-        param += "&fileType=" + this.searchItem.fileType;
+      if (this.fileId !== "")
+        param += "&fileId=" + this.fileId;
+      else if (this.selectedFileType !== "-1"&&this.selectedFileType !== "")
+        param += "&fileType=" + this.selectedFileType;
       this.$axios
         .get(
           baseUrl +
@@ -130,133 +150,69 @@ export default {
     reset(formName) {
       this.$refs[formName].resetFields();
     },
-    //tab点击事件
-    handleClick() {},
     handleSizeChange(val) {
       this.tableLimit = val;
-      this.search(1);
+      this.searchFile(1);
     },
     handleCurrentChange(val) {
-      this.search(val);
+      this.searchFile(val);
     },
-    dateFormat(row, column, cellValue, index) {
-      // const daterc = row[column.property];
-      // if (daterc != null) {
-      //   const dateMat = new Date(
-      //     parseInt(daterc.replace("/Date(", "").replace(")/", ""), 10)
-      //   );
-      //   const year = dateMat.getFullYear();
-      //   const month = dateMat.getMonth() + 1;
-      //   const day = dateMat.getDate();
-      //   const hh = dateMat.getHours();
-      //   const mm = dateMat.getMinutes();
-      //   const ss = dateMat.getSeconds();
-      //   const timeFormat =
-      //     year + "/" + month + "/" + day + " " + hh + ":" + mm + ":" + ss;
-      //   return cellValue;
-      // }
-      return cellValue;
+    //选中文件分类
+    fileTypeSelect(index, indexPath){
+      this.selectedFileType = index;
+      this.searchFile(1);
     },
   }
 };
 </script>
 
 <style scoped>
-.fileService {
+.searchTypes {
+  margin: 5px 0px;
+}
+.searchTypes .type {
+  margin: 20px 0px;
+}
+.softImg {
+  margin: 5px;
+}
+.softContent span {
+  font-size: 13px;
+}
+.softInfo {
+  margin-top: 10px;
+}
+.softContent {
   max-height: 500px;
   overflow: auto;
 }
-.pull-right {
-  color: #ffffff;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 3px 8px;
-  text-shadow: none;
+.softContent a {
+  color: #000000;
 }
-.allCard {
-  border: 1px solid #eee !important;
+.searchTypes button,
+.el-card__header button {
+  padding: 0px;
 }
-.allCard h1 {
-  font-size: 36px;
+.el-card__header .el-col {
   margin-bottom: 5px;
 }
-.el-card__header {
-  padding: 10px 20px !important;
+.searchForm {
+  margin-top: 30px;
 }
-.stat-percent {
-  color: #1c84c6;
-  font-weight: 600;
-  float: right;
+.softContent span {
+  font-size: 13px;
 }
-.el-card__header .blue {
-  background-color: #1c84c6;
-}
-.el-card__header .green {
-  background-color: #23c6c8;
-}
-.el-card__header .greenAll {
-  background-color: #1ab394;
-}
-.el-card__header .orange {
-  background-color: rgba(240, 155, 119, 1);
-}
-.el-card__body .blue {
-  color: #1c84c6;
-}
-.el-card__body .green {
-  color: #23c6c8;
-}
-.el-card__body .greenAll {
-  color: #1ab394;
-}
-.el-card__body .orange {
-  color: rgba(240, 155, 119, 1);
-}
-.acForm .el-col {
-  border-color: rgb(151, 195, 221);
-  font-size: 14px;
+el-card__header button {
   padding: 0px;
-  border-width: 1px;
-  border-style: solid;
-  text-align: center;
-  line-height: 20px;
 }
-.acForm .el-form-item {
-  margin-bottom: 0px;
+.active {
+  color: #666 !important;
 }
-.list {
-  max-height: 100px;
-  overflow: auto;
-}
-.list div {
-  width: 150px;
-  margin: 0px 10px;
-  float: left;
-}
-.list button {
-  margin-left: 10px;
-}
-.acForm .el-col {
+.fileCard h5 {
   text-align: center;
 }
-.addConfig {
-  width: 160px;
-  float: left;
-}
-.previewTable {
-  color: #48576a;
-  table-layout: fixed;
-  width: 100%;
-  text-align: center;
-  border-collapse: collapse;
-}
-.previewTable td {
-  border: 1px solid #8492a6;
-  padding: 5px 0;
-  word-wrap: break-word;
-}
-.previewTable > thead {
-  background-color: #eff2f7;
+.fileCard .el-button {
+  padding: 0px;
+  margin-top: 10px;
 }
 </style>
-

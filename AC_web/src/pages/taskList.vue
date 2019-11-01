@@ -1,17 +1,27 @@
 <!--文件服务-->
 <template>
   <div id="fileService">
-    <el-form :model="searchItem" ref="searchItem" label-width="auto">
+    <el-form :model="searchItem" ref="searchItem" label-width="auto" class="searchForm">
       <el-row>
         <el-col :span="6">
-          <el-form-item label="任务名称" prop="taskName">
+          <el-form-item label="任务名称">
             <el-input v-model="searchItem.taskName" placeholder="请输入任务名称"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="7" :offset="1">
+        <el-col :span="6">
+          <el-form-item label="创建时间">
+            <el-date-picker
+              v-model="searchItem.startTime"
+              type="date"
+              value-format="yyyy-MM-dd"
+              placeholder="请选择创建时间"
+            ></el-date-picker>
+          </el-form-item>
+        </el-col>
+        <el-col :span="4" :offset="1">
           <el-button type="primary" @click="search(1)">查询</el-button>
           <el-button type="default" @click="reset('searchItem')">重置</el-button>
-          <el-button type="success" icon="el-icon-refresh" @click="search(1)">刷新</el-button>
+          <!-- <el-button type="success" icon="el-icon-refresh" @click="search(1)">刷新</el-button> -->
         </el-col>
       </el-row>
     </el-form>
@@ -19,8 +29,10 @@
       <el-col :span="24">
         <div>
           <el-table :data="tableData" border size="medium" class="fileService">
-            <el-table-column type="index" width="50" label="序号"></el-table-column>
-            <el-table-column type="taskID" width="300" label="任务ID">
+            <!-- <el-table-column type="index" width="50" label="序号"></el-table-column> -->
+            <el-table-column prop="CreateTime" label="创建时间" align="center"></el-table-column>
+            <el-table-column prop="taskTypeName" label="任务类型" align="center"></el-table-column>
+            <el-table-column type="taskID" width="300" label="任务ID" align="center">
               <template slot-scope="scope">
                 <el-button
                   @click="detailRow(scope.row)"
@@ -29,10 +41,7 @@
                 >{{scope.row.taskID}}</el-button>
               </template>
             </el-table-column>
-            <el-table-column prop="taskName" label="任务名称"></el-table-column>
-            <el-table-column prop="taskTypeName" label="任务类型"></el-table-column>
-            <el-table-column prop="taskStatusName" label="任务状态"></el-table-column>
-            <el-table-column prop="CreateTime" label="创建时间"></el-table-column>
+            <el-table-column prop="taskStatusName" label="任务状态" align="center"></el-table-column>
           </el-table>
           <el-row style="margin:20px 0px">
             <el-pagination
@@ -50,23 +59,21 @@
         </div>
       </el-col>
     </el-row>
-    <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="70%">
+    <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="80%">
       <!-- 任务详情List -->
       <el-row>
-      <el-col :span="24">
-        <div>
-          <el-table :data="detailData" border size="medium" class="detailTable">
-            <el-table-column type="index" width="50" label="序号"></el-table-column>
-            <el-table-column prop="id" width="200" label="ID"></el-table-column>
-            <el-table-column prop="taskId" width="200" label="任务ID"></el-table-column>
-            <el-table-column prop="terminalId" label="设备ID" width="100"></el-table-column>
-            <el-table-column prop="taskStatusName" label="任务状态" width="150" ></el-table-column>
-            <el-table-column prop="taskprogress" label="任务进度"></el-table-column>
-            <el-table-column prop="taskStep" label="任务步骤"></el-table-column>
-          </el-table>
-        </div>
-      </el-col>
-    </el-row>
+        <el-col :span="24">
+          <div>
+            <el-table :data="detailData" border size="medium" class="detailTable">
+              <el-table-column type="index" label="序号" width="50"></el-table-column>
+              <el-table-column prop="terminalId" label="设备ID" align="center"></el-table-column>
+              <el-table-column prop="taskStatusName" label="任务状态" align="center"></el-table-column>
+              <el-table-column prop="taskprogress" label="任务进度" align="center"></el-table-column>
+              <el-table-column prop="taskStep" label="任务步骤" align="center"></el-table-column>
+            </el-table>
+          </div>
+        </el-col>
+      </el-row>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">关 闭</el-button>
       </div>
@@ -82,13 +89,14 @@ export default {
       tableSize: 0,
       tableLimit: 10,
       searchItem: {
-        taskName: ""
+        taskName: "",
+        startTime: ""
       },
       dialogTitle: "",
       dialogFormVisible: false,
       detailData: [],
       detailSize: 0,
-      detailLimit: 10,
+      detailLimit: 10
     };
   },
   mounted() {
@@ -99,6 +107,8 @@ export default {
       let param = "";
       if (this.searchItem.taskName !== "")
         param = "&taskName=" + this.searchItem.taskName;
+      if (this.searchItem.startTime !== "")
+        param = "&startTime=" + this.searchItem.startTime;
       this.$axios
         .post(
           baseUrl +
@@ -126,7 +136,7 @@ export default {
       this.$axios
         .post(baseUrl + "/admin/task-item/selTaskItemList?taskId=" + row.taskID)
         .then(res => {
-          this.detailData=res.data.data;
+          this.detailData = res.data.data;
           this.dialogFormVisible = true;
         })
         .catch(err => {

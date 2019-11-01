@@ -1,7 +1,7 @@
 <!--容器管理-->
 <template>
   <div id="containerManage">
-    <el-form :model="searchItem" ref="searchItem" label-width="auto">
+    <el-form :model="searchItem" ref="searchItem" label-width="auto" class="searchForm">
       <el-row>
         <el-col :span="6">
           <el-form-item label="容器名称" prop="name">
@@ -29,9 +29,9 @@
             class="containerTable"
             @selection-change="getRowDatas"
           >
-            <el-table-column type="selection" width="55"></el-table-column>
+            <!-- <el-table-column type="selection" width="55"></el-table-column> -->
             <!-- <el-table-column type="index" width="50" label="序号"></el-table-column> -->
-            <el-table-column prop="containerName" width="130" label="容器名称">
+            <el-table-column prop="containerName" align="center" width="130" label="容器名称">
               <template slot-scope="scope">
                 <el-button
                   @click="detailRow(scope.row)"
@@ -40,40 +40,40 @@
                 >{{scope.row.name}}</el-button>
               </template>
             </el-table-column>
-            <el-table-column prop="type" label="容器类型"></el-table-column>
-            <el-table-column prop="vendor" label="开发商"></el-table-column>
-            <el-table-column prop="version" label="容器版本"></el-table-column>
-            <el-table-column prop="baseVersion" label="基础包版本"></el-table-column>
-            <el-table-column prop="isIncrementPkg" label="是否升级包">
+            <el-table-column prop="type" label="容器类型" align="center">
+              <template slot-scope="scope">
+                <span v-if="scope.row.type==='0'">华为</span>
+                <span v-if="scope.row.type==='1'">智芯</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="vendor" label="开发商" align="center"></el-table-column>
+            <el-table-column prop="version" label="容器版本" align="center"></el-table-column>
+            <el-table-column prop="isIncrementPkg" label="是否升级包" align="center">
               <template slot-scope="scope">
                 <span v-if="!scope.row.isIncrementPkg">否</span>
                 <span v-if="scope.row.isIncrementPkg">是</span>
               </template>
             </el-table-column>
-            <el-table-column prop="releaseTime" width="130" label="发布时间" :formatter="dateFormat"></el-table-column>
-            <el-table-column prop="description" width="150" label="说明"></el-table-column>
-            <el-table-column prop="options" label="操作" width="180">
+            <el-table-column prop="releaseTime" width="130" label="发布时间" align="center"></el-table-column>
+            <el-table-column prop="description" width="150" label="说明" align="center"></el-table-column>
+            <el-table-column prop="options" label="操作" align="center" width="250">
               <template slot-scope="scope">
-                <!-- <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
-                <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>-->
+                <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
                 <el-button @click="toInstallDialog(scope.row,false)" type="text" size="medium">安装</el-button>
-                <el-button
-                  @click="toInstallDialog(scope.row,true)"
-                  type="text"
-                  size="medium"
-                >查询已安装设备</el-button>
+                <el-button @click="toInstallDialog(scope.row,true)" type="text" size="medium">查询设备</el-button>
+                <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
           <el-row style="margin:20px 0px">
             <el-button-group>
-              <el-button
+              <!-- <el-button
                 type="success"
                 round
                 size="small"
                 icon="el-icon-refresh"
                 @click="search(1,10)"
-              >刷新</el-button>
+              >刷新</el-button>-->
               <el-button
                 type="primary"
                 round
@@ -84,7 +84,7 @@
             </el-button-group>
             <!-- <el-button type="primary" round size="small">
               <i class="el-icon-upload"></i>同步容器
-            </el-button> -->
+            </el-button>-->
             <el-pagination
               background
               @size-change="handleSizeChange"
@@ -101,7 +101,13 @@
       </el-col>
     </el-row>
     <!-- 新增/编辑弹窗 -->
-    <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="75%">
+    <el-dialog
+      :title="dialogTitle"
+      :visible.sync="dialogFormVisible"
+      :before-close="handleDialogClose"
+      @close="initProps"
+      width="85%"
+    >
       <!-- 容器form -->
       <el-row v-show="!ifInstallDialog&&!urlSelectVisible">
         <el-form
@@ -114,7 +120,12 @@
           <el-row v-if="!ifDialogDetail">
             <el-col :span="12">
               <el-form-item label="容器ID" prop="containerId">
-                <el-input v-model="dialogForm.containerId" placeholder="请输入容器ID"></el-input>
+                <span v-if="ifDialogEdit">{{dialogForm.containerId}}</span>
+                <el-input
+                  v-if="!ifDialogEdit"
+                  v-model="dialogForm.containerId"
+                  placeholder="请输入容器ID"
+                ></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -133,12 +144,13 @@
           <el-row>
             <el-col :span="12">
               <el-form-item label="容器类型" prop="type">
-                <span v-if="ifDialogDetail">{{dialogForm.type}}</span>
+                <span v-if="ifDialogDetail&&dialogForm.type==='0'">华为</span>
+                <span v-if="ifDialogDetail&&dialogForm.type==='1'">智芯</span>
                 <el-input v-if="!ifDialogDetail" v-model="dialogForm.type" placeholder="请输入容器类型"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="发布时间" prop="releaseTime">
+              <el-form-item label="发布时间">
                 <span v-if="ifDialogDetail">{{dialogForm.releaseTime}}</span>
                 <el-date-picker
                   v-model="dialogForm.releaseTime"
@@ -174,18 +186,6 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="基础版本">
-                <span v-if="ifDialogDetail">{{dialogForm.baseVersion}}</span>
-                <el-input
-                  v-if="!ifDialogDetail"
-                  v-model="dialogForm.baseVersion"
-                  placeholder="请输入基础版本"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row v-if="!ifDialogDetail">
-            <el-col :span="12">
               <el-form-item label="容器url">
                 <span v-if="ifDialogDetail">{{dialogForm.url}}</span>
                 <el-input
@@ -196,6 +196,8 @@
                 ></el-input>
               </el-form-item>
             </el-col>
+          </el-row>
+          <el-row>
             <el-col :span="12">
               <el-form-item label="CPU核心数">
                 <span v-if="ifDialogDetail">{{dialogForm.minVcpus}}</span>
@@ -206,8 +208,6 @@
                 ></el-input>
               </el-form-item>
             </el-col>
-          </el-row>
-          <el-row>
             <el-col :span="12">
               <el-form-item label="文件大小(MB)">
                 <span v-if="ifDialogDetail">{{dialogForm.fileSizeMB}}</span>
@@ -218,6 +218,8 @@
                 ></el-input>
               </el-form-item>
             </el-col>
+          </el-row>
+          <el-row>
             <el-col :span="12">
               <el-form-item label="最大数据大小(MB)">
                 <span v-if="ifDialogDetail">{{dialogForm.minDataDiskMB}}</span>
@@ -228,8 +230,6 @@
                 ></el-input>
               </el-form-item>
             </el-col>
-          </el-row>
-          <el-row>
             <el-col :span="12">
               <el-form-item label="最小内存(MB)">
                 <span v-if="ifDialogDetail">{{dialogForm.minRamMB}}</span>
@@ -237,16 +237,6 @@
                   v-if="!ifDialogDetail"
                   v-model="dialogForm.minRamMB"
                   placeholder="请输入最小内存"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="占用Root盘大小(MB)">
-                <span v-if="ifDialogDetail">{{dialogForm.minRootDiskMB}}</span>
-                <el-input
-                  v-if="!ifDialogDetail"
-                  v-model="dialogForm.minRootDiskMB"
-                  placeholder="请输入占用Root盘大小"
                 ></el-input>
               </el-form-item>
             </el-col>
@@ -281,7 +271,7 @@
       </el-row>
       <!-- 安装设备List -->
       <el-row v-show="ifInstallDialog&&!urlSelectVisible">
-        <el-col :span="18">
+        <el-col :span="15">
           <el-row style="max-height: 300px;overflow:auto;">
             <el-table
               ref="multipleTable"
@@ -292,7 +282,7 @@
               @selection-change="handleSelectionChange"
             >
               <el-table-column type="selection" width="55"></el-table-column>
-              <el-table-column prop="deviceId" label="终端ID" width="320"></el-table-column>
+              <el-table-column prop="deviceId" label="终端ID" width="300"></el-table-column>
               <el-table-column prop="name" label="终端名称"></el-table-column>
               <el-table-column prop="deviceType" label="设备类型" width="120"></el-table-column>
               <el-table-column prop="status" label="终端状态">
@@ -318,12 +308,12 @@
             ></el-pagination>
           </el-row>
         </el-col>
-        <el-col :span="5" :offset="1">
+        <el-col :span="8" :offset="1">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
               <span>已选设备</span>
             </div>
-            <div>
+            <div style="max-height:250px;overflow: auto;">
               <ul>
                 <li v-for="(item,index) in selectedDevices" :key="index">
                   {{item.deviceId}}——
@@ -333,30 +323,15 @@
                   </el-button>
                 </li>
               </ul>
-              <el-button
-                v-show="ifGetInstalled"
-                type="danger"
-                plain
-                icon="el-icon-delete"
-                size="small"
-                @click="unInstallContainer()"
-              >卸载</el-button>
             </div>
           </el-card>
         </el-col>
       </el-row>
       <!-- 容器url选择 -->
       <el-row v-show="urlSelectVisible">
-        <el-button
-          type="primary"
-          size="mini"
-          icon="el-icon-d-arrow-left"
-          round
-          @click="urlSelectVisible=false"
-        >返回</el-button>
         <el-row style="max-height: 300px;overflow:auto;">
           <el-table :data="urlList" tooltip-effect="dark" style="width: 100%">
-            <el-table-column prop="fileName" label="名称">
+            <el-table-column prop="fileName" label="名称" align="center">
               <template slot-scope="scope">
                 <el-button
                   @click="selectUrlOption(scope.row)"
@@ -365,8 +340,13 @@
                 >{{scope.row.fileName}}</el-button>
               </template>
             </el-table-column>
-            <el-table-column prop="fileType" label="类型"></el-table-column>
-            <el-table-column prop="fileUrl" label="URL"></el-table-column>
+            <el-table-column prop="fileType" label="类型" v-if="false"></el-table-column>
+            <el-table-column prop="fileUrl" label="URL" align="center">
+              <template slot-scope="scope">
+                <img v-if="scope.row.fileType===0" :src="scope.row.fileUrl" height="30" width="30" />
+                <span v-if="scope.row.fileType!==0">{{scope.row.fileUrl}}</span>
+              </template>
+            </el-table-column>
           </el-table>
         </el-row>
         <el-row style="text-align: center;margin-top:10px;">
@@ -382,14 +362,30 @@
         </el-row>
       </el-row>
       <div slot="footer" class="dialog-footer">
-        <el-button v-show="!ifInstallDialog&&!ifDialogDetail" type="primary" @click="submitForm('dialogForm')">确 定</el-button>
-        <el-button v-show="!ifInstallDialog" @click="dialogFormVisible = false">取 消</el-button>
+        <!-- 新增/编辑footer -->
+        <el-button
+          v-show="!ifInstallDialog&&!ifDialogDetail&&!urlSelectVisible"
+          type="primary"
+          @click="submitForm('dialogForm')"
+        >保 存</el-button>
+        <el-button
+          v-show="!ifInstallDialog&&!ifDialogDetail&&!urlSelectVisible"
+          @click="dialogFormVisible = false"
+        >取 消</el-button>
+        <!-- url-footer -->
+        <el-button v-show="urlSelectVisible" @click="backForm()">返 回</el-button>
+        <!-- 安装footer -->
         <el-button
           v-show="ifInstallDialog&&!ifGetInstalled"
           type="primary"
           @click="installContainer()"
         >安 装</el-button>
         <el-button v-show="ifInstallDialog&&!ifGetInstalled" @click="dialogFormVisible = false">取 消</el-button>
+        <!-- 详情footer -->
+        <el-button v-show="ifDialogDetail" @click="dialogFormVisible = false">关 闭</el-button>
+        <!-- 卸载footer -->
+        <el-button v-show="ifGetInstalled" type="danger" plain @click="unInstallContainer()">卸载</el-button>
+        <el-button v-show="ifGetInstalled" @click="dialogFormVisible = false">取 消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -423,10 +419,8 @@ export default {
         minVcpus: "",
         minDataDiskMB: "",
         minRamMB: "",
-        minRootDiskMB: "",
         description: "",
-        releaseTime: "",
-        baseVersion: ""
+        releaseTime: ""
       },
       dialogRules: {
         containerId: [
@@ -441,6 +435,7 @@ export default {
           { required: true, message: "请选择是否升级", trigger: "change" }
         ]
       },
+      ifDialogEdit: false,
       ifInstallDialog: false,
       ifGetInstalled: false,
       currentContainer: {},
@@ -463,7 +458,11 @@ export default {
       ],
       urlCurrentPage: 1,
       urlPageSize: 10,
-      urlTotal: 0
+      urlTotal: 0,
+      /////////////////////////////////////////////////////////////
+      multipleSelectionAll: [], // 所有选中的数据包含跨页数据
+      multipleSelection: [], // 当前页选中的数据
+      idKey: "deviceId"
     };
   },
   mounted() {
@@ -509,17 +508,40 @@ export default {
       this.selectedRow = row;
       console.info(row);
     },
+    //关闭dialog还原属性
+    initProps() {
+      this.ifInstallDialog = false;
+      this.ifDialogDetail = false;
+      this.ifDialogEdit = false;
+      this.ifInstallDialog = false;
+      this.ifGetInstalled = false;
+      this.urlSelectVisible = false;
+    },
+    //监听"x"操作
+    handleDialogClose() {
+      if (this.urlSelectVisible) {
+        //url选择的返回事件
+        if (this.ifDialogEdit) this.dialogTitle = "编辑容器";
+        else this.dialogTitle = "新增容器";
+        this.urlSelectVisible = false;
+        return false;
+      } else {
+        this.dialogFormVisible = false;
+      }
+    },
+    backForm() {
+      if (this.ifDialogEdit) this.dialogTitle = "编辑容器";
+      else this.dialogTitle = "新增容器";
+      this.urlSelectVisible = false;
+    },
     //新增dialog
     add(formName) {
-      this.ifInstallDialog = false;
       this.dialogTitle = "新增容器";
-      this.ifDialogDetail = false;
       this.dialogForm = {};
       this.dialogFormVisible = true;
     },
     //详情dialog
     detailRow(row) {
-      this.ifInstallDialog = false;
       this.dialogTitle = "容器详细信息";
       this.ifDialogDetail = true;
       this.dialogForm = Object.assign({}, row);
@@ -527,39 +549,43 @@ export default {
     },
     //编辑dialog
     editRow(row) {
-      this.ifInstallDialog = false;
-      this.dialogTitle = "编辑终端";
-      this.ifDialogDetail = false;
+      this.dialogTitle = "编辑容器";
+      this.ifDialogEdit = true;
       this.dialogForm = Object.assign({}, row);
       this.dialogFormVisible = true;
     },
     //删除容器
     delRow(row) {
-      // if (this.selectedRow.length === 0) {
-      //   this.$message({
-      //     message: "请选择数据进行删除",
-      //     type: "warning"
-      //   });
-      // } else {
-      this.$confirm("是否确定删除     '" + row.name + "'     该容器?", "提示", {
+      this.$confirm("是否确定删除容器——'" + row.name + "?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
         .then(() => {
           let ids = [];
-          // this.$axios.post('',{
-          //   id:row.id,'
-          // }).then((res)=>{
-          //   this.search(page);
-          // }).catch((err)=>{
-          //   console.log(err);
-          // });
-
-          this.$message({
-            type: "success",
-            message: "删除成功!"
-          });
+          this.$axios
+            .delete(
+              baseUrl +
+                "/admin/containers/delete?containerId=" +
+                row.containerId
+            )
+            .then(res => {
+              if (res.data.errcode === "0") {
+                this.$message({
+                  type: "success",
+                  message: "删除成功!"
+                });
+                this.search(1);
+              } else {
+                this.$message({
+                  type: "error",
+                  message: "删除失败!"
+                });
+              }
+            })
+            .catch(err => {
+              console.log(err);
+            });
         })
         .catch(() => {
           this.$message({
@@ -567,75 +593,85 @@ export default {
             message: "已取消删除"
           });
         });
-      // }
     },
     //提交新增/编辑
     submitForm(formName) {
-      if (this.urlSelectVisible) {
-        this.$message({
-          message: "请选择容器url后，填写完整的容器信息，进行提交",
-          type: "warning"
-        });
-      } else {
-        this.$refs[formName].validate(valid => {
-          if (valid) {
-            if (this.dialogTitle.indexOf("新增") > -1) {
-              let addParam = {
-                containerId: this.dialogForm.containerId,
-                containerName: this.dialogForm.name,
-                containerType: Number(this.dialogForm.type),
-                isIncrementPkg: true,
-                releaseTime: this.dialogForm.releaseTime,
-                version: this.dialogForm.version,
-                bseVersion: this.dialogForm.baseVersion,
-                developer: this.dialogForm.vendor,
-                url: this.dialogForm.url,
-                description: this.dialogForm.description,
-                logo: this.dialogForm.logo,
-                fileSizeMB: Number(this.dialogForm.fileSizeMB),
-                minVcpus: Number(this.dialogForm.minVcpus),
-                minDataDiskMB: Number(this.dialogForm.minDataDiskMB),
-                minRamMB: Number(this.dialogForm.minRamMB),
-                minRootDiskMB: Number(this.dialogForm.minRootDiskMB)
-              };
-              if (this.dialogForm.isIncrementPkg === "false")
-                addParam.isIncrementPkg = false;
-              let config = {
-                headers: {
-                  "Content-Type": "application/json"
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          let param = {
+            containerId: this.dialogForm.containerId,
+            containerName: this.dialogForm.name,
+            containerType: Number(this.dialogForm.type),
+            isIncrementPkg: true,
+            releaseTime: this.dialogForm.releaseTime,
+            version: this.dialogForm.version,
+            developer: this.dialogForm.vendor,
+            url: this.dialogForm.url,
+            description: this.dialogForm.description,
+            logo: this.dialogForm.logo,
+            fileSizeMB: Number(this.dialogForm.fileSizeMB),
+            minVcpus: Number(this.dialogForm.minVcpus),
+            minDataDiskMB: Number(this.dialogForm.minDataDiskMB),
+            minRamMB: Number(this.dialogForm.minRamMB),
+            minRootDiskMB: 0
+          };
+          if (this.dialogForm.isIncrementPkg === "false")
+            param.isIncrementPkg = false;
+          let config = {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          };
+          if (this.dialogTitle.indexOf("新增") > -1) {
+            this.$axios
+              .post(baseUrl + "/admin/containers/add", param, config)
+              .then(res => {
+                if (res.data.errcode === "0") {
+                  this.dialogFormVisible = false;
+                  this.$message({
+                    message: "添加成功",
+                    type: "success"
+                  });
+                  this.search(1);
+                } else {
+                  this.$message({
+                    message: res.data.errmsg,
+                    type: "error"
+                  });
                 }
-              };
-              this.$axios
-                .post(baseUrl + "/admin/containers/add", addParam, config)
-                .then(res => {
-                  if (res.data.success) {
-                    this.dialogFormVisible = false;
-                    this.$message({
-                      message: "添加成功",
-                      type: "success"
-                    });
-                    this.$refs[formName].resetFields();
-                    this.search(1);
-                  } else {
-                    this.$message({
-                      message: res.data.errmsg,
-                      type: "error"
-                    });
-                  }
-                })
-                .catch(err => {
-                  console.log(err);
-                });
-            }
-            //编辑
-            else {
-            }
-          } else {
-            console.log("error submit!!");
-            return false;
+              })
+              .catch(err => {
+                console.log(err);
+              });
           }
-        });
-      }
+          //编辑
+          else {
+            this.$axios
+              .put(baseUrl + "/admin/containers/edit", param, config)
+              .then(res => {
+                if (res.data.errcode === "0") {
+                  this.dialogFormVisible = false;
+                  this.$message({
+                    message: "修改成功",
+                    type: "success"
+                  });
+                  this.search(1);
+                } else {
+                  this.$message({
+                    message: res.data.errmsg,
+                    type: "error"
+                  });
+                }
+              })
+              .catch(err => {
+                console.log(err);
+              });
+          }
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
     },
     //容器列表分页操作
     handleSizeChange(val) {
@@ -657,51 +693,7 @@ export default {
       this.getDeviceDialog(1);
       this.dialogFormVisible = true;
     },
-    //获取设备
-    getDeviceDialog(page) {
-      if (!this.ifGetInstalled) {
-        //查询可安装终端
-        this.$axios
-          .post(
-            baseUrl +
-              "/admin/terminal/devices/info?pageSize=" +
-              this.devicePageSize +
-              "&pageIndex=" +
-              page,
-            {}
-          )
-          .then(res => {
-            this.deviceTotal = res.data.data.totalRecord;
-            this.deviceList = res.data.data.data;
-            this.ifInstallDialog = true;
-          })
-          .catch(err => {
-            console.log(err);
-          });
-      } else {
-        //查询已安装设备
-        this.$axios
-          .post(
-            baseUrl + "/admin/containers/containerdeployinfo"
-            +"?containerDeployStatus=1&deviceSort="+''
-            +"&pageSize="+this.devicePageSize 
-            + "&pageIndex=" + page
-             +"&name="+this.currentContainer.name,{})
-          .then(res => {
-            if(res.data.data.devices!==null&&res.data.data.devices.length>0){
-              this.deviceList=[];
-              res.data.data.devices.forEach((item)=>{
-                if(item.containerDeployStatus.deployStatus===1)this.deviceList.push(item.deviceQueryResult);
-              });
-            }
-            this.deviceTotal = res.data.data.totalRecord;
-            this.ifInstallDialog = true;
-          })
-          .catch(err => {
-            console.log(err);
-          });
-      }
-    },
+
     //安装
     installContainer() {
       let optionNameArr = "",
@@ -710,27 +702,27 @@ export default {
         this.selectedDevices.forEach(item => {
           optionNameArr += item.name + ",";
           let m = {
-              containerInfo: {
-                incrementPkg: this.currentContainer.incrementPkg,
-                name: this.currentContainer.name,
-                releaseTime: this.currentContainer.releaseTime,
-                releaseUser: this.currentContainer.releaseUser,
-                type: this.currentContainer.type,
-                vendor: this.currentContainer.vendor,
-                version: this.currentContainer.version
-              },
-              containerconfig: {
-                containerName: this.currentContainer.name,
-                cpuCores: 0,
-                description: this.currentContainer.description,
-                diskSizeMB: 0,
-                memoryMB: 0,
-                openServices: "",
-                physicalInterfaces: "",
-                volumeSizeMB: 0
-              },
-              deviceId: item.deviceId
-            };
+            containerInfo: {
+              incrementPkg: this.currentContainer.incrementPkg,
+              name: this.currentContainer.name,
+              releaseTime: this.currentContainer.releaseTime,
+              releaseUser: this.currentContainer.releaseUser,
+              type: this.currentContainer.type,
+              vendor: this.currentContainer.vendor,
+              version: this.currentContainer.version
+            },
+            containerconfig: {
+              containerName: this.currentContainer.name,
+              cpuCores: 0,
+              description: this.currentContainer.description,
+              diskSizeMB: 0,
+              memoryMB: 0,
+              openServices: "",
+              physicalInterfaces: "",
+              volumeSizeMB: 0
+            },
+            deviceId: item.deviceId
+          };
           paramList.push(m);
         });
         this.$confirm(
@@ -751,10 +743,10 @@ export default {
               .post(
                 baseUrl + "/admin/containers/deploy",
                 { containerlist: paramList, update: false },
-                { headers: { "Content-Type": "application/json" }}
+                { headers: { "Content-Type": "application/json" } }
               )
               .then(res => {
-                if (res.data.errcode==="0") {
+                if (res.data.errcode === "0") {
                   this.$message({
                     type: "success",
                     message: "已完成安装"
@@ -763,7 +755,7 @@ export default {
                 } else {
                   this.$message({
                     type: "error",
-                    message: "安装失败,"+res.data.errmsg
+                    message: "安装失败," + res.data.errmsg
                   });
                 }
               })
@@ -812,11 +804,9 @@ export default {
         )
           .then(() => {
             this.$axios
-              .post(
-                baseUrl + "/admin/containers/uninstall",
-                paramList,
-                { headers: { "Content-Type": "application/json" } }
-              )
+              .post(baseUrl + "/admin/containers/uninstall", paramList, {
+                headers: { "Content-Type": "application/json" }
+              })
               .then(res => {
                 if (res.data.success) {
                   this.$message({
@@ -825,7 +815,6 @@ export default {
                   });
                   this.getDeviceDialog(1);
                   // this.dialogFormVisible = false;
-
                 } else {
                   this.$message({
                     type: "error",
@@ -850,14 +839,142 @@ export default {
         });
       }
     },
+    ////////////////////////////////////////
+    //获取设备
+    getDeviceDialog(page) {
+      if (!this.ifGetInstalled) {
+        //查询可安装终端
+        this.$axios
+          .post(
+            baseUrl +
+              "/admin/terminal/devices/info?pageSize=" +
+              this.devicePageSize +
+              "&pageIndex=" +
+              page,
+            {}
+          )
+          .then(res => {
+            this.deviceTotal = res.data.data.totalRecord;
+            this.deviceList = res.data.data.data;
+            this.ifInstallDialog = true;
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      } else {
+        //查询已安装设备
+        this.$axios
+          .post(
+            baseUrl +
+              "/admin/containers/containerdeployinfo" +
+              "?containerDeployStatus=1&deviceSort=" +
+              "" +
+              "&pageSize=" +
+              this.devicePageSize +
+              "&pageIndex=" +
+              page +
+              "&name=" +
+              this.currentContainer.name,
+            {}
+          )
+          .then(res => {
+            if (
+              res.data.data.devices !== null &&
+              res.data.data.devices.length > 0
+            ) {
+              this.deviceList = [];
+              res.data.data.devices.forEach(item => {
+                if (item.containerDeployStatus.deployStatus === 1)
+                  this.deviceList.push(item.deviceQueryResult);
+              });
+            }
+            this.deviceTotal = res.data.data.totalRecord;
+            setTimeout(() => {
+              this.setSelectRow();
+            }, 200);
+            this.ifInstallDialog = true;
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      }
+    },
+    // 设置选中的方法
+    setSelectRow() {
+      if (!this.multipleSelectionAll || this.multipleSelectionAll.length <= 0) {
+        return;
+      }
+      debugger;
+      console.info(this.multipleSelectionAll);
+      // 标识当前行的唯一键的名称
+      let idKey = this.idKey;
+      let selectAllIds = [];
+      let that = this;
+      this.multipleSelectionAll.forEach(row => {
+        selectAllIds.push(row[idKey]);
+      });
+      this.$refs.table.clearSelection();
+      for (var i = 0; i < this.deviceList.length; i++) {
+        if (selectAllIds.indexOf(this.deviceList[i][idKey]) >= 0) {
+          // 设置选中，记住table组件需要使用ref="table"
+          this.$refs.table.toggleRowSelection(this.deviceList[i], true);
+        }
+      }
+    },
+    // 记忆选择核心方法
+    changePageCoreRecordData() {
+      debugger;
+      // 标识当前行的唯一键的名称
+      let idKey = this.idKey;
+      let that = this;
+      // 如果总记忆中还没有选择的数据，那么就直接取当前页选中的数据，不需要后面一系列计算
+      if (this.multipleSelectionAll.length <= 0) {
+        this.multipleSelectionAll = this.multipleSelection;
+        return;
+      }
+      // 总选择里面的key集合
+      let selectAllIds = [];
+      this.multipleSelectionAll.forEach(row => {
+        selectAllIds.push(row[idKey]);
+      });
+      let selectIds = [];
+      // 获取当前页选中的id
+      this.multipleSelection.forEach(row => {
+        selectIds.push(row[idKey]);
+        // 如果总选择里面不包含当前页选中的数据，那么就加入到总选择集合里
+        if (selectAllIds.indexOf(row[idKey]) < 0) {
+          that.multipleSelectionAll.push(row);
+        }
+      });
+      let noSelectIds = [];
+      // 得到当前页没有选中的id
+      this.deviceList.forEach(row => {
+        if (selectIds.indexOf(row[idKey]) < 0) {
+          noSelectIds.push(row[idKey]);
+        }
+      });
+      noSelectIds.forEach(id => {
+        if (selectAllIds.indexOf(id) >= 0) {
+          for (let i = 0; i < that.multipleSelectionAll.length; i++) {
+            if (that.multipleSelectionAll[i][idKey] == id) {
+              // 如果总选择中有未被选中的，那么就删除这条
+              that.multipleSelectionAll.splice(i, 1);
+              break;
+            }
+          }
+        }
+      });
+      console.info(this.multipleSelectionAll);
+    },
     //获取选择设备
     handleSelectionChange(val) {
-      this.selectedDevices = val;
+      // table组件选中事件,记得加上@selection-change="handleSelectionChange"
+      this.multipleSelection = val;
     },
     //移除已选设备
     removeSelected(val) {
       this.selectedDevices.forEach((item, index) => {
-        if (item.name === val.name) {
+        if (item.deviceId === val.deviceId) {
           this.selectedDevices.splice(index, 1);
           this.$refs.multipleTable.toggleRowSelection(item, false);
           return false;
@@ -866,18 +983,28 @@ export default {
     },
     //设备列表操作
     deviceSizeChange(val) {
+      this.changePageCoreRecordData();
       this.devicePageSize = val;
       this.getDeviceDialog(1);
     },
     deviceCurrentChange(val) {
+      this.changePageCoreRecordData();
       this.getDeviceDialog(val);
     },
+    // 得到选中的所有数据
+    getAllSelectionData() {
+      // 再执行一次记忆勾选数据匹配，目的是为了在当前页操作勾选后直接获取选中数据
+      this.changePageCoreRecordData();
+      console.log(this.multipleSelectionAll);
+    },
+    ////////////////////////////////////////////////
     //容器url-dialog
     urlFocus(event, type) {
       console.info(event);
+      if (type === 2) this.dialogTitle = "容器url";
+      else this.dialogTitle = "图标url";
       this.currentUrlType = type;
       this.getUrls(1);
-      this.urlSelectVisible = true;
     },
     //获取Url
     getUrls(page) {
@@ -894,7 +1021,7 @@ export default {
         .then(res => {
           this.urlTotal = res.data.data.total;
           this.urlList = res.data.data.records;
-          return false;
+          this.urlSelectVisible = true;
         })
         .catch(err => {
           console.log(err);
@@ -904,6 +1031,8 @@ export default {
     selectUrlOption(row) {
       if (this.currentUrlType === 2) this.dialogForm.url = row.fileUrl;
       else this.dialogForm.logo = row.fileUrl;
+      if (this.ifDialogEdit) this.dialogTitle = "编辑容器";
+      else this.dialogTitle = "新增容器";
       this.urlSelectVisible = false;
     },
     //容器url列表分页
@@ -911,25 +1040,10 @@ export default {
       this.urlPageSize = val;
       this.getUrls(1);
     },
-    urlCurrentChange(val) {this.getUrls(val);},
-    //时间格式化
-    dateFormat(row, column, cellValue, index) {
-      const daterc = row[column.property];
-      if (daterc != null) {
-        const dateMat = new Date(
-          parseInt(daterc.replace("/Date(", "").replace(")/", ""), 10)
-        );
-        const year = dateMat.getFullYear();
-        const month = dateMat.getMonth() + 1;
-        const day = dateMat.getDate();
-        const hh = dateMat.getHours();
-        const mm = dateMat.getMinutes();
-        const ss = dateMat.getSeconds();
-        const timeFormat =
-          year + "/" + month + "/" + day + " " + hh + ":" + mm + ":" + ss;
-        return timeFormat;
-      }
+    urlCurrentChange(val) {
+      this.getUrls(val);
     }
+    //////////////////////////////////////////////////////
   }
 };
 </script>

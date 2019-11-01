@@ -1,162 +1,136 @@
 <!--终端管理-->
 <template>
   <div id="terminalManege">
-    <el-tabs v-model="activeTab">
-      <!-- 总览tab页 -->
-      <el-tab-pane label="总览" name="allView">
-        <!-- 总览数据 -->
-        <el-row>
-          <el-col :span="5" v-for="(item,index) in allDataArr" :key="index" style="margin:0px 10px">
-            <el-card class="box-card allCard" shadow="hover" :body-style="{ padding:'15px'}">
-              <div slot="header" class="clearfix">
-                <span>{{item.title}}</span>
-                <span class="pull-right" :class="item.color">{{item.timeTitle}}</span>
-              </div>
-              <h1 style="margin-left:20px">{{item.count}}</h1>
-              <!-- <small>{{item.smallTitle}}</small> -->
-              <!-- <div class="stat-percent" :class="item.color">
-                {{item.percent}}
-                <i :class="item.icon"></i>
-              </div>-->
-            </el-card>
-          </el-col>
-        </el-row>
-        <!-- 总览地图 -->
-        <el-row>
-          <el-col :span="20" :offset="2">
-            <div id="mapChart" style="height:400px"></div>
-          </el-col>
-        </el-row>
-      </el-tab-pane>
-      <!-- 详细列表tab -->
-      <el-tab-pane label="详细列表" name="detailView">
-        <el-form :model="searchItem" ref="searchItem" label-width="auto">
-          <el-row>
-            <el-col :span="6">
-              <el-form-item label="终端ID" prop="deviceId">
-                <el-input v-model="searchItem.deviceId" placeholder="请输入终端ID"></el-input>
-              </el-form-item>
+    <el-row>
+      <el-form :model="searchItem" ref="searchItem" label-width="auto" class="searchForm">
+        <el-col :span="4">
+          <el-form-item label="终端ID" prop="deviceId">
+            <el-input v-model="searchItem.deviceId" placeholder="终端ID"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="4">
+          <el-form-item prop="name" label="终端名称">
+            <el-input v-model="searchItem.name" placeholder="设备名称"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="4">
+          <el-form-item prop="deviceType" label="终端类型">
+            <el-select v-model="searchItem.deviceType" :placeholder="typeArr.title">
+              <el-option
+                v-for="item in typeArr.options"
+                :key="item.deviceType"
+                :label="item.name"
+                :value="item.deviceType"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="4">
+          <el-form-item prop="status" label="终端状态">
+            <el-select v-model="searchItem.status" :placeholder="statusArr.title">
+              <el-option
+                v-for="item in statusArr.options"
+                :key="item.value"
+                :label="item.name"
+                :value="item.value"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="4" :offset="1">
+          <el-button type="primary" @click="search(1)">查询</el-button>
+          <el-button type="default" @click="reset('searchItem')">重置</el-button>
+        </el-col>
+      </el-form>
+    </el-row>
+    <el-row>
+      <el-col :span="24">
+        <div>
+          <el-table
+            :data="tableData"
+            border
+            size="medium"
+            class="terminalTable"
+          >
+            <!-- <el-table-column type="selection" width="55"></el-table-column> -->
+            <el-table-column prop="deviceId" label="终端ID" align="center" width="180">
+              <template slot-scope="scope">
+                <el-button
+                  @click="detailRow(scope.row)"
+                  type="text"
+                  size="medium"
+                >{{scope.row.deviceId}}</el-button>
+              </template>
+            </el-table-column>
+            <el-table-column prop="name" label="终端名称"  width="150" align="center"></el-table-column>
+            <el-table-column prop="deviceType" label="设备类型" align="center"></el-table-column>
+            <el-table-column prop="version" label="终端版本" align="center"></el-table-column>
+            <el-table-column prop="status" label="终端状态" align="center">
+              <template slot-scope="scope">
+                <span v-if="scope.row.status===0" style="color:#67c23a">正常</span>
+                <span v-if="scope.row.status===1" style="color:orange">告警</span>
+                <span v-if="scope.row.status===2" style="color:red">故障</span>
+                <span v-if="scope.row.status===3" style="color:gray">离线</span>
+                <span v-if="scope.row.status===4" style="color:#000">未注册</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="registerTime" label="激活时间" align="center" width="160"></el-table-column>
+            <el-table-column prop="ip" label="终端ip" align="center"></el-table-column>
+            <el-table-column prop="mac" label="mac地址" align="center" width="150"></el-table-column>
+            <el-table-column prop="options" label="操作" align="center" width="100">
+              <template slot-scope="scope">
+                <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
+                <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
+                <!-- <el-button @click="restart(scope.row)" type="text" size="medium">重启</el-button>
+                <el-button @click="maintenance(scope.row)" type="text" size="medium">进入维护状态</el-button>
+                <el-button @click="pairRow(scope.row)" type="text" size="medium">对时</el-button> -->
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-row style="margin:20px 0px">
+            <el-col :span="4">
+              <!-- <el-button type="success" size="small" icon="el-icon-refresh" @click="search(1,10)">刷新</el-button> -->
+              <el-button
+                type="primary"
+                size="small"
+                icon="el-icon-plus"
+                @click="add('dialogForm')"
+                style="float:left"
+              >新增</el-button>
+            <el-upload
+              ref="upload"
+              action="/"
+              :show-file-list="false"
+              :on-change="importExcel"
+              :auto-upload="false"
+            >
+              <el-button slot="trigger" icon="el-icon-upload" size="small" type="primary" plain>批量导入</el-button>
+            </el-upload>
             </el-col>
-            <el-col :span="6">
-              <el-form-item prop="name" label="终端名称">
-                <el-input v-model="searchItem.name" placeholder="请输入设备名称"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="6">
-              <el-form-item prop="deviceType" label="终端类型">
-                <el-select v-model="searchItem.deviceType" :placeholder="typeArr.title">
-                  <el-option
-                    v-for="item in typeArr.options"
-                    :key="item.deviceType"
-                    :label="item.name"
-                    :value="item.deviceType"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="5" :offset="1">
-              <el-button type="primary" @click="search(1)">查询</el-button>
-              <el-button type="default" @click="reset('searchItem')">重置</el-button>
+            <el-col :span="20">
+            <el-pagination
+              background
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="1"
+              :page-sizes="[5, 10,15]"
+              :page-size="tableLimit"
+              layout="total, sizes, prev, pager, next"
+              :total="tableSize"
+              style="float: right"
+            ></el-pagination>
             </el-col>
           </el-row>
-        </el-form>
-        <el-row>
-          <el-col :span="24">
-            <div>
-              <el-table
-                :data="tableData"
-                border
-                size="medium"
-                class="terminalTable"
-                @selection-change="getRowDatas"
-              >
-                <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column prop="deviceId" label="终端ID" width="300">
-                  <template slot-scope="scope">
-                    <el-button
-                      @click="detailRow(scope.row)"
-                      type="text"
-                      size="medium"
-                    >{{scope.row.deviceId}}</el-button>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="name" label="终端名称"></el-table-column>
-                <el-table-column prop="ip" label="终端ip"></el-table-column>
-                <el-table-column prop="mac" label="mac地址"></el-table-column>
-                <el-table-column prop="deviceType" label="设备类型"></el-table-column>
-                <el-table-column prop="status" label="终端状态">
-                  <template slot-scope="scope">
-                    <span v-if="scope.row.status===0" style="color:#67c23a">正常</span>
-                    <span v-if="scope.row.status===1" style="color:orange">告警</span>
-                    <span v-if="scope.row.status===2" style="color:red">故障</span>
-                    <span v-if="scope.row.status===3" style="color:gray">离线</span>
-                    <span v-if="scope.row.status===4" style="color:#000">未注册</span>
-                  </template>
-                </el-table-column>
-                <el-table-column
-                  prop="registerTime"
-                  width="180"
-                  label="激活时间"
-                  :formatter="dateFormat"
-                ></el-table-column>
-                <el-table-column prop="options" label="操作" width="120">
-                  <template slot-scope="scope">
-                    <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
-                    <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
-                    <!-- <el-button @click="updateRow(scope.row)" type="text" size="medium">升级</el-button>
-                    <el-button @click="pairRow(scope.row)" type="text" size="medium">对时</el-button>-->
-                  </template>
-                </el-table-column>
-              </el-table>
-              <el-row style="margin:20px 0px">
-                <el-button-group style="float:left">
-                  <el-button
-                    type="success"
-                    size="small"
-                    icon="el-icon-refresh"
-                    @click="search(1,10)"
-                  >刷新</el-button>
-                  <el-button
-                    type="primary"
-                    size="small"
-                    icon="el-icon-plus"
-                    @click="add('dialogForm')"
-                  >新增</el-button>
-                </el-button-group>
-                <el-upload
-                  ref="upload"
-                  action="/"
-                  :show-file-list="false"
-                  :on-change="importExcel"
-                  :auto-upload="false"
-                >
-                  <el-button
-                    slot="trigger"
-                    icon="el-icon-upload"
-                    size="small"
-                    type="primary"
-                    plain
-                  >批量导入</el-button>
-                </el-upload>
-                <el-pagination
-                  background
-                  @size-change="handleSizeChange"
-                  @current-change="handleCurrentChange"
-                  :current-page="1"
-                  :page-sizes="[5, 10,15]"
-                  :page-size="tableLimit"
-                  layout="total, sizes, prev, pager, next"
-                  :total="tableSize"
-                  style="float: right"
-                ></el-pagination>
-              </el-row>
-            </div>
-          </el-col>
-        </el-row>
-      </el-tab-pane>
-    </el-tabs>
+        </div>
+      </el-col>
+    </el-row>
     <!-- 新增/编辑弹窗 -->
-    <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="75%">
+    <el-dialog 
+    :title="dialogTitle" 
+    :visible.sync="dialogFormVisible"
+    :before-close="handleDialogClose" 
+    @close="initProps"
+    width="75%">
       <!-- 终端form -->
       <el-row v-show="!ifAddContainer">
         <el-form
@@ -169,9 +143,9 @@
           <el-row>
             <el-col :span="12">
               <el-form-item label="终端ID" prop="deviceId">
-                <span v-if="ifDialogDetail">{{dialogForm.deviceId}}</span>
+                <span v-if="ifDialogDetail||ifDialogEdit">{{dialogForm.deviceId}}</span>
                 <el-input
-                  v-if="!ifDialogDetail"
+                  v-if="!ifDialogDetail&&!ifDialogEdit"
                   v-model="dialogForm.deviceId"
                   placeholder="请输入终端ID"
                   style="width:80%;float:left"
@@ -180,7 +154,7 @@
                   type="primary"
                   plain
                   size="mini"
-                  v-if="ifDialogEdit"
+                  v-if="ifDialogDetail"
                   style="float:right;margin:5px;"
                   @click="restart(dialogForm)"
                 >重启</el-button>
@@ -213,19 +187,7 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="12">
-              <el-form-item label="制造商">
-                <span v-if="ifDialogDetail||ifDialogEdit">{{dialogForm.vendor}}</span>
-                <el-input
-                  v-if="!ifDialogDetail&&!ifDialogEdit"
-                  v-model="dialogForm.vendor"
-                  placeholder="请输入制造商"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row v-if="ifDialogDetail">
-            <el-col :span="24">
+            <el-col :span="12" v-if="ifDialogDetail">
               <el-form-item label="终端版本">
                 <span style="float:left">{{dialogForm.version}}</span>
                 <!-- <el-button
@@ -234,7 +196,19 @@
                   size="mini"
                   style="float:right;margin:5px;"
                   @click="updateRow(dialogForm)"
-                >升级</el-button> -->
+                >升级</el-button>-->
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="制造商">
+                <span v-if="ifDialogDetail||ifDialogEdit">{{dialogForm.vendor}}</span>
+                <el-input
+                  v-if="!ifDialogDetail&&!ifDialogEdit"
+                  v-model="dialogForm.vendor"
+                  placeholder="请输入制造商"
+                ></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -251,21 +225,26 @@
                   type="primary"
                   plain
                   size="mini"
-                  v-if="ifDialogEdit"
+                  v-if="ifDialogDetail"
                   style="float:right;margin:5px;"
                   @click="maintenance(dialogForm)"
                 >进入维护状态</el-button>
               </el-form-item>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="12" v-if="ifDialogDetail">
               <el-form-item label="终端时间">
-                <span style="float:left">{{dialogForm.ActiveTime}}</span>
                 <el-button
                   type="primary"
                   plain
                   size="mini"
-                  v-if="ifDialogEdit"
-                  style="float:right;margin:5px;"
+                  style="float:left;margin:5px;"
+                  @click="getTerminalTime(dialogForm)"
+                >获取终端时间</el-button>
+                <el-button
+                  type="primary"
+                  plain
+                  size="mini"
+                  style="float:left;margin:5px;"
                   @click="pairRow(dialogForm)"
                 >对时</el-button>
               </el-form-item>
@@ -309,7 +288,7 @@
           </el-row>
           <el-row>
             <el-col :span="24">
-              <el-form-item label="描述信息">
+              <el-form-item label="描述信息" style="height:53px;">
                 <span v-if="ifDialogDetail">{{dialogForm.description}}</span>
                 <el-input
                   v-if="!ifDialogDetail"
@@ -338,7 +317,7 @@
                         circle
                         size="mini"
                         icon="el-icon-delete"
-                        @click='uninstallContainer(item)'
+                        @click="uninstallContainer(item)"
                       ></el-button>
                     </div>
                     <div class="el-col addConfig">
@@ -541,10 +520,15 @@
         </el-col>
       </el-row>
       <div slot="footer" class="dialog-footer">
-        <el-button v-show="!ifAddContainer&&(!ifDialogDetail||ifDialogEdit)" type="primary" @click="submitForm('dialogForm')">确 定</el-button>
-        <el-button v-show="!ifAddContainer" @click="dialogFormVisible = false">取 消</el-button>
+        <el-button
+          v-show="!ifAddContainer&&(!ifDialogDetail||ifDialogEdit)"
+          type="primary"
+          @click="submitForm('dialogForm')"
+        >保 存</el-button>
+        <el-button v-show="!ifDialogDetail&&!ifDialogDetail&&!ifAddContainer" @click="dialogFormVisible = false">取 消</el-button>
         <el-button v-show="ifAddContainer" type="primary" @click="submitFile()">安 装</el-button>
-        <el-button v-show="ifAddContainer" @click="ifAddContainer = false">取 消</el-button>
+        <el-button v-show="ifAddContainer" @click="ifAddContainer = false,dialogTitle='编辑终端'">取 消</el-button>
+        <el-button v-show="ifDialogDetail" @click="dialogFormVisible = false">关 闭</el-button>
       </div>
     </el-dialog>
     <!-- 文件预览dialog  -->
@@ -571,9 +555,7 @@
   </div>
 </template>
 <script>
-import shandongJson from "../../static/shandongData";//山东地图json
 import XLSX from "xlsx"; // npm导入库，命令：npm i xlsx@^0.14.1 -s
-const geoCoordMap = {};
 export default {
   name: "terminalManege",
   data() {
@@ -603,89 +585,24 @@ export default {
       searchItem: {
         deviceId: "",
         name: "",
-        deviceType: ""
+        deviceType: "",
+        status:""
       },
       typeArr: {
-        title: "请选择设备类型",
+        title: "设备类型",
         options: []
       },
-      allDataArr: [
-        {
-          title: "终端总数",
-          timeTitle: "当前",
-          smallTitle: "接入终端总数",
-          count: "0",
-          percent: "0%",
-          icon: "fa fa-long-arrow-up",
-          color: "blue"
-        },
-        {
-          title: "在线终端总数",
-          timeTitle: "当前",
-          smallTitle: "当前在线终端总数",
-          count: "0",
-          percent: "0%",
-          icon: "fa fa-long-arrow-up",
-          color: "green"
-        },
-        {
-          title: "已激活终端总数",
-          timeTitle: "当前",
-          smallTitle: "已激活终端",
-          count: "0",
-          percent: "0%",
-          icon: "fa fa-long-arrow-up",
-          color: "greenAll"
-        },
-        {
-          title: "未激活终端总数",
-          timeTitle: "当前",
-          smallTitle: "未激活终端",
-          count: "0",
-          percent: "0%",
-          icon: "fa fa-long-arrow-up",
-          color: "orange"
-        }
-      ],
-      geoCoordMap: {
-        济南市: [117.121225, 36.66466],
-        菏泽市: [115.480656, 35.23375],
-        济宁市: [116.59, 35.38],
-        德州市: [116.39, 37.45],
-        聊城市: [115.97, 36.45],
-        泰安市: [117.13, 36.18],
-        临沂市: [118.35, 35.05],
-        淄博市: [118.05, 36.78],
-        枣庄市: [117.57, 34.86],
-        滨州市: [118.03, 37.36],
-        潍坊市: [119.1, 36.62],
-        东营市: [118.49, 37.46],
-        青岛市: [120.3, 36.62],
-        烟台市: [120.9, 37.32],
-        威海市: [122.1, 37.2],
-        日照市: [119.1, 35.62],
-        济宁市: [116.7, 35.42],
-        莱芜市: [117.7, 36.28]
+      statusArr: {
+        title: "设备状态",
+        options: [
+          {value:"",name:"全部"},
+          {value:0,name:"正常"},
+          {value:1,name:"告警"},
+          {value:2,name:"故障"},
+          {value:3,name:"离线"},
+          {value:4,name:"未注册"}
+        ]
       },
-      mapData: [
-        { name: "济南市", value: 390 },
-        { name: "菏泽市", value: 158 },
-        { name: "德州市", value: 252 },
-        { name: "聊城市", value: 99 },
-        { name: "泰安市", value: 189 },
-        { name: "临沂市", value: 52 },
-        { name: "淄博市", value: 158 },
-        { name: "枣庄市", value: 152 },
-        { name: "滨州市", value: 189 },
-        { name: "潍坊市", value: 160 },
-        { name: "东营市", value: 80 },
-        { name: "青岛市", value: 180 },
-        { name: "烟台市", value: 190 },
-        { name: "威海市", value: 290 },
-        { name: "日照市", value: 190 },
-        { name: "济宁市", value: 190 },
-        { name: "莱芜市", value: 290 }
-      ],
       tableData: [],
       dialogTitle: "新增",
       dialogFormVisible: false,
@@ -728,7 +645,7 @@ export default {
       addTitle: "容器库",
       addDialogTypes: [],
       selectedType: "",
-      currentSelectedContainer:"",
+      currentSelectedContainer: "",
       appList: [],
       fileList: [
         { id: 0, fileName: "软件名1", count: 50, time: "2019年8月20日" },
@@ -751,14 +668,14 @@ export default {
         dir: "asc"
       },
       //////
-      previewExcel: {}
+      previewExcel: {},
+      homeStatus:""
     };
   },
   mounted() {
     this.getDeviceType();
+    if(this.$route.query.status!==undefined)this.searchItem.status=this.$route.query.status;
     this.search(1);
-    this.getMapData();
-    this.drawMap();
     ///////////////////
   },
   methods: {
@@ -779,13 +696,9 @@ export default {
       let param = {
         deviceId: this.searchItem.deviceId,
         name: this.searchItem.name,
-        deviceType: this.searchItem.deviceType
+        deviceType: this.searchItem.deviceType,
       };
-      // let param = "pageSize=" + this.tableLimit + "&pageIndex=" + page;
-      // Object.keys(this.searchItem).forEach(item => {
-      //   if (this.searchItem[item] !== "")
-      //     param += "&" + item + "=" + this.searchItem[item];
-      // });
+      if(this.searchItem.status!=="")param.status=parseInt(this.searchItem.status);
       this.$axios
         .post(
           baseUrl +
@@ -807,204 +720,22 @@ export default {
     reset(formName) {
       this.$refs[formName].resetFields();
     },
-    getRowDatas(row) {
-      this.selectedRow = row;
-      console.info(row);
+    //关闭dialog还原属性
+    initProps(){
+      this.ifDialogEdit = false;
+      this.ifDialogDetail = false;
+      this.ifAddContainer = false;
     },
-    //获取总览数据
-    getMapData() {
-      this.$axios
-        .post(baseUrl + "/admin/snapshoot/queryTerminalStatistic")
-        .then(res => {
-          if (res.data.success) {
-            this.allDataArr[0].count = res.data.data.terminalNum_total;
-            this.allDataArr[1].count = res.data.data.terminalNum_online;
-            this.allDataArr[2].count = res.data.data.terminalNum_active;
-            this.allDataArr[3].count = res.data.data.terminalNum_unconfirmed;
-          } else {
-            this.$message({
-              message: "查询失败",
-              type: "error"
-            });
-          }
-        })
-        .catch(err => {
-          console.log(err);
-        });
+    //监听"x"操作
+    handleDialogClose(){
+      if(this.ifAddContainer){//安装容器的返回事件
+        this.ifAddContainer=false;
+        this.dialogTitle="编辑终端";
+        return false;
+      }else {this.dialogFormVisible=false;}
     },
-    drawMap() {
-      let myChart = this.$echarts.init(document.getElementById("mapChart"));
-      this.$echarts.registerMap("shandong", shandongJson);
-      var max = 480,
-        min = 9; // todo
-      var maxSize4Pin = 100,
-        minSize4Pin = 20;
-      var option = {
-        tooltip: {
-          trigger: "item",
-          formatter: function(params) {
-            if (typeof params.value[2] == "undefined") {
-              return params.name + " : " + params.value;
-            } else {
-              return params.name + " : " + params.value[2];
-            }
-          }
-        },
-        legend: {
-          orient: "vertical",
-          y: "bottom",
-          x: "right",
-          data: ["pm2.5"],
-          textStyle: {
-            color: "#fff"
-          }
-        },
-        visualMap: {
-          show: true,
-          min: 0,
-          max: 400,
-          left: "10%",
-          top: "bottom",
-          calculable: true,
-          seriesIndex: [1],
-          inRange: {
-            color: ["#04387b", "#467bc0"] // 蓝绿
-          }
-        },
-        geo: {
-          show: true,
-          map: "shandong",
-          label: {
-            normal: {
-              show: false
-            },
-            emphasis: {
-              show: false
-            }
-          },
-          roam: true,
-          itemStyle: {
-            normal: {
-              areaColor: "#023677",
-              borderColor: "#3fdaff"
-            },
-            emphasis: {
-              areaColor: "#4499d0"
-            }
-          }
-        },
-        series: [
-          {
-            name: "light",
-            type: "scatter",
-            coordinateSystem: "geo",
-            data: this.convertData(this.mapData),
-            symbolSize: function(val) {
-              return val[2] / 30;
-            },
-            label: {
-              normal: {
-                formatter: "{b}",
-                position: "right",
-                show: true
-              },
-              emphasis: {
-                show: true
-              }
-            },
-            itemStyle: {
-              normal: {
-                color: "#F4E925"
-              }
-            }
-          },
-          {
-            type: "map",
-            map: "shandong",
-            geoIndex: 0,
-            aspectScale: 0.75, //长宽比
-            showLegendSymbol: false, // 存在legend时显示
-            label: {
-              normal: {
-                show: false
-              },
-              emphasis: {
-                show: false,
-                textStyle: {
-                  color: "#fff"
-                }
-              }
-            },
-            roam: true,
-            itemStyle: {
-              normal: {
-                areaColor: "#031525",
-                borderColor: "#FFFFFF"
-              },
-              emphasis: {
-                areaColor: "#2B91B7"
-              }
-            },
-            animation: false,
-            data: this.mapData
-          },
-          {
-            name: "Top 5",
-            type: "effectScatter",
-            coordinateSystem: "geo",
-            data: this.convertData(
-              this.mapData
-                .sort(function(a, b) {
-                  return b.value - a.value;
-                })
-                .slice(0, 5)
-            ),
-            symbolSize: function(val) {
-              return val[2] / 30;
-            },
-            showEffectOn: "render",
-            rippleEffect: {
-              brushType: "stroke"
-            },
-            hoverAnimation: true,
-            label: {
-              normal: {
-                formatter: "{b}",
-                position: "right",
-                show: true
-              }
-            },
-            itemStyle: {
-              normal: {
-                color: "#F4E925",
-                shadowBlur: 10,
-                shadowColor: "#05C3F9"
-              }
-            },
-            zlevel: 1
-          }
-        ]
-      };
-      myChart.setOption(option);
-      myChart.resize();
-    },
-    convertData(data) {
-        var res = [];
-        for (var i = 0; i < data.length; i++) {
-          var geoCoord = this.geoCoordMap[data[i].name];
-          if (geoCoord) {
-            res.push({
-              name: data[i].name,
-              value: geoCoord.concat(data[i].value)
-            });
-          }
-        }
-        return res;
-      },
     //详情dialog
     detailRow(row) {
-      this.ifAddContainer = false;
-      this.ifDialogEdit = false;
       this.ifDialogDetail = true;
       this.dialogTitle = "终端详细信息";
       this.dialogForm = Object.assign({}, row);
@@ -1017,9 +748,6 @@ export default {
     },
     //新增dialog
     add(formName) {
-      this.ifAddContainer = false;
-      this.ifDialogEdit = false;
-      this.ifDialogDetail = false;
       this.dialogTitle = "新增终端";
       this.dialogForm = {};
       this.dialogFormVisible = true;
@@ -1029,9 +757,7 @@ export default {
     },
     //编辑dialog
     editRow(row) {
-      this.ifAddContainer = false;
       this.ifDialogEdit = true;
-      this.ifDialogDetail = false;
       this.dialogTitle = "编辑终端";
       this.dialogForm = Object.assign({}, row);
       this.currentRow = Object.assign({}, row);
@@ -1100,7 +826,7 @@ export default {
               }
               this.dialogForm.containerArr.push(container);
             });
-            this.$forceUpdate();//v-for页面重新渲染
+            this.$forceUpdate(); //v-for页面重新渲染
           }
           console.info(this.dialogForm);
           if (this.ifAddContainer) this.ifAddContainer = false;
@@ -1119,13 +845,9 @@ export default {
       })
         .then(() => {
           this.$axios
-            .post(
-              baseUrl +
-                "/admin/terminal/restart?deviceId=" +
-                row.deviceId
-            )
+            .post(baseUrl + "/admin/terminal/restart?deviceId=" + row.deviceId)
             .then(res => {
-              if (res.data.errcode==="0") {
+              if (res.data.errcode === "0") {
                 this.$message({
                   message: res.data.errmsg,
                   type: "success"
@@ -1160,10 +882,11 @@ export default {
             .post(
               baseUrl +
                 "/admin/terminal/operation?deviceId=" +
-                row.deviceId+"&status=0"
+                row.deviceId +
+                "&status=0"
             )
             .then(res => {
-              if (res.data.errcode==="0") {
+              if (res.data.errcode === "0") {
                 this.$message({
                   message: res.data.errmsg,
                   type: "success"
@@ -1203,9 +926,13 @@ export default {
           });
         });
     },
+    //获取终端时间
+    getTerminalTime(row){
+
+    },
     //对时
-    pairRow() {
-      this.$confirm("是否确定对时——'" + this.currentRow.name + "'?", "提示", {
+    pairRow(row) {
+      this.$confirm("是否确定对时——'" + row.name + "'?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
@@ -1215,7 +942,7 @@ export default {
             .put(
               baseUrl +
                 "/admin/terminal/devices/clocksyn/" +
-                this.currentRow.deviceId
+                row.deviceId
             )
             .then(res => {
               if (res.data.success) {
@@ -1313,13 +1040,15 @@ export default {
       });
     },
     //添加容器/应用dialog
-    chooseFile(type,containerName) {
+    chooseFile(type, containerName) {
       if (type === "app") {
+        this.dialogTitle="安装应用";
         this.addSelectTitle = "已选应用";
         this.addTitle = "应用库";
-        this.currentSelectedContainer=containerName;
+        this.currentSelectedContainer = containerName;
         this.getApplications(1);
       } else {
+        this.dialogTitle="安装容器";
         this.addSelectTitle = "已选容器";
         this.addTitle = "容器库";
         this.getContainer(1);
@@ -1414,7 +1143,7 @@ export default {
           url = baseUrl + "/admin/app/deploy?isUpdate=false";
           this.fileSelectedList.forEach(item => {
             let m = {
-              containerName:this.currentSelectedContainer,
+              containerName: this.currentSelectedContainer,
               deviceId: this.currentRow.deviceId,
               name: item.appName,
               operateType: 0,
@@ -1682,24 +1411,6 @@ export default {
     handleClose(key, keyPath) {
       console.log(key, keyPath);
     },
-    dateFormat(row, column, cellValue, index) {
-      // const daterc = row[column.property];
-      // if (daterc != null) {
-      //   const dateMat = new Date(
-      //     parseInt(daterc.replace("/Date(", "").replace(")/", ""), 10)
-      //   );
-      //   const year = dateMat.getFullYear();
-      //   const month = dateMat.getMonth() + 1;
-      //   const day = dateMat.getDate();
-      //   const hh = dateMat.getHours();
-      //   const mm = dateMat.getMinutes();
-      //   const ss = dateMat.getSeconds();
-      //   const timeFormat =
-      //     year + "/" + month + "/" + day + " " + hh + ":" + mm + ":" + ss;
-      //   return cellValue;
-      // }
-      return cellValue;
-    },
     //预览(暂停使用)
     selectExcel(convertedData) {
       this.previewExcel = convertedData;
@@ -1714,52 +1425,6 @@ export default {
 .terminalTable {
   /* max-height: 500px; */
   overflow: auto;
-}
-.pull-right {
-  color: #ffffff;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 3px 8px;
-  text-shadow: none;
-}
-.allCard {
-  border: 1px solid #eee !important;
-}
-.allCard h1 {
-  font-size: 36px;
-  margin-bottom: 5px;
-}
-.el-card__header {
-  padding: 10px 20px !important;
-}
-.stat-percent {
-  color: #1c84c6;
-  font-weight: 600;
-  float: right;
-}
-.el-card__header .blue {
-  background-color: #1c84c6;
-}
-.el-card__header .green {
-  background-color: #23c6c8;
-}
-.el-card__header .greenAll {
-  background-color: #1ab394;
-}
-.el-card__header .orange {
-  background-color: rgba(240, 155, 119, 1);
-}
-.el-card__body .blue {
-  color: #1c84c6;
-}
-.el-card__body .green {
-  color: #23c6c8;
-}
-.el-card__body .greenAll {
-  color: #1ab394;
-}
-.el-card__body .orange {
-  color: rgba(240, 155, 119, 1);
 }
 .acForm .el-col {
   border-color: rgb(151, 195, 221);
