@@ -299,36 +299,39 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <div style="padding: 10px 0px;overflow: auto;">
+          <div v-if="!ifDialogDetail||dialogForm.containerArr.length>0"
+          style="padding: 10px 0px;overflow: auto;">
             <el-row>
-              <el-col :span="24" style="width:auto">
-                <el-form-item label="容器" style="height:30px">
+              <el-col :span="24" style="height:auto;width:auto">
+                <el-form-item label="容器" class="container" style="height:65px;">
                   <el-row type="flex">
                     <div
                       class="el-col addConfig"
                       v-for="(item,index) in dialogForm.containerArr"
                       :key="index"
                     >
-                      {{item.name}}
+                    <img src="../assets/img/container.png" height="45" width="45" style="float:left;margin:10px">
+                    <div class="title" style="float:left;margin:5%">
+                      <h4>{{item.containerName}}</h4>
+                      <h4>{{item.name}}</h4>
+                      </div>
                       <el-button
                         v-if="!ifDialogDetail"
-                        type="text"
                         plain
                         circle
+                        type="danger"
                         size="mini"
                         icon="el-icon-delete"
                         @click="uninstallContainer(item)"
                       ></el-button>
                     </div>
-                    <div class="el-col addConfig">
+                    <div v-if="!ifDialogDetail" class="el-col addConfig" style="height:65px;">
                       <el-button
-                        v-if="!ifDialogDetail"
-                        type="primary"
-                        plain
-                        circle
+                        round
                         size="mini"
                         icon="el-icon-plus"
                         @click="chooseFile('container')"
+                        style="margin: 5% 0px;"
                       ></el-button>
                     </div>
                   </el-row>
@@ -337,25 +340,26 @@
             </el-row>
             <el-row v-if="dialogForm.containerArr!==undefined&&dialogForm.containerArr.length>0">
               <el-col :span="24" style="height:auto;width:auto">
-                <el-form-item label="应用" class="lineHeight">
+                <el-form-item label="应用" class="application" style="height:150px;">
                   <el-row type="flex">
                     <div
                       class="el-col addConfig"
-                      style="min-height:95px"
+                      style="height:150px;overflow:auto"
                       v-for="(item,index) in dialogForm.containerArr"
                       :key="index"
                     >
                       <div
-                        style="padding:5px"
+                        style="float:left;width:100%;display: table-cell;"
                         v-for="(app,appIndex) in item.appList"
                         :key="appIndex"
                       >
-                        {{app}}
+                      <img src="../assets/img/application.png" height="20" width="20" style="margin:5px 10px;vertical-align: middle;">
+                        <span style="margin-top:5px;font-size:normal;vertical-align: middle;">{{app.name}}</span>
                         <el-button
                           v-if="!ifDialogDetail"
-                          type="text"
                           plain
                           circle
+                          type="danger"
                           size="mini"
                           icon="el-icon-delete"
                         ></el-button>
@@ -364,9 +368,7 @@
                         <el-button
                           style="padding:5px"
                           v-if="!ifDialogDetail"
-                          type="primary"
-                          plain
-                          circle
+                          round
                           size="mini"
                           icon="el-icon-plus"
                           @click="chooseFile('app',item.name)"
@@ -619,16 +621,7 @@ export default {
         mac: "",
         ActiveTime: "",
         description: "",
-        containerArr: [
-          // { name: "test1", appList: [{name: "test1" },{name: "test1" }] },
-          // { name: "test2", appList: [{name: "test1" }] },
-          // { name: "test3", appList: [{name: "test1" },{name: "test1" },{name: "test1" }] },
-          // { name: "test4", appList: [{name: "test1" }] },
-          // { name: "test5", appList: [{name: "test1" },{name: "test1" }] },
-          // { name: "test6", appList: [{name: "test1" },{name: "test1" },{name: "test1" }] },
-          // { name: "test7", appList: [{name: "test1" }] },
-          // { name: "test8", appList: [{name: "test1" }] }
-        ]
+        containerArr: []
       },
       dialogRules: {
         deviceId: [
@@ -816,7 +809,8 @@ export default {
             this.dialogForm.containerArr = [];
             res.data.data.forEach(item => {
               let container = {
-                name: item.containerConfig.containerName,
+                containerName:item.containerConfig.containerName,
+                name: item.containerInfo.name,
                 status: item.containerDeployStatus.deployStatus
               };
               if (item.containerConfig.openServices !== "") {
@@ -828,7 +822,6 @@ export default {
             });
             this.$forceUpdate(); //v-for页面重新渲染
           }
-          console.info(this.dialogForm);
           if (this.ifAddContainer) this.ifAddContainer = false;
           this.dialogFormVisible = true;
         })
@@ -945,7 +938,7 @@ export default {
                 row.deviceId
             )
             .then(res => {
-              if (res.data.success) {
+              if (res.data.errcode==="0") {
                 this.$message({
                   message: "对时成功",
                   type: "success"
@@ -984,7 +977,7 @@ export default {
             this.$axios
               .post(baseUrl + "/admin/terminal/devices", arr, config)
               .then(res => {
-                if (res.data.success) {
+                if (res.data.errcode==="0") {
                   this.dialogFormVisible = false;
                   this.$message({
                     message: "成功",
@@ -1343,7 +1336,7 @@ export default {
       this.$axios
         .post(baseUrl + "/admin/terminal/devices", paramArr, config)
         .then(res => {
-          if (res.data.success) {
+          if (res.data.errcode==="0") {
             loading.close();
             this.dialogFormVisible = false;
             this.excelShow = false;
@@ -1434,9 +1427,11 @@ export default {
   border-style: solid;
   text-align: center;
   line-height: 20px;
+  margin-top: -1px;
+  margin-right: -1px;
 }
 .acForm .el-form-item {
-  margin-bottom: 0px;
+  margin-bottom: -1px;
 }
 .list {
   max-height: 100px;
@@ -1454,9 +1449,10 @@ export default {
   text-align: center;
 }
 .addConfig {
-  width: 160px;
+  width: 200px;
   float: left;
 }
+.addConfig button{margin:5% 0px;}
 .previewView {
   max-height: 300px;
   overflow: auto;
@@ -1476,5 +1472,6 @@ export default {
 .previewTable > thead {
   background-color: #eff2f7;
 }
+
 </style>
 

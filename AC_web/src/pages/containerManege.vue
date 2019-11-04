@@ -274,12 +274,12 @@
         <el-col :span="15">
           <el-row style="max-height: 300px;overflow:auto;">
             <el-table
-              ref="multipleTable"
+              ref="deviceTable"
               :data="deviceList"
               tooltip-effect="dark"
               border
               style="width: 100%"
-              @selection-change="handleSelectionChange"
+              @select="rowChange"
             >
               <el-table-column type="selection" width="55"></el-table-column>
               <el-table-column prop="deviceId" label="终端ID" width="300"></el-table-column>
@@ -315,7 +315,7 @@
             </div>
             <div style="max-height:250px;overflow: auto;">
               <ul>
-                <li v-for="(item,index) in selectedDevices" :key="index">
+                <li v-for="(item,index) in multipleSelectionAll" :key="index">
                   {{item.deviceId}}——
                   {{item.name}}
                   <el-button type="text" @click="removeSelected(item)">
@@ -440,7 +440,6 @@ export default {
       ifGetInstalled: false,
       currentContainer: {},
       deviceList: [],
-      selectedDevices: [],
       deviceCurrentPage: 1,
       devicePageSize: 10,
       deviceTotal: 0,
@@ -516,6 +515,7 @@ export default {
       this.ifInstallDialog = false;
       this.ifGetInstalled = false;
       this.urlSelectVisible = false;
+      (this.multipleSelection = []), (this.multipleSelectionAll = []);
     },
     //监听"x"操作
     handleDialogClose() {
@@ -579,7 +579,7 @@ export default {
               } else {
                 this.$message({
                   type: "error",
-                  message: "删除失败!"
+                  message: "删除失败,"+res.data.errmsg
                 });
               }
             })
@@ -688,18 +688,17 @@ export default {
       this.ifGetInstalled = ifGetInstalled;
       this.currentContainer = Object.assign({}, row);
       this.deviceList = [];
-      this.selectedDevices = [];
+      this.multipleSelectionAll = [];
       this.ifInstallDialog = true;
       this.getDeviceDialog(1);
       this.dialogFormVisible = true;
     },
-
     //安装
     installContainer() {
       let optionNameArr = "",
         paramList = [];
-      if (this.selectedDevices.length > 0) {
-        this.selectedDevices.forEach(item => {
+      if (this.multipleSelectionAll.length > 0) {
+        this.multipleSelectionAll.forEach(item => {
           optionNameArr += item.name + ",";
           let m = {
             containerInfo: {
@@ -780,8 +779,8 @@ export default {
     unInstallContainer() {
       let optionNameArr = "",
         paramList = [];
-      if (this.selectedDevices.length > 0) {
-        this.selectedDevices.forEach(item => {
+      if (this.multipleSelectionAll.length > 0) {
+        this.multipleSelectionAll.forEach(item => {
           optionNameArr += item.name + ",";
           let param = {
             containerNames: [this.currentContainer.name],
@@ -808,7 +807,7 @@ export default {
                 headers: { "Content-Type": "application/json" }
               })
               .then(res => {
-                if (res.data.success) {
+                if (res.data.errcode==="0") {
                   this.$message({
                     type: "success",
                     message: "已完成卸载"
@@ -818,7 +817,7 @@ export default {
                 } else {
                   this.$message({
                     type: "error",
-                    message: "卸载失败"
+                    message: "卸载失败,"+res.data.errmsg
                   });
                 }
               })
@@ -854,6 +853,9 @@ export default {
             {}
           )
           .then(res => {
+            setTimeout(() => {
+              this.setSelectRow();
+            }, 200);
             this.deviceTotal = res.data.data.totalRecord;
             this.deviceList = res.data.data.data;
             this.ifInstallDialog = true;
@@ -878,6 +880,9 @@ export default {
             {}
           )
           .then(res => {
+            setTimeout(() => {
+              this.setSelectRow();
+            }, 200);
             if (
               res.data.data.devices !== null &&
               res.data.data.devices.length > 0
@@ -889,9 +894,6 @@ export default {
               });
             }
             this.deviceTotal = res.data.data.totalRecord;
-            setTimeout(() => {
-              this.setSelectRow();
-            }, 200);
             this.ifInstallDialog = true;
           })
           .catch(err => {
@@ -901,11 +903,10 @@ export default {
     },
     // 设置选中的方法
     setSelectRow() {
+      this.multipleSelection = [];
       if (!this.multipleSelectionAll || this.multipleSelectionAll.length <= 0) {
         return;
       }
-      debugger;
-      console.info(this.multipleSelectionAll);
       // 标识当前行的唯一键的名称
       let idKey = this.idKey;
       let selectAllIds = [];
@@ -913,23 +914,23 @@ export default {
       this.multipleSelectionAll.forEach(row => {
         selectAllIds.push(row[idKey]);
       });
-      this.$refs.table.clearSelection();
+      this.$refs.deviceTable.clearSelection();
       for (var i = 0; i < this.deviceList.length; i++) {
         if (selectAllIds.indexOf(this.deviceList[i][idKey]) >= 0) {
-          // 设置选中，记住table组件需要使用ref="table"
-          this.$refs.table.toggleRowSelection(this.deviceList[i], true);
+          // 设置选中，记住table组件需要使用ref="deviceTable"
+          this.$refs.deviceTable.toggleRowSelection(this.deviceList[i], true);
+          this.multipleSelection.push(this.deviceList[i]);
         }
       }
     },
     // 记忆选择核心方法
     changePageCoreRecordData() {
-      debugger;
       // 标识当前行的唯一键的名称
       let idKey = this.idKey;
       let that = this;
       // 如果总记忆中还没有选择的数据，那么就直接取当前页选中的数据，不需要后面一系列计算
       if (this.multipleSelectionAll.length <= 0) {
-        this.multipleSelectionAll = this.multipleSelection;
+        this.multipleSelectionAll = Object.assign([], this.multipleSelection);
         return;
       }
       // 总选择里面的key集合
@@ -966,18 +967,44 @@ export default {
       });
       console.info(this.multipleSelectionAll);
     },
-    //获取选择设备
+    //当页选择设备操作
+    rowChange(rows, row) {
+      this.multipleSelection = Object.assign([], rows);
+      let selected = rows.length && rows.indexOf(row) !== -1;
+      if (this.multipleSelectionAll.length === 0)
+        this.multipleSelectionAll =  Object.assign([], rows);
+      else {
+        if (selected) {
+          //新增选中
+          this.multipleSelectionAll.push(row);
+        } else {
+          //取消选中
+          this.multipleSelectionAll.forEach((item, index) => {
+            if (item.deviceId === row.deviceId) {
+              this.multipleSelectionAll.splice(index, 1);
+              return false;
+            }
+          });
+        }
+      }
+    },
     handleSelectionChange(val) {
       // table组件选中事件,记得加上@selection-change="handleSelectionChange"
       this.multipleSelection = val;
     },
     //移除已选设备
     removeSelected(val) {
-      this.selectedDevices.forEach((item, index) => {
+      let delParam = {};
+      this.multipleSelectionAll.forEach((item, index) => {
         if (item.deviceId === val.deviceId) {
-          this.selectedDevices.splice(index, 1);
-          this.$refs.multipleTable.toggleRowSelection(item, false);
-          return false;
+          this.multipleSelectionAll.splice(index, 1);
+          delParam = Object.assign({}, item);
+        }
+      });
+      this.multipleSelection.forEach((item,index) => {
+        if (delParam.deviceId === item.deviceId) {
+            this.$refs.deviceTable.toggleRowSelection(item, false);
+            this.multipleSelection.splice(index,1);
         }
       });
     },

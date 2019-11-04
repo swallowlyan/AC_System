@@ -53,16 +53,23 @@
             <el-table-column prop="appReleaseTime" width="130" label="发布时间" align="center"></el-table-column>
             <el-table-column prop="containerType" label="容器类型" align="center"></el-table-column>
             <el-table-column prop="containerVersion" label="容器版本" align="center"></el-table-column>
-            <el-table-column prop="options" label="操作" width="100" align="center">
+            <el-table-column prop="options" label="操作" width="180" align="center">
               <template slot-scope="scope">
                 <!-- <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</!-->
                 <el-button @click="toInstallDialog(scope.row,false)" type="text" size="medium">安装</el-button>
+                <el-button @click="toInstallDialog(scope.row,true)" type="text" size="medium">查询设备</el-button>
                 <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
           <el-row style="margin:20px 0px">
-            <el-button type="primary" round icon="el-icon-plus" size="small" @click="add('dialogForm')">新增</el-button>
+            <el-button
+              type="primary"
+              round
+              icon="el-icon-plus"
+              size="small"
+              @click="add('dialogForm')"
+            >新增</el-button>
             <el-pagination
               background
               @size-change="handleSizeChange"
@@ -79,11 +86,12 @@
       </el-col>
     </el-row>
     <!-- 新增/编辑弹窗 -->
-    <el-dialog 
-    :title="dialogTitle" 
-    :visible.sync="dialogFormVisible"
-    :before-close="handleDialogClose"
-     width="85%">
+    <el-dialog
+      :title="dialogTitle"
+      :visible.sync="dialogFormVisible"
+      :before-close="handleDialogClose"
+      width="85%"
+    >
       <!-- 微应用form -->
       <el-row v-show="!ifInstallDialog&&!urlSelectVisible">
         <el-form
@@ -232,11 +240,11 @@
         <el-col :span="15">
           <el-row style="max-height: 300px;overflow:auto;">
             <el-table
-              ref="multipleTable"
+              ref="deviceTable"
               :data="deviceList"
               tooltip-effect="dark"
               style="width: 100%"
-              @selection-change="handleSelectionChange"
+              @select="rowChange"
               row-key="deviceId"
               border
               lazy
@@ -244,10 +252,10 @@
               :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
             >
               <el-table-column type="selection" width="55"></el-table-column>
-              <el-table-column prop="deviceId" label="终端ID" width="300"></el-table-column>
+              <el-table-column prop="deviceId" label="终端ID" width="350"></el-table-column>
               <el-table-column prop="name" label="名称" width="100"></el-table-column>
-              <el-table-column prop="type" label="类型" width="120"></el-table-column>
-              <el-table-column prop="status" label="状态" width="50">
+              <el-table-column prop="type" label="类型"></el-table-column>
+              <el-table-column prop="status" label="状态">
                 <template slot-scope="scope">
                   <span v-if="scope.row.status===0" style="color:#67c23a">正常</span>
                   <span v-if="scope.row.status===1" style="color:orange">告警</span>
@@ -277,21 +285,13 @@
             </div>
             <div style="max-height:250px;overflow: auto;">
               <ul>
-                <li v-for="(item,index) in selectedContainer" :key="index">
+                <li v-for="(item,index) in multipleSelectionAll" :key="index">
                   {{item.name}}
                   <el-button type="text" @click="removeSelected(item)">
                     <i class="el-icon-close"></i>
                   </el-button>
                 </li>
               </ul>
-              <el-button
-                v-show="ifGetInstalled"
-                type="danger"
-                plain
-                icon="el-icon-delete"
-                size="small"
-                @click="unInstallContainer()"
-              >卸载</el-button>
             </div>
           </el-card>
         </el-col>
@@ -337,9 +337,15 @@
           type="primary"
           @click="submitForm('dialogForm')"
         >保 存</el-button>
-        <el-button v-show="!ifInstallDialog&&!ifDialogDetail&&!urlSelectVisible" @click="dialogFormVisible = false">取 消</el-button>
+        <el-button
+          v-show="!ifInstallDialog&&!ifDialogDetail&&!urlSelectVisible"
+          @click="dialogFormVisible = false"
+        >取 消</el-button>
         <!-- url footer -->
-        <el-button v-show="urlSelectVisible" @click="dialogTitle = '新增微应用',urlSelectVisible = false">返 回</el-button>
+        <el-button
+          v-show="urlSelectVisible"
+          @click="dialogTitle = '新增微应用',urlSelectVisible = false"
+        >返 回</el-button>
         <!-- 安装footer -->
         <el-button
           v-show="ifInstallDialog&&!ifGetInstalled"
@@ -349,6 +355,9 @@
         <el-button v-show="ifInstallDialog&&!ifGetInstalled" @click="dialogFormVisible = false">取 消</el-button>
         <!-- 详情footer -->
         <el-button v-show="ifDialogDetail" @click="dialogFormVisible = false">关 闭</el-button>
+        <!-- 卸载footer -->
+        <el-button v-show="ifGetInstalled" type="danger" plain @click="unInstallApplication()">卸载</el-button>
+        <el-button v-show="ifGetInstalled" @click="dialogFormVisible = false">取 消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -423,10 +432,10 @@ export default {
       ifInstallDialog: false,
       ifGetInstalled: false,
       deviceList: [],
-      selectedContainer: [],
       deviceCurrentPage: 1,
       devicePageSize: 10,
       deviceTotal: 0,
+      containerArr: [],
       urlSelectVisible: false,
       currentUrlType: "",
       urlList: [
@@ -435,7 +444,10 @@ export default {
       ],
       urlCurrentPage: 1,
       urlPageSize: 10,
-      urlTotal: 0
+      urlTotal: 0,
+      multipleSelectionAll: [], // 所有选中的数据包含跨页数据
+      multipleSelection: [], // 当前页选中的数据
+      idKey: "deviceId"
     };
   },
   mounted() {
@@ -602,7 +614,7 @@ export default {
       this.ifGetInstalled = ifGetInstalled;
       this.currentApp = Object.assign({}, row);
       this.deviceList = [];
-      this.selectedContainer = [];
+      this.multipleSelectionAll = [];
       this.ifDialogDetail = false;
       this.ifInstallDialog = true;
       this.getDeviceDialog(1);
@@ -653,13 +665,15 @@ export default {
               this.dialogForm.containerArr = [];
               res.data.data.forEach((item, index) => {
                 let child = {
-                  deviceId: "容器" + (index + 1),
+                  deviceId: tree.deviceId + "——容器" + (index + 1),
                   name: item.containerInfo.name,
                   type: item.containerInfo.type,
-                  parentId:tree.deviceId
+                  parentId: tree.deviceId
                 };
                 childList.push(child);
               });
+              if (this.containerArr.length === 0) this.containerArr = Object.assign([], childList);
+              else this.containerArr.concat(childList);
               resolve(childList);
             }
           } else {
@@ -679,8 +693,8 @@ export default {
       let optionNameArr = "",
         paramList = [];
       paramList = [];
-      if (this.selectedContainer.length > 0) {
-        this.selectedContainer.forEach(item => {
+      if (this.multipleSelectionAll.length > 0) {
+        this.multipleSelectionAll.forEach(item => {
           optionNameArr += item.name + ",";
         });
         this.$confirm(
@@ -697,7 +711,7 @@ export default {
           }
         )
           .then(() => {
-            this.selectedContainer.forEach(item => {
+            this.multipleSelectionAll.forEach(item => {
               let m = {
                 containerName: item.name,
                 deviceId: item.parentId,
@@ -746,38 +760,282 @@ export default {
         });
       }
     },
-    //选择设备容器操作
-    handleSelectionChange(val) {
-      this.selectedContainer = val;
-      this.selectedContainer.forEach((item, index) => {
-        if (Object.keys(item).length > 4) {
-          this.selectedContainer.splice(index, 1);
-          this.$refs.multipleTable.toggleRowSelection(item, false);
-          this.$message({
-            message: "请选择终端下的容器",
+    //卸载
+    unInstallApplication() {
+      let optionNameArr = "",
+        paramList = [];
+      if (this.selectedDevices.length > 0) {
+        this.selectedDevices.forEach(item => {
+          optionNameArr += item.name + ",";
+          let param = {
+            containerNames: [this.currentApp.name],
+            deviceId: item.deviceId
+          };
+          paramList.push(param);
+        });
+        this.$confirm(
+          "是否确定卸载设备——'" +
+            optionNameArr +
+            "'中的应用'" +
+            this.currentApp.name +
+            "'?",
+          "提示",
+          {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
             type: "warning"
+          }
+        )
+          .then(() => {
+            this.$axios
+              .post(baseUrl + "", paramList, {
+                headers: { "Content-Type": "application/json" }
+              })
+              .then(res => {
+                if (res.data.errcode==="0") {
+                  this.$message({
+                    type: "success",
+                    message: "已完成卸载"
+                  });
+                  this.getDeviceDialog(1);
+                } else {
+                  this.$message({
+                    type: "error",
+                    message: "卸载失败,"+res.data.errmsg
+                  });
+                }
+              })
+              .catch(err => {
+                console.log(err);
+              });
+          })
+          .catch(() => {
+            this.$message({
+              type: "info",
+              message: "已取消卸载"
+            });
           });
-          return false;
+      } else {
+        this.$message({
+          message: "请选择设备进行卸载",
+          type: "warning"
+        });
+      }
+    },
+    ////////////////////////////////////////
+    //获取设备
+    getDeviceDialog(page) {
+      if (!this.ifGetInstalled) {
+        //查询可安装终端
+        this.$axios
+          .post(
+            baseUrl +
+              "/admin/terminal/devices/info?pageSize=" +
+              this.devicePageSize +
+              "&pageIndex=" +
+              page,
+            {}
+          )
+          .then(res => {
+            setTimeout(() => {
+              this.setSelectRow();
+            }, 200);
+            this.deviceList = [];
+            if (res.data.data.data.length > 0) {
+              res.data.data.data.forEach(item => {
+                item.hasChildren = true;
+                item.type = item.deviceType;
+                item.children = [];
+                this.deviceList.push(item);
+              });
+              this.deviceTotal = res.data.data.totalRecord;
+              this.ifInstallDialog = true;
+            }
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      } else {
+        //查询已安装设备
+        this.$axios
+          .post(
+            baseUrl +
+              "" +
+              "" +
+              "&pageSize=" +
+              this.devicePageSize +
+              "&pageIndex=" +
+              page +
+              "&name=" +
+              this.currentApp.name,
+            {}
+          )
+          .then(res => {
+            setTimeout(() => {
+              this.setSelectRow();
+            }, 200);
+            if (
+              res.data.data.devices !== null &&
+              res.data.data.devices.length > 0
+            ) {
+              this.deviceList = [];
+              res.data.data.devices.forEach(item => {
+                if (item.containerDeployStatus.deployStatus === 1)
+                  this.deviceList.push(item.deviceQueryResult);
+              });
+            }
+            this.deviceTotal = res.data.data.totalRecord;
+            this.ifInstallDialog = true;
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      }
+    },
+    // 设置选中的方法
+    setSelectRow() {
+      this.multipleSelection = [];
+      if (!this.multipleSelectionAll || this.multipleSelectionAll.length <= 0) {
+        return;
+      }
+      // 标识当前行的唯一键的名称
+      let idKey = this.idKey;
+      let selectAllIds = [];
+      let that = this;
+      this.multipleSelectionAll.forEach(row => {
+        selectAllIds.push(row[idKey]);
+      });
+      this.$refs.deviceTable.clearSelection();
+      if (this.containerArr.length > 0) {
+        for (var i = 0; i < this.containerArr.length; i++) {
+          if (selectAllIds.indexOf(this.containerArr[i][idKey]) >= 0) {
+            // 设置选中，记住table组件需要使用ref="deviceTable"
+            this.$refs.deviceTable.toggleRowSelection(
+              this.containerArr[i],
+              true
+            );
+            this.multipleSelection.push(this.containerArr[i]);
+          }
+        }
+      }
+    },
+    // 记忆选择核心方法
+    changePageCoreRecordData() {
+      // 标识当前行的唯一键的名称
+      let idKey = this.idKey;
+      let that = this;
+      // 如果总记忆中还没有选择的数据，那么就直接取当前页选中的数据，不需要后面一系列计算
+      if (this.multipleSelectionAll.length <= 0) {
+        this.multipleSelectionAll = Object.assign([], this.multipleSelection);
+        return;
+      }
+      // 总选择里面的key集合
+      let selectAllIds = [];
+      this.multipleSelectionAll.forEach(row => {
+        selectAllIds.push(row[idKey]);
+      });
+      let selectIds = [];
+      // 获取当前页选中的id
+      this.multipleSelection.forEach(row => {
+        selectIds.push(row[idKey]);
+        // 如果总选择里面不包含当前页选中的数据，那么就加入到总选择集合里
+        if (selectAllIds.indexOf(row[idKey]) < 0) {
+          that.multipleSelectionAll.push(row);
         }
       });
+      let noSelectIds = [];
+      // 得到当前页没有选中的id
+      if (this.containerArr.length > 0) {
+        this.containerArr.forEach(row => {
+          if (selectIds.indexOf(row[idKey]) < 0) {
+            noSelectIds.push(row[idKey]);
+          }
+        });
+        noSelectIds.forEach(id => {
+          if (selectAllIds.indexOf(id) >= 0) {
+            for (let i = 0; i < that.multipleSelectionAll.length; i++) {
+              if (that.multipleSelectionAll[i][idKey] == id) {
+                // 如果总选择中有未被选中的，那么就删除这条
+                that.multipleSelectionAll.splice(i, 1);
+                break;
+              }
+            }
+          }
+        });
+      }
+      console.info(this.multipleSelectionAll);
     },
+    //当页选择设备操作
+    rowChange(rows, row) {
+      if (Object.keys(row).length < 5) {
+        this.multipleSelection = Object.assign([], rows);
+        let selected = rows.length && rows.indexOf(row) !== -1;
+        if (this.multipleSelectionAll.length === 0)
+          this.multipleSelectionAll = Object.assign([], rows);
+        else {
+          if (selected) {
+            //新增选中
+            this.multipleSelectionAll.push(row);
+          } else {
+            //取消选中
+            this.multipleSelectionAll.forEach((item, index) => {
+              if (item.deviceId === row.deviceId) {
+                this.multipleSelectionAll.splice(index, 1);
+                return false;
+              }
+            });
+          }
+        }
+      } else {
+        rows.forEach((item, index) => {
+          if (row.deviceId === item.deviceId) {
+            this.$refs.deviceTable.toggleRowSelection(item, false);
+            rows.splice(index, 1);
+          }
+        });
+        this.$message({
+          type: "warning",
+          message: "请选择容器进行操作"
+        });
+      }
+    },
+    handleSelectionChange(val) {
+      // table组件选中事件,记得加上@selection-change="handleSelectionChange"
+      this.multipleSelection = val;
+    },
+    //移除已选设备
     removeSelected(val) {
-      this.selectedContainer.forEach((item, index) => {
-        if (item.name === val.name) {
-          this.selectedContainer.splice(index, 1);
-          this.$refs.multipleTable.toggleRowSelection(item, false);
-          return false;
+      let delParam = {};
+      this.multipleSelectionAll.forEach((item, index) => {
+        if (item.deviceId === val.deviceId) {
+          this.multipleSelectionAll.splice(index, 1);
+          delParam = Object.assign({}, item);
+        }
+      });
+      this.multipleSelection.forEach((item, index) => {
+        if (delParam.deviceId === item.deviceId) {
+          this.$refs.deviceTable.toggleRowSelection(item, false);
+          this.multipleSelection.splice(index, 1);
         }
       });
     },
-    //设备列表分页
+    //设备列表操作
     deviceSizeChange(val) {
+      this.changePageCoreRecordData();
       this.devicePageSize = val;
       this.getDeviceDialog(1);
     },
     deviceCurrentChange(val) {
+      this.changePageCoreRecordData();
       this.getDeviceDialog(val);
     },
+    // 得到选中的所有数据
+    getAllSelectionData() {
+      // 再执行一次记忆勾选数据匹配，目的是为了在当前页操作勾选后直接获取选中数据
+      this.changePageCoreRecordData();
+      console.log(this.multipleSelectionAll);
+    },
+    ////////////////////////////////////////////////
     //应用Url-dialog
     urlFocus(event, type) {
       console.info(event);

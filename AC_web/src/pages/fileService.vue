@@ -57,8 +57,8 @@
                   <el-card class="box-card fileCard" :body-style="{padding:'10px'}">
                     <el-row style="height:110px;width:110px;">
                       <img v-if="item.fileType===0" :src="item.fileUrl" height="100%" width="100%" />
-                      <img v-if="item.fileType===1" src="./../../dist/static/img/application.png" height="100%" width="100%" />
-                      <img v-if="item.fileType===2" src="./../../dist/static/img/container.png" height="100%" width="100%" />
+                      <img v-if="item.fileType===1" src="../assets/img/application.png" height="100%" width="100%" />
+                      <img v-if="item.fileType===2" src="../assets/img/container.png" height="100%" width="100%" />
                     </el-row>
                     <el-row>
                       <h5>{{item.fileName}}</h5>
