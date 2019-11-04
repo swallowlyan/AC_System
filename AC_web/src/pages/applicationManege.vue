@@ -245,6 +245,7 @@
               tooltip-effect="dark"
               style="width: 100%"
               @select="rowChange"
+              @select-all="selecteAll"
               row-key="deviceId"
               border
               lazy
@@ -672,7 +673,8 @@ export default {
                 };
                 childList.push(child);
               });
-              if (this.containerArr.length === 0) this.containerArr = Object.assign([], childList);
+              if (this.containerArr.length === 0)
+                this.containerArr = Object.assign([], childList);
               else this.containerArr.concat(childList);
               resolve(childList);
             }
@@ -792,7 +794,7 @@ export default {
                 headers: { "Content-Type": "application/json" }
               })
               .then(res => {
-                if (res.data.errcode==="0") {
+                if (res.data.errcode === "0") {
                   this.$message({
                     type: "success",
                     message: "已完成卸载"
@@ -801,7 +803,7 @@ export default {
                 } else {
                   this.$message({
                     type: "error",
-                    message: "卸载失败,"+res.data.errmsg
+                    message: "卸载失败," + res.data.errmsg
                   });
                 }
               })
@@ -1002,6 +1004,13 @@ export default {
     handleSelectionChange(val) {
       // table组件选中事件,记得加上@selection-change="handleSelectionChange"
       this.multipleSelection = val;
+    },
+    //全选
+    selecteAll(rows) {
+      this.$message({
+        type: "warning",
+        message: "请选择设备下的容器进行操作"
+      });
     },
     //移除已选设备
     removeSelected(val) {

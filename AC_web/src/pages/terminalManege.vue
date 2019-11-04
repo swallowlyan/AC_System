@@ -459,11 +459,12 @@
                     <!-- 文件服务/容器循环 -->
                     <el-row style="max-height: 300px;overflow:auto;">
                       <el-table
-                        ref="multipleTable"
+                        ref="fileTable"
                         :data="fileList"
                         tooltip-effect="dark"
                         style="width: 100%"
-                        @selection-change="handleSelectionChange"
+                        @select="rowChange"
+                        @select-all="selecteAll"
                       >
                         <el-table-column type="selection"></el-table-column>
                         <!-- 容器column -->
@@ -479,6 +480,7 @@
                     </el-row>
                     <el-row style="text-align: center;margin-top:10px;">
                       <el-pagination
+                        ref="deviceTable"
                         @size-change="fileSizeChange"
                         @current-change="fileCurrentChange"
                         :current-page="fileCurrentPage"
@@ -663,7 +665,9 @@ export default {
       },
       //////
       previewExcel: {},
-      homeStatus:""
+      homeStatus:"",
+      multipleSelection: [], // 当前页选中的数据
+      idKey: "name"
     };
   },
   mounted() {
@@ -1033,6 +1037,14 @@ export default {
         }
       });
     },
+    //终端列表分页
+    handleSizeChange(val) {
+      this.tableLimit = val;
+      this.search(1);
+    },
+    handleCurrentChange(val) {
+      this.search(val);
+    },
     //添加容器/应用dialog
     chooseFile(type, containerName) {
       if (type === "app") {
@@ -1049,6 +1061,7 @@ export default {
       }
       this.getAddDialogType();
       this.fileSelectedList = [];
+      this.multipleSelection=[];
       this.ifAddContainer = true;
     },
     //获取容器/应用分类
@@ -1084,6 +1097,9 @@ export default {
           { headers: { "Content-Type": "application/json" } }
         )
         .then(res => {
+          setTimeout(() => {
+              this.setSelectRow();
+            }, 200);
           this.fileTotal = res.data.totalRecord;
           if (res.data.data.length > 0) {
             res.data.data.forEach(item => {
@@ -1114,6 +1130,9 @@ export default {
           appInfo
         )
         .then(res => {
+          setTimeout(() => {
+              this.setSelectRow();
+            }, 200);
           this.fileTotal = res.data.data.total;
           this.fileList = res.data.data.records;
         })
@@ -1250,20 +1269,147 @@ export default {
           });
       }
     },
-    //终端列表分页
-    handleSizeChange(val) {
-      this.tableLimit = val;
-      this.search(1);
+     //容器、应用操作//////////////////////////////////////
+    // 设置选中的方法
+    setSelectRow() {
+      this.multipleSelection = [];
+      // 标识当前行的唯一键的名称
+      if(this.addTitle.indexOf("容器")>-1)this.idKey="name";
+      else this.idKey="appId";
+      if (!this.fileSelectedList || this.fileSelectedList.length <= 0) {
+        return;
+      }
+      let idKey = this.idKey;
+      let selectAllIds = [];
+      let that = this;
+      this.fileSelectedList.forEach(row => {
+        selectAllIds.push(row[idKey]);
+      });
+      this.$refs.fileTable.clearSelection();
+      for (var i = 0; i < this.fileList.length; i++) {
+        if (selectAllIds.indexOf(this.fileList[i][idKey]) >= 0) {
+          // 设置选中，记住table组件需要使用ref="fileTable"
+          this.$refs.fileTable.toggleRowSelection(this.fileList[i], true);
+          this.multipleSelection.push(this.fileList[i]);
+        }
+      }
     },
-    handleCurrentChange(val) {
-      this.search(val);
+    // 记忆选择核心方法
+    changePageCoreRecordData() {
+      // 标识当前行的唯一键的名称
+      if(this.addTitle.indexOf("容器")>-1)this.idKey="name";
+      else this.idKey="appId";
+      let idKey = this.idKey;
+      let that = this;
+      // 如果总记忆中还没有选择的数据，那么就直接取当前页选中的数据，不需要后面一系列计算
+      if (this.fileSelectedList.length <= 0) {
+        this.fileSelectedList = Object.assign([], this.multipleSelection);
+        return;
+      }
+      // 总选择里面的key集合
+      let selectAllIds = [];
+      this.fileSelectedList.forEach(row => {
+        selectAllIds.push(row[idKey]);
+      });
+      let selectIds = [];
+      // 获取当前页选中的id
+      this.multipleSelection.forEach(row => {
+        selectIds.push(row[idKey]);
+        // 如果总选择里面不包含当前页选中的数据，那么就加入到总选择集合里
+        if (selectAllIds.indexOf(row[idKey]) < 0) {
+          that.fileSelectedList.push(row);
+        }
+      });
+      let noSelectIds = [];
+      // 得到当前页没有选中的id
+      this.fileList.forEach(row => {
+        if (selectIds.indexOf(row[idKey]) < 0) {
+          noSelectIds.push(row[idKey]);
+        }
+      });
+      noSelectIds.forEach(id => {
+        if (selectAllIds.indexOf(id) >= 0) {
+          for (let i = 0; i < that.fileSelectedList.length; i++) {
+            if (that.fileSelectedList[i][idKey] == id) {
+              // 如果总选择中有未被选中的，那么就删除这条
+              that.fileSelectedList.splice(i, 1);
+              break;
+            }
+          }
+        }
+      });
+      console.info(this.fileSelectedList);
     },
-    //添加容器/应用查询
-    searchFile() {
-      if (this.addTitle.indexOf("容器") != -1) this.getContainer(1);
-      else this.getApplications(1);
+    //当页选择设备操作
+    rowChange(rows, row) {
+      this.multipleSelection = Object.assign([], rows);
+      let selected = rows.length && rows.indexOf(row) !== -1;
+      if (this.fileSelectedList.length === 0)
+        this.fileSelectedList =  Object.assign([], rows);
+      else {
+        if (selected) {
+          //新增选中
+          this.fileSelectedList.push(row);
+        } else {
+          //取消选中
+          this.fileSelectedList.forEach((item, index) => {
+            if (item[this.idKey]=== row[this.idKey]) {
+              this.fileSelectedList.splice(index, 1);
+              return false;
+            }
+          });
+        }
+      }
     },
-    /////////////////////////////////////////////////////
+    handleSelectionChange(val) {
+      // table组件选中事件,记得加上@selection-change="handleSelectionChange"
+      this.multipleSelection = val;
+    },
+    //全选
+    selecteAll(rows){
+      if(this.fileSelectedList.length===0)this.fileSelectedList=Object.assign([],rows);
+      else this.fileSelectedList.concat(rows);
+      this.multipleSelection=Object.assign([],rows);
+    },
+    //移除已选设备
+    removeSelected(val) {
+      let delParam = {};
+      this.fileSelectedList.forEach((item, index) => {
+        if (item[this.idKey] === val[this.idKey]) {
+          this.fileSelectedList.splice(index, 1);
+          delParam = Object.assign({}, item);
+        }
+      });
+      this.multipleSelection.forEach((item,index) => {
+        if (delParam[this.idKey] === item[this.idKey]) {
+            this.$refs.fileTable.toggleRowSelection(item, false);
+            this.multipleSelection.splice(index,1);
+        }
+      });
+    },
+    // 得到选中的所有数据
+    getAllSelectionData() {
+      // 再执行一次记忆勾选数据匹配，目的是为了在当前页操作勾选后直接获取选中数据
+      this.changePageCoreRecordData();
+      console.log(this.fileSelectedList);
+    },
+     //添加容器/应用查询
+    searchFile(page) {
+      if (this.addTitle.indexOf("容器") != -1) this.getContainer(page);
+      else this.getApplications(page);
+    },
+    //容器/应用列表分页
+    fileSizeChange(val) {
+      this.changePageCoreRecordData();
+      this.filePageSize = val;
+      this.searchFile(1);
+    },
+    fileCurrentChange(val) {
+      this.changePageCoreRecordData();
+      this.searchFile(val);
+    },
+    ////////////////////////////////////////////////
+    ///上传操作//////////////////////////////////////////////////
     //批量上传预览
     importExcel(file) {
       // let file = file.files[0] // 使用传统的input方法需要加上这一步
@@ -1359,46 +1505,6 @@ export default {
         });
     },
     ///////////////////////////////////
-    //容器/应用列表分页
-    fileSizeChange(val) {
-      this.filePageSize = val;
-      this.fileParam = {
-        current: 1,
-        size: val,
-        sort: "id",
-        dir: "asc"
-      };
-      this.searchFile("");
-    },
-    fileCurrentChange(val) {
-      this.fileParam = {
-        current: val,
-        size: this.filePageSize,
-        sort: "id",
-        dir: "asc"
-      };
-      this.searchFile("");
-    },
-    handleSelectionChange(val) {
-      this.fileSelectedList = val;
-    },
-    removeSelected(val) {
-      this.fileSelectedList.forEach((item, index) => {
-        if (this.addTitle === "应用库") {
-          if (item.appName === val.appName) {
-            this.fileSelectedList.splice(index, 1);
-            this.$refs.multipleTable.toggleRowSelection(item, false);
-            return false;
-          }
-        } else {
-          if (item.name === val.name) {
-            this.fileSelectedList.splice(index, 1);
-            this.$refs.multipleTable.toggleRowSelection(item, false);
-            return false;
-          }
-        }
-      });
-    },
     handleOpen(key, keyPath) {
       console.log(key, keyPath);
     },

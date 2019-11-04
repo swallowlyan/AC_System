@@ -280,6 +280,7 @@
               border
               style="width: 100%"
               @select="rowChange"
+              @select-all="selecteAll"
             >
               <el-table-column type="selection" width="55"></el-table-column>
               <el-table-column prop="deviceId" label="终端ID" width="300"></el-table-column>
@@ -991,6 +992,12 @@ export default {
     handleSelectionChange(val) {
       // table组件选中事件,记得加上@selection-change="handleSelectionChange"
       this.multipleSelection = val;
+    },
+    //全选
+    selecteAll(rows){
+      if(this.multipleSelectionAll.length===0)this.multipleSelectionAll=Object.assign([],rows);
+      else this.multipleSelectionAll.concat(rows);
+      this.multipleSelection=Object.assign([],rows);
     },
     //移除已选设备
     removeSelected(val) {
