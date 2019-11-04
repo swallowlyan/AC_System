@@ -60,7 +60,7 @@ a:visited{
   padding: 0px;
   border-width: 1px;
   border-style: solid;
-  /* text-align: center; */
+  text-align: center;
   /* line-height: 20px; */
 }
 .acForm .el-form-item {
@@ -88,6 +88,9 @@ a:visited{
 }
 .lineHeight .el-form-item__label {
   line-height: 100px;
+}
+.lineHeight .el-form-item__content{
+  text-align: left;
 }
 .acForm .el-textarea__inner {
   height: 100%;

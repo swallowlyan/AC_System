@@ -287,13 +287,14 @@
             </el-col>
           </el-row>
           <el-row>
-            <el-col :span="24">
-              <el-form-item label="描述信息" style="height:53px;">
+            <el-col :span="24" style="height:100px">
+              <el-form-item label="描述信息" class="lineHeight">
                 <span v-if="ifDialogDetail">{{dialogForm.description}}</span>
                 <el-input
                   v-if="!ifDialogDetail"
                   v-model="dialogForm.description"
                   type="textarea"
+                  style="height:100px"
                   placeholder="请输入描述信息"
                 ></el-input>
               </el-form-item>
