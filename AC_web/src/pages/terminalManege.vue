@@ -1059,6 +1059,7 @@ export default {
         this.addTitle = "容器库";
         this.getContainer(1);
       }
+      this.searchFileItem="";
       this.getAddDialogType();
       this.fileSelectedList = [];
       this.multipleSelection=[];
