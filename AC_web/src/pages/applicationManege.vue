@@ -253,8 +253,9 @@
               :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
             >
               <el-table-column type="selection" width="55"></el-table-column>
-              <el-table-column prop="deviceId" label="终端ID" width="350"></el-table-column>
+              <el-table-column prop="deviceId" label="终端ID" width="250"></el-table-column>
               <el-table-column prop="name" label="名称" width="100"></el-table-column>
+              <el-table-column v-if="ifGetInstalled" prop="containerName" label="容器名称"></el-table-column>
               <el-table-column prop="type" label="类型"></el-table-column>
               <el-table-column prop="status" label="状态">
                 <template slot-scope="scope">
@@ -766,11 +767,12 @@ export default {
     unInstallApplication() {
       let optionNameArr = "",
         paramList = [];
-      if (this.selectedDevices.length > 0) {
+        if (this.selectedDevices.length > 0) {
         this.selectedDevices.forEach(item => {
           optionNameArr += item.name + ",";
           let param = {
-            containerNames: [this.currentApp.name],
+            appNames:[this.currentApp.name],
+            containerNames: item.containerNames,
             deviceId: item.deviceId
           };
           paramList.push(param);
@@ -790,7 +792,7 @@ export default {
         )
           .then(() => {
             this.$axios
-              .post(baseUrl + "", paramList, {
+              .post(baseUrl + "/admin/app/uninstall", paramList, {
                 headers: { "Content-Type": "application/json" }
               })
               .then(res => {

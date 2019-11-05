@@ -117,12 +117,12 @@ export default {
     };
   },
   mounted() {
-    this.getMapData();
+    this.getAllData();
     this.drawMap();
   },
   methods: {
     //获取总览数据
-    getMapData() {
+    getAllData() {
       this.$axios
         .post(baseUrl + "/admin/snapshoot/queryTerminalStatistic")
         .then(res => {
@@ -141,6 +141,10 @@ export default {
         .catch(err => {
           console.log(err);
         });
+    },
+    //获取地图数据
+    getMapData(){
+      
     },
     drawMap() {
       let myChart = this.$echarts.init(document.getElementById("mapChart"));
@@ -164,7 +168,7 @@ export default {
           orient: "vertical",
           y: "bottom",
           x: "right",
-          data: ["pm2.5"],
+          show:false,
           textStyle: {
             color: "#fff"
           }
@@ -193,6 +197,7 @@ export default {
             }
           },
           roam: true,
+          zoom:1.25,
           itemStyle: {
             normal: {
               areaColor: "#023677",

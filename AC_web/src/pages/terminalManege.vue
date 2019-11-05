@@ -379,6 +379,7 @@
                           type="danger"
                           size="mini"
                           icon="el-icon-delete"
+                          @click="uninstallApp(item,app)"
                         ></el-button>
                       </div>
                       <div>
@@ -761,6 +762,7 @@ export default {
       this.ifDialogDetail = true;
       this.dialogTitle = "终端详细信息";
       this.dialogForm = Object.assign({}, row);
+      this.currentRow = Object.assign({}, row);
       this.dialogForm.containerArr = [];
       this.getContainerDetail(row);
       // this.$nextTick(() => {
@@ -827,6 +829,7 @@ export default {
     },
     //获取终端对应容器
     getContainerDetail(row) {
+      //获取容器
       this.$axios
         .post(
           baseUrl +
@@ -857,6 +860,7 @@ export default {
         .catch(err => {
           console.log(err);
         });
+      //获取应用
     },
     //重启
     restart(row) {
@@ -1288,6 +1292,50 @@ export default {
           });
       }
     },
+    //卸载应用
+    uninstallApp(container, app) {
+      if (app.status !== 1) {
+        this.$message({
+          message: "该应用处于不可卸载状态，请重新选择",
+          type: "warning"
+        });
+      } else {
+        this.$confirm("是否卸载应用——'" + app.name + "'?", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        })
+          .then(() => {
+            let param = [
+              {
+                appNames: [app.name],
+                containerName: item.name,
+                deviceId: this.currentRow.deviceId
+              }
+            ];
+            this.$axios
+              .post(baseUrl + "/admin/app/uninstall", param)
+              .then(res => {
+                if (res.data.errcode === "0") {
+                  this.getContainerDetail(this.currentRow);
+                  this.$message({
+                    message: "已提交卸载信息，等待卸载",
+                    type: "success"
+                  });
+                }
+              })
+              .catch(err => {
+                console.log(err);
+              });
+          })
+          .catch(() => {
+            this.$message({
+              type: "info",
+              message: "已取消卸载"
+            });
+          });
+      }
+    },
     //容器、应用操作//////////////////////////////////////
     // 设置选中的方法
     setSelectRow() {
@@ -1391,16 +1439,18 @@ export default {
         if (this.fileSelectedList.length === 0)
           this.fileSelectedList = Object.assign([], rows);
         else {
-          rows.forEach((row,rowIndex)=>{
-            if(this.fileSelectedList.indexOf(row)<0)this.fileSelectedList.push(row);
-          })
+          rows.forEach((row, rowIndex) => {
+            if (this.fileSelectedList.indexOf(row) < 0)
+              this.fileSelectedList.push(row);
+          });
         }
         this.multipleSelection = Object.assign([], rows);
       } else {
         //当前页全部取消
         this.multipleSelection.forEach((item, index) => {
-          this.fileSelectedList.forEach((m,i)=>{
-            if(item[this.idKey]===m[this.idKey])this.fileSelectedList.splice(i,1);
+          this.fileSelectedList.forEach((m, i) => {
+            if (item[this.idKey] === m[this.idKey])
+              this.fileSelectedList.splice(i, 1);
           });
         });
         this.multipleSelection = [];
