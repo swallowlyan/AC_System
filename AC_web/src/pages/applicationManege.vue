@@ -284,7 +284,7 @@
             <div slot="header" class="clearfix">
               <span>已选容器</span>
             </div>
-            <div style="max-height:250px;overflow: auto;">
+            <div style="max-height:300px;overflow: auto;">
               <ul>
                 <li v-for="(item,index) in multipleSelectionAll" :key="index">
                   {{item.name}}

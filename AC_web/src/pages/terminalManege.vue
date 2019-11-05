@@ -46,12 +46,7 @@
     <el-row>
       <el-col :span="24">
         <div>
-          <el-table
-            :data="tableData"
-            border
-            size="medium"
-            class="terminalTable"
-          >
+          <el-table :data="tableData" border size="medium" class="terminalTable">
             <!-- <el-table-column type="selection" width="55"></el-table-column> -->
             <el-table-column prop="deviceId" label="终端ID" align="center" width="180">
               <template slot-scope="scope">
@@ -62,7 +57,7 @@
                 >{{scope.row.deviceId}}</el-button>
               </template>
             </el-table-column>
-            <el-table-column prop="name" label="终端名称"  width="150" align="center"></el-table-column>
+            <el-table-column prop="name" label="终端名称" width="150" align="center"></el-table-column>
             <el-table-column prop="deviceType" label="设备类型" align="center"></el-table-column>
             <el-table-column prop="version" label="终端版本" align="center"></el-table-column>
             <el-table-column prop="status" label="终端状态" align="center">
@@ -83,7 +78,7 @@
                 <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
                 <!-- <el-button @click="restart(scope.row)" type="text" size="medium">重启</el-button>
                 <el-button @click="maintenance(scope.row)" type="text" size="medium">进入维护状态</el-button>
-                <el-button @click="pairRow(scope.row)" type="text" size="medium">对时</el-button> -->
+                <el-button @click="pairRow(scope.row)" type="text" size="medium">对时</el-button>-->
               </template>
             </el-table-column>
           </el-table>
@@ -97,40 +92,47 @@
                 @click="add('dialogForm')"
                 style="float:left"
               >新增</el-button>
-            <el-upload
-              ref="upload"
-              action="/"
-              :show-file-list="false"
-              :on-change="importExcel"
-              :auto-upload="false"
-            >
-              <el-button slot="trigger" icon="el-icon-upload" size="small" type="primary" plain>批量导入</el-button>
-            </el-upload>
+              <el-upload
+                ref="upload"
+                action="/"
+                :show-file-list="false"
+                :on-change="importExcel"
+                :auto-upload="false"
+              >
+                <el-button
+                  slot="trigger"
+                  icon="el-icon-upload"
+                  size="small"
+                  type="primary"
+                  plain
+                >批量导入</el-button>
+              </el-upload>
             </el-col>
             <el-col :span="20">
-            <el-pagination
-              background
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-              :current-page="1"
-              :page-sizes="[5, 10,15]"
-              :page-size="tableLimit"
-              layout="total, sizes, prev, pager, next"
-              :total="tableSize"
-              style="float: right"
-            ></el-pagination>
+              <el-pagination
+                background
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="1"
+                :page-sizes="[5, 10,15]"
+                :page-size="tableLimit"
+                layout="total, sizes, prev, pager, next"
+                :total="tableSize"
+                style="float: right"
+              ></el-pagination>
             </el-col>
           </el-row>
         </div>
       </el-col>
     </el-row>
     <!-- 新增/编辑弹窗 -->
-    <el-dialog 
-    :title="dialogTitle" 
-    :visible.sync="dialogFormVisible"
-    :before-close="handleDialogClose" 
-    @close="initProps"
-    width="75%">
+    <el-dialog
+      :title="dialogTitle"
+      :visible.sync="dialogFormVisible"
+      :before-close="handleDialogClose"
+      @close="initProps"
+      width="75%"
+    >
       <!-- 终端form -->
       <el-row v-show="!ifAddContainer">
         <el-form
@@ -300,8 +302,10 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <div v-if="!ifDialogDetail||dialogForm.containerArr.length>0"
-          style="padding: 10px 0px;overflow: auto;">
+          <div
+            v-if="!ifDialogDetail||dialogForm.containerArr.length>0"
+            style="padding: 10px 0px;overflow: auto;"
+          >
             <el-row>
               <el-col :span="24" style="height:auto;width:auto">
                 <el-form-item label="容器" class="container" style="height:65px;">
@@ -311,10 +315,15 @@
                       v-for="(item,index) in dialogForm.containerArr"
                       :key="index"
                     >
-                    <img src="../assets/img/container.png" height="45" width="45" style="float:left;margin:10px">
-                    <div class="title" style="float:left;margin:5%">
-                      <h4>{{item.containerName}}</h4>
-                      <h4>{{item.name}}</h4>
+                      <img
+                        src="../assets/img/container.png"
+                        height="45"
+                        width="45"
+                        style="float:left;margin:10px"
+                      />
+                      <div class="title" style="float:left;margin:5%">
+                        <h4>{{item.containerName}}</h4>
+                        <h4>{{item.name}}</h4>
                       </div>
                       <el-button
                         v-if="!ifDialogDetail"
@@ -354,8 +363,15 @@
                         v-for="(app,appIndex) in item.appList"
                         :key="appIndex"
                       >
-                      <img src="../assets/img/application.png" height="20" width="20" style="margin:5px 10px;vertical-align: middle;">
-                        <span style="margin-top:5px;font-size:normal;vertical-align: middle;">{{app.name}}</span>
+                        <img
+                          src="../assets/img/application.png"
+                          height="20"
+                          width="20"
+                          style="margin:5px 10px;vertical-align: middle;"
+                        />
+                        <span
+                          style="margin-top:5px;font-size:normal;vertical-align: middle;"
+                        >{{app.name}}</span>
                         <el-button
                           v-if="!ifDialogDetail"
                           plain
@@ -501,7 +517,7 @@
             <div slot="header" class="clearfix">
               <span>{{addSelectTitle}}</span>
             </div>
-            <div>
+            <div style="max-height:300px;overflow: auto;">
               <!-- 已选容器 -->
               <ul v-if="addTitle!=='应用库'">
                 <li v-for="(item,index) in fileSelectedList" :key="index">
@@ -530,7 +546,10 @@
           type="primary"
           @click="submitForm('dialogForm')"
         >保 存</el-button>
-        <el-button v-show="!ifDialogDetail&&!ifDialogDetail&&!ifAddContainer" @click="dialogFormVisible = false">取 消</el-button>
+        <el-button
+          v-show="!ifDialogDetail&&!ifDialogDetail&&!ifAddContainer"
+          @click="dialogFormVisible = false"
+        >取 消</el-button>
         <el-button v-show="ifAddContainer" type="primary" @click="submitFile()">安 装</el-button>
         <el-button v-show="ifAddContainer" @click="ifAddContainer = false,dialogTitle='编辑终端'">取 消</el-button>
         <el-button v-show="ifDialogDetail" @click="dialogFormVisible = false">关 闭</el-button>
@@ -591,7 +610,7 @@ export default {
         deviceId: "",
         name: "",
         deviceType: "",
-        status:""
+        status: ""
       },
       typeArr: {
         title: "设备类型",
@@ -600,12 +619,12 @@ export default {
       statusArr: {
         title: "设备状态",
         options: [
-          {value:"",name:"全部"},
-          {value:0,name:"正常"},
-          {value:1,name:"告警"},
-          {value:2,name:"故障"},
-          {value:3,name:"离线"},
-          {value:4,name:"未注册"}
+          { value: "", name: "全部" },
+          { value: 0, name: "正常" },
+          { value: 1, name: "告警" },
+          { value: 2, name: "故障" },
+          { value: 3, name: "离线" },
+          { value: 4, name: "未注册" }
         ]
       },
       tableData: [],
@@ -665,14 +684,15 @@ export default {
       },
       //////
       previewExcel: {},
-      homeStatus:"",
+      homeStatus: "",
       multipleSelection: [], // 当前页选中的数据
       idKey: "name"
     };
   },
   mounted() {
     this.getDeviceType();
-    if(this.$route.query.status!==undefined)this.searchItem.status=this.$route.query.status;
+    if (this.$route.query.status !== undefined)
+      this.searchItem.status = this.$route.query.status;
     this.search(1);
     ///////////////////
   },
@@ -694,9 +714,10 @@ export default {
       let param = {
         deviceId: this.searchItem.deviceId,
         name: this.searchItem.name,
-        deviceType: this.searchItem.deviceType,
+        deviceType: this.searchItem.deviceType
       };
-      if(this.searchItem.status!=="")param.status=parseInt(this.searchItem.status);
+      if (this.searchItem.status !== "")
+        param.status = parseInt(this.searchItem.status);
       this.$axios
         .post(
           baseUrl +
@@ -719,18 +740,21 @@ export default {
       this.$refs[formName].resetFields();
     },
     //关闭dialog还原属性
-    initProps(){
+    initProps() {
       this.ifDialogEdit = false;
       this.ifDialogDetail = false;
       this.ifAddContainer = false;
     },
     //监听"x"操作
-    handleDialogClose(){
-      if(this.ifAddContainer){//安装容器的返回事件
-        this.ifAddContainer=false;
-        this.dialogTitle="编辑终端";
+    handleDialogClose() {
+      if (this.ifAddContainer) {
+        //安装容器的返回事件
+        this.ifAddContainer = false;
+        this.dialogTitle = "编辑终端";
         return false;
-      }else {this.dialogFormVisible=false;}
+      } else {
+        this.dialogFormVisible = false;
+      }
     },
     //详情dialog
     detailRow(row) {
@@ -814,7 +838,7 @@ export default {
             this.dialogForm.containerArr = [];
             res.data.data.forEach(item => {
               let container = {
-                containerName:item.containerConfig.containerName,
+                containerName: item.containerConfig.containerName,
                 name: item.containerInfo.name,
                 status: item.containerDeployStatus.deployStatus
               };
@@ -925,9 +949,7 @@ export default {
         });
     },
     //获取终端时间
-    getTerminalTime(row){
-
-    },
+    getTerminalTime(row) {},
     //对时
     pairRow(row) {
       this.$confirm("是否确定对时——'" + row.name + "'?", "提示", {
@@ -937,13 +959,9 @@ export default {
       })
         .then(() => {
           this.$axios
-            .put(
-              baseUrl +
-                "/admin/terminal/devices/clocksyn/" +
-                row.deviceId
-            )
+            .put(baseUrl + "/admin/terminal/devices/clocksyn/" + row.deviceId)
             .then(res => {
-              if (res.data.errcode==="0") {
+              if (res.data.errcode === "0") {
                 this.$message({
                   message: "对时成功",
                   type: "success"
@@ -982,7 +1000,7 @@ export default {
             this.$axios
               .post(baseUrl + "/admin/terminal/devices", arr, config)
               .then(res => {
-                if (res.data.errcode==="0") {
+                if (res.data.errcode === "0") {
                   this.dialogFormVisible = false;
                   this.$message({
                     message: "成功",
@@ -1048,21 +1066,21 @@ export default {
     //添加容器/应用dialog
     chooseFile(type, containerName) {
       if (type === "app") {
-        this.dialogTitle="安装应用";
+        this.dialogTitle = "安装应用";
         this.addSelectTitle = "已选应用";
         this.addTitle = "应用库";
         this.currentSelectedContainer = containerName;
         this.getApplications(1);
       } else {
-        this.dialogTitle="安装容器";
+        this.dialogTitle = "安装容器";
         this.addSelectTitle = "已选容器";
         this.addTitle = "容器库";
         this.getContainer(1);
       }
-      this.searchFileItem="";
+      this.searchFileItem = "";
       this.getAddDialogType();
       this.fileSelectedList = [];
-      this.multipleSelection=[];
+      this.multipleSelection = [];
       this.ifAddContainer = true;
     },
     //获取容器/应用分类
@@ -1099,8 +1117,8 @@ export default {
         )
         .then(res => {
           setTimeout(() => {
-              this.setSelectRow();
-            }, 200);
+            this.setSelectRow();
+          }, 200);
           this.fileTotal = res.data.totalRecord;
           if (res.data.data.length > 0) {
             res.data.data.forEach(item => {
@@ -1132,8 +1150,8 @@ export default {
         )
         .then(res => {
           setTimeout(() => {
-              this.setSelectRow();
-            }, 200);
+            this.setSelectRow();
+          }, 200);
           this.fileTotal = res.data.data.total;
           this.fileList = res.data.data.records;
         })
@@ -1270,13 +1288,13 @@ export default {
           });
       }
     },
-     //容器、应用操作//////////////////////////////////////
+    //容器、应用操作//////////////////////////////////////
     // 设置选中的方法
     setSelectRow() {
       this.multipleSelection = [];
       // 标识当前行的唯一键的名称
-      if(this.addTitle.indexOf("容器")>-1)this.idKey="name";
-      else this.idKey="appId";
+      if (this.addTitle.indexOf("容器") > -1) this.idKey = "name";
+      else this.idKey = "appId";
       if (!this.fileSelectedList || this.fileSelectedList.length <= 0) {
         return;
       }
@@ -1298,8 +1316,8 @@ export default {
     // 记忆选择核心方法
     changePageCoreRecordData() {
       // 标识当前行的唯一键的名称
-      if(this.addTitle.indexOf("容器")>-1)this.idKey="name";
-      else this.idKey="appId";
+      if (this.addTitle.indexOf("容器") > -1) this.idKey = "name";
+      else this.idKey = "appId";
       let idKey = this.idKey;
       let that = this;
       // 如果总记忆中还没有选择的数据，那么就直接取当前页选中的数据，不需要后面一系列计算
@@ -1346,7 +1364,7 @@ export default {
       this.multipleSelection = Object.assign([], rows);
       let selected = rows.length && rows.indexOf(row) !== -1;
       if (this.fileSelectedList.length === 0)
-        this.fileSelectedList =  Object.assign([], rows);
+        this.fileSelectedList = Object.assign([], rows);
       else {
         if (selected) {
           //新增选中
@@ -1354,7 +1372,7 @@ export default {
         } else {
           //取消选中
           this.fileSelectedList.forEach((item, index) => {
-            if (item[this.idKey]=== row[this.idKey]) {
+            if (item[this.idKey] === row[this.idKey]) {
               this.fileSelectedList.splice(index, 1);
               return false;
             }
@@ -1367,10 +1385,26 @@ export default {
       this.multipleSelection = val;
     },
     //全选
-    selecteAll(rows){
-      if(this.fileSelectedList.length===0)this.fileSelectedList=Object.assign([],rows);
-      else this.fileSelectedList.concat(rows);
-      this.multipleSelection=Object.assign([],rows);
+    selecteAll(rows) {
+      if (rows.length > 0) {
+        //当前页全选
+        if (this.fileSelectedList.length === 0)
+          this.fileSelectedList = Object.assign([], rows);
+        else {
+          rows.forEach((row,rowIndex)=>{
+            if(this.fileSelectedList.indexOf(row)<0)this.fileSelectedList.push(row);
+          })
+        }
+        this.multipleSelection = Object.assign([], rows);
+      } else {
+        //当前页全部取消
+        this.multipleSelection.forEach((item, index) => {
+          this.fileSelectedList.forEach((m,i)=>{
+            if(item[this.idKey]===m[this.idKey])this.fileSelectedList.splice(i,1);
+          });
+        });
+        this.multipleSelection = [];
+      }
     },
     //移除已选设备
     removeSelected(val) {
@@ -1381,10 +1415,10 @@ export default {
           delParam = Object.assign({}, item);
         }
       });
-      this.multipleSelection.forEach((item,index) => {
+      this.multipleSelection.forEach((item, index) => {
         if (delParam[this.idKey] === item[this.idKey]) {
-            this.$refs.fileTable.toggleRowSelection(item, false);
-            this.multipleSelection.splice(index,1);
+          this.$refs.fileTable.toggleRowSelection(item, false);
+          this.multipleSelection.splice(index, 1);
         }
       });
     },
@@ -1394,7 +1428,7 @@ export default {
       this.changePageCoreRecordData();
       console.log(this.fileSelectedList);
     },
-     //添加容器/应用查询
+    //添加容器/应用查询
     searchFile(page) {
       if (this.addTitle.indexOf("容器") != -1) this.getContainer(page);
       else this.getApplications(page);
@@ -1484,7 +1518,7 @@ export default {
       this.$axios
         .post(baseUrl + "/admin/terminal/devices", paramArr, config)
         .then(res => {
-          if (res.data.errcode==="0") {
+          if (res.data.errcode === "0") {
             loading.close();
             this.dialogFormVisible = false;
             this.excelShow = false;
@@ -1560,7 +1594,9 @@ export default {
   width: 200px;
   float: left;
 }
-.addConfig button{margin:5% 0px;}
+.addConfig button {
+  margin: 5% 0px;
+}
 .previewView {
   max-height: 300px;
   overflow: auto;
@@ -1580,6 +1616,5 @@ export default {
 .previewTable > thead {
   background-color: #eff2f7;
 }
-
 </style>
 

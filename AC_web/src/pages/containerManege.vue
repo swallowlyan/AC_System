@@ -314,7 +314,7 @@
             <div slot="header" class="clearfix">
               <span>已选设备</span>
             </div>
-            <div style="max-height:250px;overflow: auto;">
+            <div style="max-height:300px;overflow: auto;">
               <ul>
                 <li v-for="(item,index) in multipleSelectionAll" :key="index">
                   {{item.deviceId}}——
@@ -580,7 +580,7 @@ export default {
               } else {
                 this.$message({
                   type: "error",
-                  message: "删除失败,"+res.data.errmsg
+                  message: "删除失败," + res.data.errmsg
                 });
               }
             })
@@ -808,7 +808,7 @@ export default {
                 headers: { "Content-Type": "application/json" }
               })
               .then(res => {
-                if (res.data.errcode==="0") {
+                if (res.data.errcode === "0") {
                   this.$message({
                     type: "success",
                     message: "已完成卸载"
@@ -818,7 +818,7 @@ export default {
                 } else {
                   this.$message({
                     type: "error",
-                    message: "卸载失败,"+res.data.errmsg
+                    message: "卸载失败," + res.data.errmsg
                   });
                 }
               })
@@ -973,7 +973,7 @@ export default {
       this.multipleSelection = Object.assign([], rows);
       let selected = rows.length && rows.indexOf(row) !== -1;
       if (this.multipleSelectionAll.length === 0)
-        this.multipleSelectionAll =  Object.assign([], rows);
+        this.multipleSelectionAll = Object.assign([], rows);
       else {
         if (selected) {
           //新增选中
@@ -994,10 +994,28 @@ export default {
       this.multipleSelection = val;
     },
     //全选
-    selecteAll(rows){
-      if(this.multipleSelectionAll.length===0)this.multipleSelectionAll=Object.assign([],rows);
-      else this.multipleSelectionAll.concat(rows);
-      this.multipleSelection=Object.assign([],rows);
+    selecteAll(rows) {
+      let that = this;
+      if (rows.length > 0) {
+        //当前页全选
+        if (that.multipleSelectionAll.length === 0)
+          that.multipleSelectionAll = Object.assign([], rows);
+        else {
+          rows.forEach((row, rowIndex) => {
+            if (that.multipleSelectionAll.indexOf(row) < 0)
+              that.multipleSelectionAll.push(row);
+          });
+        }
+        that.multipleSelection = Object.assign([], rows);
+      } else {
+        //当前页全部取消
+        that.multipleSelection.forEach((item, index) => {
+          that.multipleSelectionAll.forEach((m,i)=>{
+            if(item[this.idKey]===m[this.idKey])that.multipleSelectionAll.splice(i,1);
+          });
+        });
+        that.multipleSelection = [];
+      }
     },
     //移除已选设备
     removeSelected(val) {
@@ -1008,10 +1026,10 @@ export default {
           delParam = Object.assign({}, item);
         }
       });
-      this.multipleSelection.forEach((item,index) => {
+      this.multipleSelection.forEach((item, index) => {
         if (delParam.deviceId === item.deviceId) {
-            this.$refs.deviceTable.toggleRowSelection(item, false);
-            this.multipleSelection.splice(index,1);
+          this.$refs.deviceTable.toggleRowSelection(item, false);
+          this.multipleSelection.splice(index, 1);
         }
       });
     },
