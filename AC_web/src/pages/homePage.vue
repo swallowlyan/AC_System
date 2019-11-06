@@ -152,7 +152,7 @@ export default {
               res.data.data.forEach((item)=>{
                 this.mapData.forEach((map)=>{
                   if(map.name===item.name){
-                    map.value=100;
+                    map.value=item.num;
                     map.total=item.total;
                     map.tenantId=item.tenantId;
                   }
@@ -165,11 +165,11 @@ export default {
               type: "error"
             });
           }
+          this.drawMap();
         })
         .catch(err => {
           console.log(err);
         });
-        this.drawMap();
     },
     drawMap() {
       let myChart = this.$echarts.init(document.getElementById("mapChart"));
