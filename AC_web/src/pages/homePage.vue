@@ -96,29 +96,29 @@ export default {
         莱芜市: [117.7, 36.28]
       },
       mapData: [
-        { name: "济南市", value: 390 },
-        { name: "菏泽市", value: 158 },
-        { name: "德州市", value: 252 },
-        { name: "聊城市", value: 99 },
-        { name: "泰安市", value: 189 },
-        { name: "临沂市", value: 52 },
-        { name: "淄博市", value: 158 },
-        { name: "枣庄市", value: 152 },
-        { name: "滨州市", value: 189 },
-        { name: "潍坊市", value: 160 },
-        { name: "东营市", value: 80 },
-        { name: "青岛市", value: 180 },
-        { name: "烟台市", value: 190 },
-        { name: "威海市", value: 290 },
-        { name: "日照市", value: 190 },
-        { name: "济宁市", value: 190 },
-        { name: "莱芜市", value: 290 }
+        { name: "济南市", value: 0 },
+        { name: "菏泽市", value: 0 },
+        { name: "德州市", value: 0 },
+        { name: "聊城市", value: 0 },
+        { name: "泰安市", value: 0 },
+        { name: "临沂市", value: 0 },
+        { name: "淄博市", value: 0 },
+        { name: "枣庄市", value: 0 },
+        { name: "滨州市", value: 0 },
+        { name: "潍坊市", value: 0 },
+        { name: "东营市", value: 0 },
+        { name: "青岛市", value: 0 },
+        { name: "烟台市", value: 0 },
+        { name: "威海市", value: 0 },
+        { name: "日照市", value: 0 },
+        { name: "济宁市", value: 0 },
+        { name: "莱芜市", value: 0 }
       ]
     };
   },
   mounted() {
     this.getAllData();
-    this.drawMap();
+    this.getMapData();
   },
   methods: {
     //获取总览数据
@@ -144,7 +144,32 @@ export default {
     },
     //获取地图数据
     getMapData(){
-      
+      this.$axios
+        .post(baseUrl + "/admin/terminal/groubByTenantId")
+        .then(res => {
+          if (res.data.success) {
+            if(res.data.data.length>0){
+              res.data.data.forEach((item)=>{
+                this.mapData.forEach((map)=>{
+                  if(map.name===item.name){
+                    map.value=100;
+                    map.total=item.total;
+                    map.tenantId=item.tenantId;
+                  }
+                });
+              });
+            }
+            } else {
+            this.$message({
+              message: "查询失败",
+              type: "error"
+            });
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+        this.drawMap();
     },
     drawMap() {
       let myChart = this.$echarts.init(document.getElementById("mapChart"));
@@ -157,10 +182,12 @@ export default {
         tooltip: {
           trigger: "item",
           formatter: function(params) {
-            if (typeof params.value[2] == "undefined") {
-              return params.name + " : " + params.value;
-            } else {
-              return params.name + " : " + params.value[2];
+            if(params.data.total!==undefined){
+              return params.name 
+              +"<br>激活终端："+params.data.value
+              +"<br>终端总数："+params.data.total;
+            }else{
+              return  params.name +"<br>激活终端：---"+"<br>终端总数：---";
             }
           }
         },
@@ -190,7 +217,10 @@ export default {
           map: "shandong",
           label: {
             normal: {
-              show: false
+              show: true,
+              color: "#F4E925",
+              formatter: "{b}",
+              position: "right"
             },
             emphasis: {
               show: false
@@ -221,7 +251,7 @@ export default {
               normal: {
                 formatter: "{b}",
                 position: "right",
-                show: true
+                show: false
               },
               emphasis: {
                 show: true
@@ -286,7 +316,7 @@ export default {
               normal: {
                 formatter: "{b}",
                 position: "right",
-                show: true
+                show: false
               }
             },
             itemStyle: {
