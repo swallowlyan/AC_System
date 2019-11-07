@@ -152,8 +152,10 @@ export default {
               res.data.data.forEach((item)=>{
                 this.mapData.forEach((map)=>{
                   if(map.name===item.name){
-                    map.value=item.num;
-                    map.total=item.total;
+                    if(item.num===null)map.value=0
+                    else map.value=item.num;
+                    if(item.total===null)map.total=0
+                    else map.total=item.total;
                     map.tenantId=item.tenantId;
                   }
                 });

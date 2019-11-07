@@ -62,11 +62,8 @@
             <el-table-column prop="version" label="终端版本" align="center"></el-table-column>
             <el-table-column prop="status" label="终端状态" align="center">
               <template slot-scope="scope">
-                <span v-if="scope.row.status===0" style="color:#67c23a">正常</span>
-                <span v-if="scope.row.status===1" style="color:orange">告警</span>
-                <span v-if="scope.row.status===2" style="color:red">故障</span>
-                <span v-if="scope.row.status===3" style="color:gray">离线</span>
-                <span v-if="scope.row.status===4" style="color:#000">未注册</span>
+                <span v-if="scope.row.status===0" style="color:orange">未激活</span>
+                <span v-if="scope.row.status===1" style="color:#67c23a">正常</span>
               </template>
             </el-table-column>
             <el-table-column prop="registerTime" label="激活时间" align="center" width="160"></el-table-column>
@@ -218,11 +215,8 @@
             <el-col :span="12">
               <el-form-item label="终端状态" prop="status">
                 <!-- 详情状态 -->
-                <span v-if="dialogForm.status===0">正常</span>
-                <span v-if="dialogForm.status===1">告警</span>
-                <span v-if="dialogForm.status===2">故障</span>
-                <span v-if="dialogForm.status===3">离线</span>
-                <span v-if="dialogForm.status===4">未注册</span>
+                <span v-if="dialogForm.status===0">未激活</span>
+                <span v-if="dialogForm.status===1">正常</span>
                 <el-button
                   type="primary"
                   plain
@@ -621,11 +615,8 @@ export default {
         title: "设备状态",
         options: [
           { value: "", name: "全部" },
-          { value: 0, name: "正常" },
-          { value: 1, name: "告警" },
-          { value: 2, name: "故障" },
-          { value: 3, name: "离线" },
-          { value: 4, name: "未注册" }
+          { value: 0, name: "未激活" },
+          { value: 1, name: "正常" }
         ]
       },
       tableData: [],
@@ -869,7 +860,7 @@ export default {
             .then(res => {
               if (res.data.errcode === "0") {
                 this.$message({
-                  message: res.data.errmsg,
+                  message: "命令发送成功",
                   type: "success"
                 });
               } else {
@@ -903,7 +894,7 @@ export default {
               baseUrl +
                 "/admin/terminal/operation?deviceId=" +
                 row.deviceId +
-                "&status=0"
+                "&status=1"
             )
             .then(res => {
               if (res.data.errcode === "0") {
@@ -961,7 +952,7 @@ export default {
             .then(res => {
               if (res.data.errcode === "0") {
                 this.$message({
-                  message: "对时成功",
+                  message: "命令发送成功",
                   type: "success"
                 });
               } else {
@@ -1222,7 +1213,7 @@ export default {
           .then(res => {
             if (res.data.errcode === "0") {
               this.$message({
-                message: "安装成功",
+                message: "命令发送成功",
                 type: "success"
               });
               this.getContainerDetail(this.currentRow);

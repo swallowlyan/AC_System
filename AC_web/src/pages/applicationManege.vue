@@ -742,7 +742,7 @@ export default {
               .then(res => {
                 if (res.data.errcode === "0") {
                   this.$message({
-                    message: "安装成功",
+                    message: "命令发送成功",
                     type: "success"
                   });
                   this.dialogFormVisible = false;
