@@ -90,6 +90,7 @@
       :title="dialogTitle"
       :visible.sync="dialogFormVisible"
       :before-close="handleDialogClose"
+      @close="initProps"
       width="85%"
     >
       <!-- 微应用form -->
@@ -503,6 +504,12 @@ export default {
     getRowDatas(row) {
       this.selectedRow = row;
       console.info(row);
+    },
+    //关闭dialog还原属性
+    initProps() {
+      this.ifInstallDialog=false;
+      this.ifGetInstalled=false;
+      this.ifDialogDetail=false;
     },
     //监听"x"操作
     handleDialogClose() {

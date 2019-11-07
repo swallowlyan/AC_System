@@ -322,7 +322,7 @@
                         style="float:left;margin:10px"
                       />
                       <div class="title" style="float:left;margin:5%">
-                        <h4>{{item.containerName}}</h4>
+                        <!-- <h4>{{item.containerName}}</h4> -->
                         <h4>{{item.name}}</h4>
                       </div>
                       <el-button
@@ -350,11 +350,11 @@
             </el-row>
             <el-row v-if="dialogForm.containerArr!==undefined&&dialogForm.containerArr.length>0">
               <el-col :span="24" style="height:auto;width:auto">
-                <el-form-item label="应用" class="application" style="height:150px;">
+                <el-form-item label="应用" class="application" style="height:200px;">
                   <el-row type="flex">
                     <div
                       class="el-col addConfig"
-                      style="height:150px;overflow:auto"
+                      style="height:200px;overflow:auto"
                       v-for="(item,index) in dialogForm.containerArr"
                       :key="index"
                     >
@@ -371,7 +371,7 @@
                         />
                         <span
                           style="margin-top:5px;font-size:normal;vertical-align: middle;"
-                        >{{app.name}}</span>
+                        >{{app.appName}}</span>
                         <el-button
                           v-if="!ifDialogDetail"
                           plain
@@ -829,27 +829,22 @@ export default {
     },
     //获取终端对应容器
     getContainerDetail(row) {
-      //获取容器
+      //获取容器&APP
       this.$axios
         .post(
           baseUrl +
-            "/admin/containers/devicedeploystatus?deviceId=" +
+            "/admin/app/findInstalledApp?deviceId=" +
             row.deviceId
         )
         .then(res => {
+          this.dialogForm.containerArr = [];
           if (res.data.data !== null && res.data.data.length > 0) {
-            this.dialogForm.containerArr = [];
             res.data.data.forEach(item => {
               let container = {
-                containerName: item.containerConfig.containerName,
-                name: item.containerInfo.name,
-                status: item.containerDeployStatus.deployStatus
+                name: item.containerName,
+                status: item.containerStatus,
+                appList:item.appList
               };
-              if (item.containerConfig.openServices !== "") {
-                item.containerConfig.appList = item.containerConfig.openServices.split(
-                  ","
-                );
-              }
               this.dialogForm.containerArr.push(container);
             });
             this.$forceUpdate(); //v-for页面重新渲染
@@ -860,7 +855,6 @@ export default {
         .catch(err => {
           console.log(err);
         });
-      //获取应用
     },
     //重启
     restart(row) {
@@ -1257,7 +1251,7 @@ export default {
           type: "warning"
         });
       } else {
-        this.$confirm("是否卸载容器——'" + item.name + "'?", "提示", {
+        this.$confirm("是否卸载卸载容器——'" + item.name + "'?", "提示", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
@@ -1294,13 +1288,13 @@ export default {
     },
     //卸载应用
     uninstallApp(container, app) {
-      if (app.status !== 1) {
+      if (app.installStatus !== 1) {
         this.$message({
           message: "该应用处于不可卸载状态，请重新选择",
           type: "warning"
         });
       } else {
-        this.$confirm("是否卸载应用——'" + app.name + "'?", "提示", {
+        this.$confirm("是否卸载应用——'" + app.appName + "'?", "提示", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
@@ -1308,8 +1302,8 @@ export default {
           .then(() => {
             let param = [
               {
-                appNames: [app.name],
-                containerName: item.name,
+                appNames: [app.appName],
+                containerName: container.name,
                 deviceId: this.currentRow.deviceId
               }
             ];
@@ -1321,6 +1315,11 @@ export default {
                   this.$message({
                     message: "已提交卸载信息，等待卸载",
                     type: "success"
+                  });
+                }else{
+                  this.$message({
+                    message: res.data.errmsg,
+                    type: "error"
                   });
                 }
               })

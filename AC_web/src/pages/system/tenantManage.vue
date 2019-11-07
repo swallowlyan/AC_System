@@ -232,8 +232,7 @@ export default {
       this.dialogFormVisible = true;
     },
     delRow(row) {
-      console.info(row);
-      this.$confirm("是否确定删除该租户?", "提示", {
+      this.$confirm("是否确定删除租户'"+row.tenantName+"'?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"

@@ -31,7 +31,7 @@
           >
             <!-- <el-table-column type="selection" width="55"></el-table-column> -->
             <!-- <el-table-column type="index" width="50" label="序号"></el-table-column> -->
-            <el-table-column prop="containerName" align="center" width="130" label="容器名称">
+            <el-table-column prop="name" align="center" width="130" label="容器名称">
               <template slot-scope="scope">
                 <el-button
                   @click="detailRow(scope.row)"
@@ -314,6 +314,14 @@
             <div slot="header" class="clearfix">
               <span>已选设备</span>
             </div>
+            <div>
+              <label>容器实例名：</label>
+              <el-input
+                v-model="dialogForm.containerName"
+                style="width: 70%;"
+                placeholder="请输入容器实例名"
+              ></el-input>
+            </div>
             <div style="max-height:300px;overflow: auto;">
               <ul>
                 <li v-for="(item,index) in multipleSelectionAll" :key="index">
@@ -421,7 +429,8 @@ export default {
         minDataDiskMB: "",
         minRamMB: "",
         description: "",
-        releaseTime: ""
+        releaseTime: "",
+        containerName: ""
       },
       dialogRules: {
         containerId: [
@@ -557,7 +566,7 @@ export default {
     },
     //删除容器
     delRow(row) {
-      this.$confirm("是否确定删除容器——'" + row.name + "?", "提示", {
+      this.$confirm("是否确定删除容器——'" + row.name + "'?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
@@ -687,6 +696,7 @@ export default {
       if (ifGetInstalled) this.dialogTitle = "已安装设备";
       else this.dialogTitle = "安装容器";
       this.ifGetInstalled = ifGetInstalled;
+      this.dialogForm.containerName = row.name;
       this.currentContainer = Object.assign({}, row);
       this.deviceList = [];
       this.multipleSelectionAll = [];
@@ -696,84 +706,91 @@ export default {
     },
     //安装
     installContainer() {
-      let optionNameArr = "",
-        paramList = [];
-      if (this.multipleSelectionAll.length > 0) {
-        this.multipleSelectionAll.forEach(item => {
-          optionNameArr += item.name + ",";
-          let m = {
-            containerInfo: {
-              incrementPkg: this.currentContainer.incrementPkg,
-              name: this.currentContainer.name,
-              releaseTime: this.currentContainer.releaseTime,
-              releaseUser: this.currentContainer.releaseUser,
-              type: this.currentContainer.type,
-              vendor: this.currentContainer.vendor,
-              version: this.currentContainer.version
-            },
-            containerconfig: {
-              containerName: this.currentContainer.name,
-              cpuCores: 0,
-              description: this.currentContainer.description,
-              diskSizeMB: 0,
-              memoryMB: 0,
-              openServices: "",
-              physicalInterfaces: "",
-              volumeSizeMB: 0
-            },
-            deviceId: item.deviceId
-          };
-          paramList.push(m);
-        });
-        this.$confirm(
-          "是否确定在设备——'" +
-            optionNameArr +
-            "'中安装容器'" +
-            this.currentContainer.name +
-            "'?",
-          "提示",
-          {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning"
-          }
-        )
-          .then(() => {
-            this.$axios
-              .post(
-                baseUrl + "/admin/containers/deploy",
-                { containerlist: paramList, update: false },
-                { headers: { "Content-Type": "application/json" } }
-              )
-              .then(res => {
-                if (res.data.errcode === "0") {
-                  this.$message({
-                    type: "success",
-                    message: "已完成安装"
-                  });
-                  this.dialogFormVisible = false;
-                } else {
-                  this.$message({
-                    type: "error",
-                    message: "安装失败," + res.data.errmsg
-                  });
-                }
-              })
-              .catch(err => {
-                console.log(err);
-              });
-          })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消安装"
-            });
-          });
-      } else {
+      if (this.dialogForm.containerName === "") {
         this.$message({
-          message: "请选择设备进行安装",
-          type: "warning"
+          type: "warning",
+          message: "请填写容器实例名,进行安装"
         });
+      } else {
+        let optionNameArr = "",
+          paramList = [];
+        if (this.multipleSelectionAll.length > 0) {
+          this.multipleSelectionAll.forEach(item => {
+            optionNameArr += item.name + ",";
+            let m = {
+              containerInfo: {
+                incrementPkg: this.currentContainer.incrementPkg,
+                name: this.currentContainer.name,
+                releaseTime: this.currentContainer.releaseTime,
+                releaseUser: this.currentContainer.releaseUser,
+                type: this.currentContainer.type,
+                vendor: this.currentContainer.vendor,
+                version: this.currentContainer.version
+              },
+              containerconfig: {
+                containerName: this.dialogForm.containerName,
+                cpuCores: 0,
+                description: this.currentContainer.description,
+                diskSizeMB: 0,
+                memoryMB: 0,
+                openServices: "",
+                physicalInterfaces: "",
+                volumeSizeMB: 0
+              },
+              deviceId: item.deviceId
+            };
+            paramList.push(m);
+          });
+          this.$confirm(
+            "是否确定在设备——'" +
+              optionNameArr +
+              "'中安装容器'" +
+              this.currentContainer.name +
+              "'?",
+            "提示",
+            {
+              confirmButtonText: "确定",
+              cancelButtonText: "取消",
+              type: "warning"
+            }
+          )
+            .then(() => {
+              this.$axios
+                .post(
+                  baseUrl + "/admin/containers/deploy",
+                  { containerlist: paramList, update: false },
+                  { headers: { "Content-Type": "application/json" } }
+                )
+                .then(res => {
+                  if (res.data.errcode === "0") {
+                    this.$message({
+                      type: "success",
+                      message: "已完成安装"
+                    });
+                    this.dialogFormVisible = false;
+                  } else {
+                    this.$message({
+                      type: "error",
+                      message: "安装失败," + res.data.errmsg
+                    });
+                  }
+                })
+                .catch(err => {
+                  console.log(err);
+                });
+            })
+            .catch(() => {
+              this.$message({
+                type: "info",
+                message: "已取消安装"
+              });
+            });
+        } else {
+          this.$message({
+            message: "请选择设备进行安装",
+            type: "warning"
+          });
+        }
       }
     },
     //卸载
@@ -1010,8 +1027,9 @@ export default {
       } else {
         //当前页全部取消
         that.multipleSelection.forEach((item, index) => {
-          that.multipleSelectionAll.forEach((m,i)=>{
-            if(item[this.idKey]===m[this.idKey])that.multipleSelectionAll.splice(i,1);
+          that.multipleSelectionAll.forEach((m, i) => {
+            if (item[this.idKey] === m[this.idKey])
+              that.multipleSelectionAll.splice(i, 1);
           });
         });
         that.multipleSelection = [];
