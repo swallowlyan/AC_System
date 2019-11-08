@@ -245,6 +245,7 @@
               :data="deviceList"
               tooltip-effect="dark"
               style="width: 100%"
+              :class="{installTable: !ifGetInstalled}"
               @select="rowChange"
               @select-all="selecteAll"
               row-key="deviceId"
@@ -628,6 +629,7 @@ export default {
     },
     //选择设备
     getDeviceDialog(page) {
+      this.deviceTotal=0;
       if (!this.ifGetInstalled) {
         //查询可安装终端
         this.$axios
@@ -1105,4 +1107,8 @@ export default {
   max-height: 500px;
   overflow: auto;
 }
+</style>
+<style>
+.installTable th .el-checkbox,
+.installTable .el-table__row--level-0 .el-checkbox{display: none !important}
 </style>
