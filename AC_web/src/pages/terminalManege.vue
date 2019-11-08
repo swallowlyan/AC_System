@@ -48,7 +48,7 @@
         <div>
           <el-table :data="tableData" border size="medium" class="terminalTable">
             <!-- <el-table-column type="selection" width="55"></el-table-column> -->
-            <el-table-column prop="deviceId" label="终端ID" align="center" width="180">
+            <el-table-column prop="deviceId" label="终端ID" align="center" width="170">
               <template slot-scope="scope">
                 <el-button
                   @click="detailRow(scope.row)"
@@ -57,7 +57,7 @@
                 >{{scope.row.deviceId}}</el-button>
               </template>
             </el-table-column>
-            <el-table-column prop="name" label="终端名称" width="150" align="center"></el-table-column>
+            <el-table-column prop="name" label="终端名称" width="205" align="center"></el-table-column>
             <el-table-column prop="deviceType" label="设备类型" align="center"></el-table-column>
             <el-table-column prop="version" label="终端版本" align="center"></el-table-column>
             <el-table-column prop="status" label="终端状态" align="center">
@@ -66,10 +66,10 @@
                 <span v-if="scope.row.status===1" style="color:#67c23a">正常</span>
               </template>
             </el-table-column>
-            <el-table-column prop="registerTime" label="激活时间" align="center" width="160"></el-table-column>
+            <el-table-column prop="registerTime" label="激活时间" align="center" width="150"></el-table-column>
             <el-table-column prop="ip" label="终端ip" align="center"></el-table-column>
-            <el-table-column prop="mac" label="mac地址" align="center" width="150"></el-table-column>
-            <el-table-column prop="options" label="操作" align="center" width="100">
+            <el-table-column prop="mac" label="mac地址" align="center" width="135"></el-table-column>
+            <el-table-column prop="options" label="操作" align="center" width="95">
               <template slot-scope="scope">
                 <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
                 <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
@@ -155,6 +155,14 @@
                   size="mini"
                   v-if="ifDialogDetail"
                   style="float:right;margin:5px;"
+                  @click="maintenance(dialogForm)"
+                >进入维护状态</el-button>
+                <el-button
+                  type="primary"
+                  plain
+                  size="mini"
+                  v-if="ifDialogDetail"
+                  style="float:right;margin:5px;"
                   @click="restart(dialogForm)"
                 >重启</el-button>
               </el-form-item>
@@ -217,18 +225,11 @@
                 <!-- 详情状态 -->
                 <span v-if="dialogForm.status===0">未激活</span>
                 <span v-if="dialogForm.status===1">正常</span>
-                <el-button
-                  type="primary"
-                  plain
-                  size="mini"
-                  v-if="ifDialogDetail"
-                  style="float:right;margin:5px;"
-                  @click="maintenance(dialogForm)"
-                >进入维护状态</el-button>
               </el-form-item>
             </el-col>
             <el-col :span="12" v-if="ifDialogDetail">
               <el-form-item label="终端时间">
+                <span style="float:left;">{{dialogForm.terminalTime}}</span>
                 <el-button
                   type="primary"
                   plain
@@ -316,8 +317,8 @@
                         style="float:left;margin:10px"
                       />
                       <div class="title" style="float:left;margin:5%">
-                        <!-- <h4>{{item.containerName}}</h4> -->
                         <h4>{{item.name}}</h4>
+                        <h4>{{item.containerName}}</h4>
                       </div>
                       <el-button
                         v-if="!ifDialogDetail"
@@ -635,7 +636,8 @@ export default {
         mac: "",
         ActiveTime: "",
         description: "",
-        containerArr: []
+        containerArr: [],
+        terminalTime: ""
       },
       dialogRules: {
         deviceId: [
@@ -678,7 +680,8 @@ export default {
       previewExcel: {},
       homeStatus: "",
       multipleSelection: [], // 当前页选中的数据
-      idKey: "name"
+      idKey: "name",
+      installedApp: []
     };
   },
   mounted() {
@@ -753,6 +756,7 @@ export default {
       this.ifDialogDetail = true;
       this.dialogTitle = "终端详细信息";
       this.dialogForm = Object.assign({}, row);
+      this.dialogForm.terminalTime = "";
       this.currentRow = Object.assign({}, row);
       this.dialogForm.containerArr = [];
       this.getContainerDetail(row);
@@ -824,21 +828,40 @@ export default {
       this.$axios
         .post(
           baseUrl +
-            "/admin/app/findInstalledApp?deviceId=" +
+            "/admin/containers/devicedeploystatus?deviceId=" +
             row.deviceId
         )
         .then(res => {
           this.dialogForm.containerArr = [];
           if (res.data.data !== null && res.data.data.length > 0) {
-            res.data.data.forEach(item => {
-              let container = {
-                name: item.containerName,
-                status: item.containerStatus,
-                appList:item.appList
-              };
-              this.dialogForm.containerArr.push(container);
+            //找寻已安装的app并放置数据
+            this.$axios.post(
+              baseUrl +
+                "/admin/app/findInstalledApp?deviceId=" +
+                row.deviceId
+            ).then(apps => {
+              let appArr = apps.data.data;
+              res.data.data.forEach(item => {
+                let container = {
+                  containerName: item.containerConfig.containerName,
+                  name: item.containerInfo.name,
+                  status: item.containerDeployStatus.deployStatus,
+                  appList: []
+                };
+                if (appArr!==null&&appArr.length > 0) {
+                  appArr.forEach((app, index) => {
+                    if (
+                      app.containerName === item.containerConfig.containerName
+                    ) {
+                      container.appList=Object.assign([],app.appList);
+                    }
+                  });
+                }
+                this.dialogForm.containerArr.push(container);
+              });
+              console.info(this.dialogForm.containerArr);
+              this.$forceUpdate(); //v-for页面重新渲染
             });
-            this.$forceUpdate(); //v-for页面重新渲染
           }
           if (this.ifAddContainer) this.ifAddContainer = false;
           this.dialogFormVisible = true;
@@ -899,7 +922,7 @@ export default {
             .then(res => {
               if (res.data.errcode === "0") {
                 this.$message({
-                  message: res.data.errmsg,
+                  message: "命令发送成功",
                   type: "success"
                 });
               } else {
@@ -938,7 +961,24 @@ export default {
         });
     },
     //获取终端时间
-    getTerminalTime(row) {},
+    getTerminalTime(row) {
+      this.$axios
+        .put(baseUrl + "/admin/terminal/devices/clock/" + row.deviceId)
+        .then(res => {
+          if (res.data.errcode === "0") {
+            this.dialogForm.terminalTime = this.dateFormate(res.data.data);
+            this.$forceUpdate();
+          } else {
+            this.$message({
+              message: res.data.errmsg,
+              type: "error"
+            });
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
     //对时
     pairRow(row) {
       this.$confirm("是否确定对时——'" + row.name + "'?", "提示", {
@@ -992,7 +1032,7 @@ export default {
                 if (res.data.errcode === "0") {
                   this.dialogFormVisible = false;
                   this.$message({
-                    message: "成功",
+                    message: "添加成功",
                     type: "success"
                   });
                   this.$refs[formName].resetFields();
@@ -1022,7 +1062,7 @@ export default {
                 if (res.data.success) {
                   this.dialogFormVisible = false;
                   this.$message({
-                    message: "成功",
+                    message: "修改成功",
                     type: "success"
                   });
                   this.$refs[formName].resetFields();
@@ -1307,7 +1347,7 @@ export default {
                     message: "已提交卸载信息，等待卸载",
                     type: "success"
                   });
-                }else{
+                } else {
                   this.$message({
                     message: res.data.errmsg,
                     type: "error"
@@ -1586,6 +1626,19 @@ export default {
     handleClose(key, keyPath) {
       console.log(key, keyPath);
     },
+    dateFormate(date) {
+      var date = new Date(date * 1000); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+      var Y = date.getFullYear() + "-";
+      var M =
+        (date.getMonth() + 1 < 10
+          ? "0" + (date.getMonth() + 1)
+          : date.getMonth() + 1) + "-";
+      var D = date.getDate() + " ";
+      var h = date.getHours() + ":";
+      var m = date.getMinutes() + ":";
+      var s = date.getSeconds();
+      return Y + M + D + h + m + s;
+    },
     //预览(暂停使用)
     selectExcel(convertedData) {
       this.previewExcel = convertedData;
@@ -1631,7 +1684,7 @@ export default {
   text-align: center;
 }
 .addConfig {
-  width: 200px;
+  width: 250px;
   float: left;
 }
 .addConfig button {

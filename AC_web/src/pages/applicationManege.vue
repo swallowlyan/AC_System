@@ -254,17 +254,14 @@
               :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
             >
               <el-table-column type="selection" width="55"></el-table-column>
-              <el-table-column prop="deviceId" label="终端ID" width="250"></el-table-column>
-              <el-table-column prop="name" label="名称" width="100"></el-table-column>
+              <el-table-column prop="deviceId" label="终端ID" width="200"></el-table-column>
+              <el-table-column prop="name" label="名称" width="220"></el-table-column>
               <el-table-column v-if="ifGetInstalled" prop="containerName" label="容器名称"></el-table-column>
               <el-table-column prop="type" label="类型"></el-table-column>
               <el-table-column prop="status" label="状态">
                 <template slot-scope="scope">
-                  <span v-if="scope.row.status===0" style="color:#67c23a">正常</span>
-                  <span v-if="scope.row.status===1" style="color:orange">告警</span>
-                  <span v-if="scope.row.status===2" style="color:red">故障</span>
-                  <span v-if="scope.row.status===3" style="color:gray">离线</span>
-                  <span v-if="scope.row.status===4" style="color:#000">未注册</span>
+                  <span v-if="scope.row.status===1" style="color:#67c23a">正常</span>
+                  <span v-if="scope.row.status===0" style="color:orange">未激活</span>
                 </template>
               </el-table-column>
             </el-table>
@@ -289,7 +286,7 @@
             <div style="max-height:300px;overflow: auto;">
               <ul>
                 <li v-for="(item,index) in multipleSelectionAll" :key="index">
-                  {{item.name}}
+                  {{item.parentId}}——{{item.name}}
                   <el-button type="text" @click="removeSelected(item)">
                     <i class="el-icon-close"></i>
                   </el-button>
@@ -619,7 +616,7 @@ export default {
     //安装dialog
     toInstallDialog(row, ifGetInstalled) {
       if (ifGetInstalled) this.dialogTitle = "已安装设备";
-      else this.dialogTitle = "安装容器";
+      else this.dialogTitle = "安装微应用";
       this.ifGetInstalled = ifGetInstalled;
       this.currentApp = Object.assign({}, row);
       this.deviceList = [];
@@ -675,7 +672,7 @@ export default {
               res.data.data.forEach((item, index) => {
                 let child = {
                   deviceId: tree.deviceId + "——容器" + (index + 1),
-                  name: item.containerInfo.name,
+                  name: item.containerConfig.containerName,
                   type: item.containerInfo.type,
                   parentId: tree.deviceId
                 };
@@ -845,7 +842,7 @@ export default {
               this.devicePageSize +
               "&pageIndex=" +
               page,
-            {}
+            {status:1}
           )
           .then(res => {
             setTimeout(() => {

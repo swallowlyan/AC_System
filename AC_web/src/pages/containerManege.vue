@@ -283,18 +283,15 @@
               @select-all="selecteAll"
             >
               <el-table-column type="selection" width="55"></el-table-column>
-              <el-table-column prop="deviceId" label="终端ID" width="300"></el-table-column>
-              <el-table-column prop="name" label="终端名称"></el-table-column>
-              <el-table-column prop="deviceType" label="设备类型" width="120"></el-table-column>
+              <el-table-column prop="deviceId" label="终端ID" width="200"></el-table-column>
+              <el-table-column prop="name" label="终端名称" width="220"></el-table-column>
               <el-table-column prop="status" label="终端状态">
                 <template slot-scope="scope">
-                  <span v-if="scope.row.status===0" style="color:#67c23a">正常</span>
-                  <span v-if="scope.row.status===1" style="color:orange">告警</span>
-                  <span v-if="scope.row.status===2" style="color:red">故障</span>
-                  <span v-if="scope.row.status===3" style="color:gray">离线</span>
-                  <span v-if="scope.row.status===4" style="color:#000">未注册</span>
+                  <span v-if="scope.row.status===1" style="color:#67c23a">正常</span>
+                  <span v-if="scope.row.status===0" style="color:orange">未激活</span>
                 </template>
               </el-table-column>
+              <el-table-column v-if="ifGetInstalled" prop="containerName" label="容器实例名" width="135"></el-table-column>
             </el-table>
           </el-row>
           <el-row style="text-align: center;margin-top:10px;">
@@ -314,7 +311,7 @@
             <div slot="header" class="clearfix">
               <span>已选设备</span>
             </div>
-            <div>
+            <div v-if="!ifGetInstalled">
               <label>容器实例名：</label>
               <el-input
                 v-model="dialogForm.containerName"
@@ -868,7 +865,7 @@ export default {
               this.devicePageSize +
               "&pageIndex=" +
               page,
-            {}
+            {status:1}
           )
           .then(res => {
             setTimeout(() => {
@@ -907,8 +904,10 @@ export default {
             ) {
               this.deviceList = [];
               res.data.data.devices.forEach(item => {
-                if (item.containerDeployStatus.deployStatus === 1)
+                if (item.containerDeployStatus.deployStatus === 1){
+                  item.deviceQueryResult.containerName=item.containerConfig.containerName;
                   this.deviceList.push(item.deviceQueryResult);
+                }
               });
             }
             this.deviceTotal = res.data.data.totalRecord;

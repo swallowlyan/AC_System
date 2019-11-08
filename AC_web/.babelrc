@@ -5,7 +5,8 @@
       {
         "libraryName": "element-ui",
         "styleLibraryName": "theme-chalk"
-      }
+      },
+      "transform-runtime"
     ]
   ]
 }

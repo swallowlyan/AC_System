@@ -152,10 +152,10 @@ export default {
               res.data.data.forEach((item)=>{
                 this.mapData.forEach((map)=>{
                   if(map.name===item.name){
-                    if(item.num===null)map.value=0
-                    else map.value=item.num;
-                    if(item.total===null)map.total=0
-                    else map.total=item.total;
+                    if(item.num===null)map.num=0
+                    else map.num=item.num;
+                    if(item.total===null)map.value=0
+                    else map.value=item.total;
                     map.tenantId=item.tenantId;
                   }
                 });
@@ -184,10 +184,10 @@ export default {
         tooltip: {
           trigger: "item",
           formatter: function(params) {
-            if(params.data.total!==undefined){
+            if(params.data.num!==undefined){
               return params.name 
-              +"<br>激活终端："+params.data.value
-              +"<br>终端总数："+params.data.total;
+              +"<br>激活终端："+params.data.num
+              +"<br>终端总数："+params.data.value;
             }else{
               return  params.name +"<br>激活终端：---"+"<br>终端总数：---";
             }
@@ -205,7 +205,7 @@ export default {
         visualMap: {
           show: true,
           min: 0,
-          max: 400,
+          max: 50,
           left: "10%",
           top: "bottom",
           calculable: true,

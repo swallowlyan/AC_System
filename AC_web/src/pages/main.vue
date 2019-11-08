@@ -7,7 +7,7 @@
             <img src="../assets/img/logo.png" height="50" width="50" />
           </el-col>
           <el-col :span="4">
-            <h1>AC物联管理系统</h1>
+            <h1>物联管理系统</h1>
           </el-col>
           <el-col :span="1" style="float: right;margin-top:10px">
             <el-dropdown trigger="click">
