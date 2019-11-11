@@ -239,6 +239,11 @@
       <!-- 安装dialog -->
       <el-row v-show="ifInstallDialog&&!urlSelectVisible">
         <el-col :span="15">
+          <el-card class="box-card">
+            <div slot="header" class="clearfix">
+              <span>容器库</span>
+            </div>
+            <div>
           <el-row style="max-height: 300px;overflow:auto;">
             <el-table
               ref="deviceTable"
@@ -278,6 +283,8 @@
               :total="deviceTotal"
             ></el-pagination>
           </el-row>
+            </div>
+          </el-card>
         </el-col>
         <el-col :span="8" :offset="1">
           <el-card class="box-card">
@@ -744,6 +751,7 @@ export default {
                     message: "命令发送成功",
                     type: "success"
                   });
+                  this.multipleSelectionAll=[];
                   this.dialogFormVisible = false;
                 } else {
                   this.$message({
@@ -807,6 +815,7 @@ export default {
                     type: "success",
                     message: "已完成卸载"
                   });
+                  this.multipleSelectionAll=[];
                   this.getDeviceDialog(1);
                 } else {
                   this.$message({

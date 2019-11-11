@@ -69,7 +69,7 @@
             <el-table-column prop="registerTime" label="激活时间" align="center" width="150"></el-table-column>
             <el-table-column prop="ip" label="终端ip" align="center"></el-table-column>
             <el-table-column prop="mac" label="mac地址" align="center" width="135"></el-table-column>
-            <el-table-column prop="options" label="操作" align="center" width="95">
+            <el-table-column prop="options" label="操作" align="center" width="100">
               <template slot-scope="scope">
                 <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
                 <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
