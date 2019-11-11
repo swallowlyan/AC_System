@@ -126,7 +126,7 @@ export default {
       this.$axios
         .post(baseUrl + "/admin/snapshoot/queryTerminalStatistic")
         .then(res => {
-          if (res.data.success) {
+          if (res.data.errcode==="0") {
             this.allDataArr[0].count = res.data.data.terminalNum_total;
             this.allDataArr[1].count = res.data.data.terminalNum_online;
             this.allDataArr[2].count = res.data.data.terminalNum_active;
@@ -147,7 +147,7 @@ export default {
       this.$axios
         .post(baseUrl + "/admin/terminal/groubByTenantId")
         .then(res => {
-          if (res.data.success) {
+          if (res.data.errcode==="0") {
             if(res.data.data.length>0){
               res.data.data.forEach((item)=>{
                 this.mapData.forEach((map)=>{

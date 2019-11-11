@@ -182,7 +182,7 @@ export default {
       this.$axios
         .get(baseUrl + "")
         .then(res => {
-          if (res.data.success) this.areaTypeList = res.data.data;
+          if (res.data.errcode==="0") this.areaTypeList = res.data.data;
         })
         .catch(err => {
           console.log(err);
@@ -212,7 +212,7 @@ export default {
       this.$axios
         .get(baseUrl + "/admin/file/types")
         .then(res => {
-          if (res.data.success) this.fileType = res.data.data;
+          if (res.data.errcode==="0") this.fileType = res.data.data;
         })
         .catch(err => {
           console.log(err);

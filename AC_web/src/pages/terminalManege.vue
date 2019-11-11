@@ -298,7 +298,7 @@
             </el-col>
           </el-row>
           <div
-            v-if="!ifDialogDetail||dialogForm.containerArr.length>0"
+            v-if="(dialogForm.status===1&&ifDialogEdit)||(ifDialogDetail&&dialogForm.containerArr.length>0)"
             style="padding: 10px 0px;overflow: auto;"
           >
             <el-row>
@@ -321,7 +321,7 @@
                         <h4>{{item.containerName}}</h4>
                       </div>
                       <el-button
-                        v-if="!ifDialogDetail"
+                        v-if="dialogForm.status===1&&ifDialogEdit"
                         plain
                         circle
                         type="danger"
@@ -330,7 +330,7 @@
                         @click="uninstallContainer(item)"
                       ></el-button>
                     </div>
-                    <div v-if="!ifDialogDetail" class="el-col addConfig" style="height:65px;">
+                    <div v-if="dialogForm.status===1&&ifDialogEdit" class="el-col addConfig" style="height:65px;">
                       <el-button
                         round
                         size="mini"
@@ -368,7 +368,7 @@
                           style="margin-top:5px;font-size:normal;vertical-align: middle;"
                         >{{app.appName}}</span>
                         <el-button
-                          v-if="!ifDialogDetail"
+                          v-if="dialogForm.status===1&&ifDialogEdit"
                           plain
                           circle
                           type="danger"
@@ -377,10 +377,9 @@
                           @click="uninstallApp(item,app)"
                         ></el-button>
                       </div>
-                      <div>
+                      <div v-if="dialogForm.status===1&&ifDialogEdit">
                         <el-button
                           style="padding:5px"
-                          v-if="!ifDialogDetail"
                           round
                           size="mini"
                           icon="el-icon-plus"
@@ -798,7 +797,7 @@ export default {
               params: { devices: row.deviceId }
             })
             .then(res => {
-              if (res.data.success) {
+              if (res.data.errcode==="0") {
                 this.$message({
                   type: "success",
                   message: "删除成功!"
@@ -1059,7 +1058,7 @@ export default {
                   editData
               )
               .then(res => {
-                if (res.data.success) {
+                if (res.data.errcode==="0") {
                   this.dialogFormVisible = false;
                   this.$message({
                     message: "修改成功",
@@ -1120,7 +1119,7 @@ export default {
       this.$axios
         .post(baseUrl + url)
         .then(res => {
-          if (res.data.success) {
+          if (res.data.errcode==="0") {
             this.addDialogTypes = res.data.data;
           }
         })

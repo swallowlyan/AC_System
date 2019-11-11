@@ -468,7 +468,7 @@ export default {
       this.$axios
         .post(baseUrl + "/admin/app/getAllTypes")
         .then(res => {
-          if (res.data.success) {
+          if (res.data.errcode==="0") {
             this.appTypeArr.options = res.data.data;
             this.appTypeArr.options.push({ ItemCode: "", ItemName: "全部" });
           }
