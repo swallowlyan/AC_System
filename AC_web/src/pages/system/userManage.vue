@@ -78,7 +78,7 @@
               background
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
-              :current-page="1"
+              :current-page="currentPage"
               :page-sizes="[5, 10,15]"
               :page-size="tableLimit"
               layout="total, sizes, prev, pager, next"
@@ -157,6 +157,7 @@ export default {
     return {
       tableSize: 0,
       tableLimit: 10,
+      currentPage:1,
       selectedRow: [],
       searchItem: {
         userName: "",
@@ -220,6 +221,7 @@ export default {
       this.$axios
         .get(baseUrl + "/admin/user/list?" + this.$qs.stringify(param))
         .then(res => {
+          this.currentPage=page;
           this.tableSize = res.data.data.total;
           this.tableData = res.data.data.records;
         })

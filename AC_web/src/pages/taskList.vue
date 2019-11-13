@@ -48,7 +48,7 @@
               background
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
-              :current-page="1"
+              :current-page="currentPage"
               :page-sizes="[5, 10,15]"
               :page-size="tableLimit"
               layout="total, sizes, prev, pager, next"
@@ -88,6 +88,7 @@ export default {
       tableData: [],
       tableSize: 0,
       tableLimit: 10,
+      currentPage:1,
       searchItem: {
         taskName: "",
         startTime: ""
@@ -119,6 +120,7 @@ export default {
             param
         )
         .then(res => {
+          this.currentPage=page;
           this.tableSize = res.data.data.total;
           this.tableData = res.data.data.records;
           return false;

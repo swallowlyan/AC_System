@@ -89,7 +89,7 @@
               background
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
-              :current-page="1"
+              :current-page="currentPage"
               :page-sizes="[5, 10,15]"
               :page-size="tableLimit"
               layout="total, sizes, prev, pager, next"
@@ -150,20 +150,6 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="发布时间">
-                <span v-if="ifDialogDetail">{{dialogForm.releaseTime}}</span>
-                <el-date-picker
-                  v-model="dialogForm.releaseTime"
-                  v-if="!ifDialogDetail"
-                  type="datetime"
-                  placeholder="请选择发布时间"
-                  style="width:90%"
-                ></el-date-picker>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
               <el-form-item label="是否升级包" prop="isIncrementPkg">
                 <span v-if="ifDialogDetail&&dialogForm.isIncrementPkg">是</span>
                 <span v-if="ifDialogDetail&&(!dialogForm.isIncrementPkg)">否</span>
@@ -171,20 +157,22 @@
                 <el-radio v-if="!ifDialogDetail" v-model="dialogForm.isIncrementPkg" label="true">是</el-radio>
               </el-form-item>
             </el-col>
+          </el-row>
+          <el-row>
             <el-col :span="12">
               <el-form-item label="开发商">
                 <span v-if="ifDialogDetail">{{dialogForm.vendor}}</span>
                 <el-input v-if="!ifDialogDetail" v-model="dialogForm.vendor" placeholder="请输入开发商"></el-input>
               </el-form-item>
             </el-col>
-          </el-row>
-          <el-row>
             <el-col :span="12">
               <el-form-item label="容器版本">
                 <span v-if="ifDialogDetail">{{dialogForm.version}}</span>
                 <el-input v-if="!ifDialogDetail" v-model="dialogForm.version" placeholder="请输入容器版本"></el-input>
               </el-form-item>
             </el-col>
+          </el-row>
+          <el-row>
             <el-col :span="12">
               <el-form-item label="容器url">
                 <span v-if="ifDialogDetail">{{dialogForm.url}}</span>
@@ -193,6 +181,39 @@
                   v-model="dialogForm.url"
                   @focus="urlFocus($event,2)"
                   placeholder="请输入容器url"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="图标url">
+                <span v-if="ifDialogDetail">{{dialogForm.logo}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.logo"
+                  @focus="urlFocus($event,0)"
+                  placeholder="请输入图标url"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="最大数据大小(MB)">
+                <span v-if="ifDialogDetail">{{dialogForm.minDataDiskMB}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.minDataDiskMB"
+                  placeholder="请输入最大数据大小"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="最小内存(MB)">
+                <span v-if="ifDialogDetail">{{dialogForm.minRamMB}}</span>
+                <el-input
+                  v-if="!ifDialogDetail"
+                  v-model="dialogForm.minRamMB"
+                  placeholder="请输入最小内存"
                 ></el-input>
               </el-form-item>
             </el-col>
@@ -221,39 +242,19 @@
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="最大数据大小(MB)">
-                <span v-if="ifDialogDetail">{{dialogForm.minDataDiskMB}}</span>
-                <el-input
+              <el-form-item label="发布时间">
+                <span v-if="ifDialogDetail">{{dialogForm.releaseTime}}</span>
+                <el-date-picker
+                  v-model="dialogForm.releaseTime"
                   v-if="!ifDialogDetail"
-                  v-model="dialogForm.minDataDiskMB"
-                  placeholder="请输入最大数据大小"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="最小内存(MB)">
-                <span v-if="ifDialogDetail">{{dialogForm.minRamMB}}</span>
-                <el-input
-                  v-if="!ifDialogDetail"
-                  v-model="dialogForm.minRamMB"
-                  placeholder="请输入最小内存"
-                ></el-input>
+                  type="datetime"
+                  placeholder="请选择发布时间"
+                  style="width:90%"
+                ></el-date-picker>
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row v-if="!ifDialogDetail">
-            <el-col :span="24">
-              <el-form-item label="图标url">
-                <span v-if="ifDialogDetail">{{dialogForm.logo}}</span>
-                <el-input
-                  v-if="!ifDialogDetail"
-                  v-model="dialogForm.logo"
-                  @focus="urlFocus($event,0)"
-                  placeholder="请输入图标url"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
+
           <el-row>
             <el-col :span="24" style="height:100px">
               <el-form-item label="简要说明" class="lineHeight">
@@ -277,39 +278,44 @@
               <span>设备库</span>
             </div>
             <div>
-          <el-row style="max-height: 300px;overflow:auto;">
-            <el-table
-              ref="deviceTable"
-              :data="deviceList"
-              tooltip-effect="dark"
-              border
-              style="width: 100%"
-              @select="rowChange"
-              @select-all="selecteAll"
-            >
-              <el-table-column type="selection" width="55"></el-table-column>
-              <el-table-column prop="deviceId" label="终端ID" width="200"></el-table-column>
-              <el-table-column prop="name" label="终端名称" width="220"></el-table-column>
-              <el-table-column prop="status" label="终端状态">
-                <template slot-scope="scope">
-                  <span v-if="scope.row.status===1" style="color:#67c23a">正常</span>
-                  <span v-if="scope.row.status===0" style="color:orange">未激活</span>
-                </template>
-              </el-table-column>
-              <el-table-column v-if="ifGetInstalled" prop="containerName" label="容器实例名" width="135"></el-table-column>
-            </el-table>
-          </el-row>
-          <el-row style="text-align: center;margin-top:10px;">
-            <el-pagination
-              @size-change="deviceSizeChange"
-              @current-change="deviceCurrentChange"
-              :current-page="deviceCurrentPage"
-              :page-sizes="[5, 10, 15]"
-              :page-size="devicePageSize"
-              layout="total, prev, pager, next, jumper"
-              :total="deviceTotal"
-            ></el-pagination>
-          </el-row>
+              <el-row style="max-height: 300px;overflow:auto;">
+                <el-table
+                  ref="deviceTable"
+                  :data="deviceList"
+                  tooltip-effect="dark"
+                  border
+                  style="width: 100%"
+                  @select="rowChange"
+                  @select-all="selecteAll"
+                >
+                  <el-table-column type="selection" width="55"></el-table-column>
+                  <el-table-column prop="deviceId" label="终端ID" width="200"></el-table-column>
+                  <el-table-column prop="name" label="终端名称" width="220"></el-table-column>
+                  <el-table-column prop="status" label="终端状态">
+                    <template slot-scope="scope">
+                      <span v-if="scope.row.status===1" style="color:#67c23a">正常</span>
+                      <span v-if="scope.row.status===0" style="color:orange">未激活</span>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    v-if="ifGetInstalled"
+                    prop="containerName"
+                    label="容器实例名"
+                    width="135"
+                  ></el-table-column>
+                </el-table>
+              </el-row>
+              <el-row style="text-align: center;margin-top:10px;">
+                <el-pagination
+                  @size-change="deviceSizeChange"
+                  @current-change="deviceCurrentChange"
+                  :current-page="deviceCurrentPage"
+                  :page-sizes="[5, 10, 15]"
+                  :page-size="devicePageSize"
+                  layout="total, prev, pager, next, jumper"
+                  :total="deviceTotal"
+                ></el-pagination>
+              </el-row>
             </div>
           </el-card>
         </el-col>
@@ -410,6 +416,7 @@ export default {
     return {
       tableSize: 0,
       tableLimit: 10,
+      currentPage: 1,
       selectedRow: [],
       searchItem: {
         name: "",
@@ -497,6 +504,7 @@ export default {
           condition
         )
         .then(res => {
+          this.currentPage = page;
           this.tableSize = res.data.totalRecord;
           if (res.data.data !== null && res.data.data.length > 0) {
             res.data.data.forEach(item => {
@@ -566,6 +574,7 @@ export default {
       this.dialogTitle = "编辑容器";
       this.ifDialogEdit = true;
       this.dialogForm = Object.assign({}, row);
+      this.dialogForm.logo = "";
       this.dialogFormVisible = true;
     },
     //删除容器
@@ -771,7 +780,7 @@ export default {
                       type: "success",
                       message: "已完成安装"
                     });
-                    this.multipleSelectionAll=[];
+                    this.multipleSelectionAll = [];
                     this.dialogFormVisible = false;
                   } else {
                     this.$message({
@@ -835,7 +844,7 @@ export default {
                     type: "success",
                     message: "已完成卸载"
                   });
-                  this.multipleSelectionAll=[];
+                  this.multipleSelectionAll = [];
                   this.getDeviceDialog(1);
                   // this.dialogFormVisible = false;
                 } else {
@@ -874,7 +883,7 @@ export default {
               this.devicePageSize +
               "&pageIndex=" +
               page,
-            {status:1}
+            { status: 1 }
           )
           .then(res => {
             setTimeout(() => {
@@ -913,8 +922,9 @@ export default {
             ) {
               this.deviceList = [];
               res.data.data.devices.forEach(item => {
-                if (item.containerDeployStatus.deployStatus === 1){
-                  item.deviceQueryResult.containerName=item.containerConfig.containerName;
+                if (item.containerDeployStatus.deployStatus === 1) {
+                  item.deviceQueryResult.containerName =
+                    item.containerConfig.containerName;
                   this.deviceList.push(item.deviceQueryResult);
                 }
               });
@@ -1079,8 +1089,11 @@ export default {
     //容器url-dialog
     urlFocus(event, type) {
       console.info(event);
-      if (type === 2) this.dialogTitle = "容器url";
-      else this.dialogTitle = "图标url";
+      if (type === 2) {
+        this.dialogTitle = "容器url";
+      } else {
+        this.dialogTitle = "图标url";
+      }
       this.currentUrlType = type;
       this.getUrls(1);
     },
@@ -1100,6 +1113,7 @@ export default {
           this.urlTotal = res.data.data.total;
           this.urlList = res.data.data.records;
           this.urlSelectVisible = true;
+          return false;
         })
         .catch(err => {
           console.log(err);

@@ -244,45 +244,45 @@
               <span>容器库</span>
             </div>
             <div>
-          <el-row style="max-height: 300px;overflow:auto;">
-            <el-table
-              ref="deviceTable"
-              :data="deviceList"
-              tooltip-effect="dark"
-              style="width: 100%"
-              :class="{installTable: !ifGetInstalled}"
-              @select="rowChange"
-              @select-all="selecteAll"
-              row-key="deviceId"
-              border
-              lazy
-              :load="load"
-              :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-            >
-              <el-table-column type="selection" width="55"></el-table-column>
-              <el-table-column prop="deviceId" label="终端ID" width="200"></el-table-column>
-              <el-table-column prop="name" label="名称" width="220"></el-table-column>
-              <el-table-column v-if="ifGetInstalled" prop="containerName" label="容器名称"></el-table-column>
-              <el-table-column prop="type" label="类型"></el-table-column>
-              <el-table-column prop="status" label="状态">
-                <template slot-scope="scope">
-                  <span v-if="scope.row.status===1" style="color:#67c23a">正常</span>
-                  <span v-if="scope.row.status===0" style="color:orange">未激活</span>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-row>
-          <el-row style="text-align: center;margin-top:10px;">
-            <el-pagination
-              @size-change="deviceSizeChange"
-              @current-change="deviceCurrentChange"
-              :current-page="deviceCurrentPage"
-              :page-sizes="[5, 10, 15]"
-              :page-size="devicePageSize"
-              layout="total, prev, pager, next, jumper"
-              :total="deviceTotal"
-            ></el-pagination>
-          </el-row>
+              <el-row style="max-height: 300px;overflow:auto;">
+                <el-table
+                  ref="deviceTable"
+                  :data="deviceList"
+                  tooltip-effect="dark"
+                  style="width: 100%"
+                  :class="{installTable: !ifGetInstalled}"
+                  @select="rowChange"
+                  @select-all="selecteAll"
+                  row-key="deviceId"
+                  border
+                  lazy
+                  :load="load"
+                  :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+                >
+                  <el-table-column type="selection" width="55"></el-table-column>
+                  <el-table-column prop="deviceId" label="终端ID" width="200"></el-table-column>
+                  <el-table-column prop="name" label="名称" width="220"></el-table-column>
+                  <el-table-column v-if="ifGetInstalled" prop="containerName" label="容器名称"></el-table-column>
+                  <el-table-column v-if="!ifGetInstalled" prop="type" label="类型"></el-table-column>
+                  <el-table-column prop="status" label="状态">
+                    <template slot-scope="scope">
+                      <span v-if="scope.row.status===1" style="color:#67c23a">正常</span>
+                      <span v-if="scope.row.status===0" style="color:orange">未激活</span>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </el-row>
+              <el-row style="text-align: center;margin-top:10px;">
+                <el-pagination
+                  @size-change="deviceSizeChange"
+                  @current-change="deviceCurrentChange"
+                  :current-page="deviceCurrentPage"
+                  :page-sizes="[5, 10, 15]"
+                  :page-size="devicePageSize"
+                  layout="total, prev, pager, next, jumper"
+                  :total="deviceTotal"
+                ></el-pagination>
+              </el-row>
             </div>
           </el-card>
         </el-col>
@@ -294,7 +294,8 @@
             <div style="max-height:300px;overflow: auto;">
               <ul>
                 <li v-for="(item,index) in multipleSelectionAll" :key="index">
-                  {{item.parentId}}——{{item.name}}
+                  <span v-if="!ifGetInstalled">{{item.parentId}}——{{item.name}}</span>
+                  <span v-if="ifGetInstalled">{{item.deviceId}}——{{item.containerName}}</span>
                   <el-button type="text" @click="removeSelected(item)">
                     <i class="el-icon-close"></i>
                   </el-button>
@@ -468,7 +469,7 @@ export default {
       this.$axios
         .post(baseUrl + "/admin/app/getAllTypes")
         .then(res => {
-          if (res.data.errcode==="0") {
+          if (res.data.errcode === "0") {
             this.appTypeArr.options = res.data.data;
             this.appTypeArr.options.push({ ItemCode: "", ItemName: "全部" });
           }
@@ -512,9 +513,9 @@ export default {
     },
     //关闭dialog还原属性
     initProps() {
-      this.ifInstallDialog=false;
-      this.ifGetInstalled=false;
-      this.ifDialogDetail=false;
+      this.ifInstallDialog = false;
+      this.ifGetInstalled = false;
+      this.ifDialogDetail = false;
     },
     //监听"x"操作
     handleDialogClose() {
@@ -636,7 +637,7 @@ export default {
     },
     //选择设备
     getDeviceDialog(page) {
-      this.deviceTotal=0;
+      this.deviceTotal = 0;
       if (!this.ifGetInstalled) {
         //查询可安装终端
         this.$axios
@@ -751,7 +752,7 @@ export default {
                     message: "命令发送成功",
                     type: "success"
                   });
-                  this.multipleSelectionAll=[];
+                  this.multipleSelectionAll = [];
                   this.dialogFormVisible = false;
                 } else {
                   this.$message({
@@ -781,21 +782,21 @@ export default {
     unInstallApplication() {
       let optionNameArr = "",
         paramList = [];
-        if (this.selectedDevices.length > 0) {
-        this.selectedDevices.forEach(item => {
+      if (this.multipleSelectionAll.length > 0) {
+        this.multipleSelectionAll.forEach(item => {
           optionNameArr += item.name + ",";
           let param = {
-            appNames:[this.currentApp.name],
-            containerNames: item.containerNames,
+            appNames: [this.currentApp.appName],
+            containerName: item.containerName,
             deviceId: item.deviceId
           };
           paramList.push(param);
         });
         this.$confirm(
-          "是否确定卸载设备——'" +
+          "是否确定卸载容器——'" +
             optionNameArr +
             "'中的应用'" +
-            this.currentApp.name +
+            this.currentApp.appName +
             "'?",
           "提示",
           {
@@ -815,7 +816,7 @@ export default {
                     type: "success",
                     message: "已完成卸载"
                   });
-                  this.multipleSelectionAll=[];
+                  this.multipleSelectionAll = [];
                   this.getDeviceDialog(1);
                 } else {
                   this.$message({
@@ -853,7 +854,7 @@ export default {
               this.devicePageSize +
               "&pageIndex=" +
               page,
-            {status:1}
+            { status: 1 }
           )
           .then(res => {
             setTimeout(() => {
@@ -879,31 +880,30 @@ export default {
         this.$axios
           .post(
             baseUrl +
-              "" +
-              "" +
-              "&pageSize=" +
+              "/admin/app/appdeployinfo?" +
+              "pageSize=" +
               this.devicePageSize +
               "&pageIndex=" +
-              page +
-              "&name=" +
-              this.currentApp.name,
-            {}
+              page,
+            { appInfo: { name: this.currentApp.appName } }
           )
           .then(res => {
             setTimeout(() => {
               this.setSelectRow();
             }, 200);
             if (
-              res.data.data.devices !== null &&
-              res.data.data.devices.length > 0
+              res.data.data.records !== null &&
+              res.data.data.records.length > 0
             ) {
               this.deviceList = [];
-              res.data.data.devices.forEach(item => {
-                if (item.containerDeployStatus.deployStatus === 1)
-                  this.deviceList.push(item.deviceQueryResult);
+              res.data.data.records.forEach(item => {
+                item.deviceId = item.deviceInfo.deviceId;
+                item.name = item.deviceInfo.name;
+                item.status = item.deviceInfo.status;
+                this.deviceList.push(item);
               });
             }
-            this.deviceTotal = res.data.data.totalRecord;
+            this.deviceTotal = res.data.data.total;
             this.ifInstallDialog = true;
           })
           .catch(err => {
@@ -986,7 +986,7 @@ export default {
     },
     //当页选择设备操作
     rowChange(rows, row) {
-      if (Object.keys(row).length < 5) {
+      if (this.ifGetInstalled || Object.keys(row).length < 5) {
         this.multipleSelection = Object.assign([], rows);
         let selected = rows.length && rows.indexOf(row) !== -1;
         if (this.multipleSelectionAll.length === 0)
@@ -1024,10 +1024,35 @@ export default {
     },
     //全选
     selecteAll(rows) {
-      this.$message({
-        type: "warning",
-        message: "请选择设备下的容器进行操作"
-      });
+      if (!this.ifGetInstalled) {
+        this.$message({
+          type: "warning",
+          message: "请选择设备下的容器进行操作"
+        });
+      }else{
+        let that = this;
+      if (rows.length > 0) {
+        //当前页全选
+        if (that.multipleSelectionAll.length === 0)
+          that.multipleSelectionAll = Object.assign([], rows);
+        else {
+          rows.forEach((row, rowIndex) => {
+            if (that.multipleSelectionAll.indexOf(row) < 0)
+              that.multipleSelectionAll.push(row);
+          });
+        }
+        that.multipleSelection = Object.assign([], rows);
+      } else {
+        //当前页全部取消
+        that.multipleSelection.forEach((item, index) => {
+          that.multipleSelectionAll.forEach((m, i) => {
+            if (item[this.idKey] === m[this.idKey])
+              that.multipleSelectionAll.splice(i, 1);
+          });
+        });
+        that.multipleSelection = [];
+      }
+      }
     },
     //移除已选设备
     removeSelected(val) {
@@ -1119,5 +1144,7 @@ export default {
 </style>
 <style>
 .installTable th .el-checkbox,
-.installTable .el-table__row--level-0 .el-checkbox{display: none !important}
+.installTable .el-table__row--level-0 .el-checkbox {
+  display: none !important;
+}
 </style>

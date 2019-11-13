@@ -110,7 +110,7 @@
                 background
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page="1"
+                :current-page="currentPage"
                 :page-sizes="[5, 10,15]"
                 :page-size="tableLimit"
                 layout="total, sizes, prev, pager, next"
@@ -600,6 +600,7 @@ export default {
       activeTab: "allView",
       tableSize: 0,
       tableLimit: 10,
+      currentPage:1,
       selectedRow: [],
       searchItem: {
         deviceId: "",
@@ -722,6 +723,7 @@ export default {
           param
         )
         .then(res => {
+          this.currentPage=page;
           this.tableSize = res.data.data.totalRecord;
           this.tableData = res.data.data.data;
           return false;
