@@ -335,8 +335,10 @@
             <div style="max-height:283px;overflow: auto;">
               <ul>
                 <li v-for="(item,index) in multipleSelectionAll" :key="index">
-                  {{item.deviceId}}——
-                  {{item.name}}
+                  <span v-if="!ifGetInstalled">{{item.deviceId}}——
+                  {{item.name}}</span>
+                  <span v-if="ifGetInstalled">{{item.name}}——
+                  {{item.containerName}}</span>
                   <el-button type="text" @click="removeSelected(item)">
                     <i class="el-icon-close"></i>
                   </el-button>
@@ -815,7 +817,7 @@ export default {
         this.multipleSelectionAll.forEach(item => {
           optionNameArr += item.name + ",";
           let param = {
-            containerNames: [this.currentContainer.name],
+            containerNames: [item.containerName],
             deviceId: item.deviceId
           };
           paramList.push(param);
@@ -824,7 +826,7 @@ export default {
           "是否确定卸载设备——'" +
             optionNameArr +
             "'中的容器'" +
-            this.currentContainer.name +
+            item.containerName +
             "'?",
           "提示",
           {

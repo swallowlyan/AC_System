@@ -1283,7 +1283,7 @@ export default {
           type: "warning"
         });
       } else {
-        this.$confirm("是否卸载卸载容器——'" + item.name + "'?", "提示", {
+        this.$confirm("是否卸载卸载容器——'" + item.containerName + "'?", "提示", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
@@ -1291,7 +1291,7 @@ export default {
           .then(() => {
             let containers = [
               {
-                containerNames: [item.name],
+                containerNames: [item.containerName],
                 deviceId: this.currentRow.deviceId
               }
             ];
