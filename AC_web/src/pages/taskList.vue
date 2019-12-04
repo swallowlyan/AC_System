@@ -5,7 +5,7 @@
       <el-row>
         <el-col :span="6">
           <el-form-item label="任务名称">
-            <el-input v-model="searchItem.taskName" placeholder="请输入任务名称"></el-input>
+            <el-input v-model="searchItem.taskName" size="small" placeholder="请输入任务名称"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6">
@@ -14,13 +14,14 @@
               v-model="searchItem.startTime"
               type="date"
               value-format="yyyy-MM-dd"
+               size="small"
               placeholder="请选择创建时间"
             ></el-date-picker>
           </el-form-item>
         </el-col>
         <el-col :span="4" :offset="1">
-          <el-button type="primary" @click="search(1)">查询</el-button>
-          <el-button type="default" @click="reset('searchItem')">重置</el-button>
+          <el-button type="primary" @click="search(1)" size="small" style="background-color: #11a7b8;">查询</el-button>
+          <el-button type="default" @click="reset('searchItem')" size="small">重置</el-button>
           <!-- <el-button type="success" icon="el-icon-refresh" @click="search(1)">刷新</el-button> -->
         </el-col>
       </el-row>
@@ -28,7 +29,8 @@
     <el-row>
       <el-col :span="24">
         <div>
-          <el-table :data="tableData" border size="medium" class="fileService">
+          <el-table :data="tableData" border size="medium" class="fileService"
+          :header-cell-style="tableHeaderColor">
             <!-- <el-table-column type="index" width="50" label="序号"></el-table-column> -->
             <el-table-column prop="CreateTime" label="创建时间" align="center"></el-table-column>
             <el-table-column prop="taskTypeName" label="任务类型" align="center"></el-table-column>
@@ -64,7 +66,8 @@
       <el-row>
         <el-col :span="24">
           <div>
-            <el-table :data="detailData" border size="medium" class="detailTable">
+            <el-table :data="detailData" border size="medium" class="detailTable"
+            :header-cell-style="tableHeaderColor">
               <el-table-column type="index" label="序号" width="50"></el-table-column>
               <el-table-column prop="terminalId" label="设备ID" align="center"></el-table-column>
               <el-table-column prop="taskStatusName" label="任务状态" align="center"></el-table-column>
@@ -151,6 +154,11 @@ export default {
     },
     handleCurrentChange(val) {
       this.search(val);
+    },
+    tableHeaderColor({ row, column, rowIndex, columnIndex }) {
+      if (rowIndex === 0) {
+        return "color: #353B40;font-weight: bold;background: #f5fafa;padding: 5px 0;";
+      }
     }
   }
 };
@@ -160,6 +168,9 @@ export default {
 .detailTable {
   max-height: 500px;
   overflow: auto;
+}
+.fileService .el-button--text{
+  color: #11a7b8;
 }
 .pull-right {
   color: #ffffff;

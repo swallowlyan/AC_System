@@ -40,7 +40,7 @@
                   <el-input v-model="fileId" placeholder="请输入关键字搜索"></el-input>
                 </el-col>
                 <el-col :span="2" :offset="1">
-                  <el-button type="primary" icon="el-icon-search" @click="searchFile(1)">搜索</el-button>
+                  <el-button type="primary" icon="el-icon-search" @click="searchFile(1)" style="background-color: #11a7b8;">搜索</el-button>
                 </el-col>
               </el-row>
             </el-header>
@@ -215,4 +215,29 @@ el-card__header button {
   padding: 0px;
   margin-top: 10px;
 }
+.el-menu{
+  padding-right: 10px;
+}
+.el-menu-item {
+  border-radius: 8px;
+  padding: 15px 20px;
+  font-size: 15px;
+  line-height: 24px;
+  background: #f2fcff;
+  margin-bottom: 15px;
+  border: 1px solid #aed1ff;
+  cursor: pointer;
+  color: #0099fa;
+}
+.el-menu-item i{
+  color: #0099fa;
+}
+.el-menu-item.is-active{
+  background: #0099fa;
+  color: #ffffff;
+}
+.el-menu-item.is-active i{
+  color: #ffffff;
+}
+
 </style>

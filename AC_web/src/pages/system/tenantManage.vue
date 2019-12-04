@@ -5,17 +5,17 @@
       <el-row>
         <el-col :span="6">
           <el-form-item label="租户名称" prop="tenantName">
-            <el-input v-model="searchItem.tenantName" placeholder="请输入租户名称"></el-input>
+            <el-input v-model="searchItem.tenantName" size="small" placeholder="请输入租户名称"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6">
           <el-form-item label="租户父级ID" prop="parentId">
-            <el-input v-model="searchItem.parentId" placeholder="请输入租户父级ID"></el-input>
+            <el-input v-model="searchItem.parentId" size="small" placeholder="请输入租户父级ID"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6" :offset="1">
-          <el-button type="primary" @click="search(1)">查询</el-button>
-          <el-button type="default" @click="reset('searchItem')">重置</el-button>
+          <el-button type="primary" size="small" @click="search(1)" style="background-color: #11a7b8;">查询</el-button>
+          <el-button type="default" size="small" @click="reset('searchItem')">重置</el-button>
         </el-col>
       </el-row>
     </el-form>
@@ -28,6 +28,7 @@
             size="medium"
             class="userTable"
             @selection-change="getRowDatas"
+            :header-cell-style="tableHeaderColor"
           >
             <!-- <el-table-column type="selection" width="55"></el-table-column> -->
             <el-table-column prop="tenantId" label="租户ID" align="center"></el-table-column>
@@ -44,8 +45,12 @@
             <el-table-column prop="options" width="150" label="操作" align="center">
               <template slot-scope="scope">
                 <!-- <el-button @click="disableUser(scope.row)" type="text" size="medium">禁用</el-button> -->
-                <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
-                <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
+                <el-button @click="editRow(scope.row)" type="text" size="medium" title="编辑">
+                  <i class="el-icon-edit"></i>
+                </el-button>
+                <el-button @click="delRow(scope.row)" type="text" size="medium" title="删除">
+                  <i class="el-icon-delete"></i>
+                </el-button>
                 <!-- <el-button @click="resetPwd(scope.row)" type="text" size="medium">重置密码</el-button> -->
               </template>
             </el-table-column>
@@ -60,7 +65,7 @@
                 @click="search(1,10)"
               >刷新</el-button> -->
               <el-button
-                type="primary"
+                type="success"
                 round
                 size="small"
                 icon="el-icon-plus"
@@ -104,7 +109,8 @@
           <el-row>
             <el-col :span="24">
               <el-form-item label="上级租户:" prop="parentId">
-                <el-select v-if="!ifEdit" v-model="dialogForm.parentId" :placeholder="tenantArr.title">
+                <el-select v-if="!ifEdit" v-model="dialogForm.parentId" :placeholder="tenantArr.title"
+                style="float:left">
                   <el-option
                     v-for="item in tenantArr.options"
                     :key="item.tenantId"
@@ -112,7 +118,7 @@
                     :value="item.tenantId"
                   ></el-option>
                 </el-select>
-                <span v-if="ifEdit">{{dialogForm.parentId}}</span>
+                <span v-if="ifEdit" style="float:left">{{dialogForm.parentId}}</span>
               </el-form-item>
             </el-col>
           </el-row>
@@ -322,6 +328,11 @@ export default {
     },
     handleCurrentChange(val) {
       this.search(val);
+    },
+    tableHeaderColor({ row, column, rowIndex, columnIndex }) {
+      if (rowIndex === 0) {
+        return "color: #353B40;font-weight: bold;background: #f5fafa;padding: 5px 0;";
+      }
     }
   }
 };
@@ -331,5 +342,8 @@ export default {
 .userTable {
   max-height: 500px;
   overflow: auto;
+}
+.userTable .el-button--text{
+color: #11a7b8;
 }
 </style>

@@ -5,17 +5,17 @@
       <el-row>
         <el-col :span="6">
           <el-form-item label="容器名称" prop="name">
-            <el-input v-model="searchItem.name" placeholder="请输入容器名称"></el-input>
+            <el-input v-model="searchItem.name" size="small" placeholder="请输入容器名称"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6">
           <el-form-item label="容器类型" prop="type">
-            <el-input v-model="searchItem.type" placeholder="请输入容器类型"></el-input>
+            <el-input v-model="searchItem.type" size="small" placeholder="请输入容器类型"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6" :offset="1">
-          <el-button type="primary" @click="search(1)">查询</el-button>
-          <el-button type="default" @click="reset('searchItem')">重置</el-button>
+          <el-button type="primary" @click="search(1)" size="small" style="background-color: #11a7b8;">查询</el-button>
+          <el-button type="default" @click="reset('searchItem')" size="small">重置</el-button>
         </el-col>
       </el-row>
     </el-form>
@@ -28,6 +28,7 @@
             size="medium"
             class="containerTable"
             @selection-change="getRowDatas"
+            :header-cell-style="tableHeaderColor"
           >
             <!-- <el-table-column type="selection" width="55"></el-table-column> -->
             <!-- <el-table-column type="index" width="50" label="序号"></el-table-column> -->
@@ -58,7 +59,7 @@
             <el-table-column prop="description" width="150" label="说明" align="center"></el-table-column>
             <el-table-column prop="options" label="操作" align="center" width="250">
               <template slot-scope="scope">
-                <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
+                <el-button @click="editRow(scope.row)" type="text" size="medium" >编辑</el-button>
                 <el-button @click="toInstallDialog(scope.row,false)" type="text" size="medium">安装</el-button>
                 <el-button @click="toInstallDialog(scope.row,true)" type="text" size="medium">查询设备</el-button>
                 <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
@@ -75,7 +76,7 @@
                 @click="search(1,10)"
               >刷新</el-button>-->
               <el-button
-                type="primary"
+                type="success"
                 round
                 size="small"
                 icon="el-icon-plus"
@@ -275,6 +276,7 @@
         <el-col :span="15">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
+              <el-divider direction="vertical"></el-divider>
               <span>设备库</span>
             </div>
             <div>
@@ -287,6 +289,7 @@
                   style="width: 100%"
                   @select="rowChange"
                   @select-all="selecteAll"
+                  :header-cell-style="tableHeaderColor"
                 >
                   <el-table-column type="selection" width="55"></el-table-column>
                   <el-table-column prop="deviceId" label="终端ID" width="200"></el-table-column>
@@ -322,12 +325,14 @@
         <el-col :span="8" :offset="1">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
+              <el-divider direction="vertical"></el-divider>
               <span>已选设备</span>
             </div>
             <div v-if="!ifGetInstalled">
               <label>容器实例名：</label>
               <el-input
                 v-model="dialogForm.containerName"
+                size="small"
                 style="width: 70%;"
                 placeholder="请输入容器实例名"
               ></el-input>
@@ -335,9 +340,9 @@
             <div style="max-height:283px;overflow: auto;">
               <ul>
                 <li v-for="(item,index) in multipleSelectionAll" :key="index">
-                  <span v-if="!ifGetInstalled">{{item.deviceId}}——
+                  <span v-if="!ifGetInstalled"><i class="el-icon-d-arrow-right"></i>{{item.deviceId}}——
                   {{item.name}}</span>
-                  <span v-if="ifGetInstalled">{{item.name}}——
+                  <span v-if="ifGetInstalled"><i class="el-icon-d-arrow-right"></i>{{item.name}}——
                   {{item.containerName}}</span>
                   <el-button type="text" @click="removeSelected(item)">
                     <i class="el-icon-close"></i>
@@ -351,7 +356,8 @@
       <!-- 容器url选择 -->
       <el-row v-show="urlSelectVisible">
         <el-row style="max-height: 300px;overflow:auto;">
-          <el-table :data="urlList" tooltip-effect="dark" style="width: 100%">
+          <el-table :data="urlList" tooltip-effect="dark" style="width: 100%" class="urlTable"
+          :header-cell-style="tableHeaderColor">
             <el-table-column prop="fileName" label="名称" align="center">
               <template slot-scope="scope">
                 <el-button
@@ -1136,8 +1142,13 @@ export default {
     },
     urlCurrentChange(val) {
       this.getUrls(val);
-    }
+    },
     //////////////////////////////////////////////////////
+    tableHeaderColor({ row, column, rowIndex, columnIndex }) {
+      if (rowIndex === 0) {
+        return "color: #353B40;font-weight: bold;background: #f5fafa;padding: 5px 0;";
+      }
+    }
   }
 };
 </script>
@@ -1146,5 +1157,11 @@ export default {
 .containerTable {
   max-height: 500px;
   overflow: auto;
+}
+.containerTable .el-button--text,.deviceTable .el-button--text,.urlTable .el-button--text{
+  color: #11a7b8;
+}
+.el-card__body span{
+  font-size: 12px;
 }
 </style>

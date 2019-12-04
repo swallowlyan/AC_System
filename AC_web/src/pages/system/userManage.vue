@@ -5,17 +5,17 @@
       <el-row>
         <el-col :span="6">
           <el-form-item label="用户名" prop="userName">
-            <el-input v-model="searchItem.userName" placeholder="请输入用户名"></el-input>
+            <el-input v-model="searchItem.userName" size="small" placeholder="请输入用户名"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6">
           <el-form-item label="租户ID" prop="tenantId">
-            <el-input v-model="searchItem.tenantId" placeholder="请输入租户ID"></el-input>
+            <el-input v-model="searchItem.tenantId" size="small" placeholder="请输入租户ID"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6" :offset="1">
-          <el-button type="primary" @click="search(1)">查询</el-button>
-          <el-button type="default" @click="reset('searchItem')">重置</el-button>
+          <el-button type="primary" @click="search(1)" size="small" style="background-color: #11a7b8;">查询</el-button>
+          <el-button type="default" @click="reset('searchItem')" size="small">重置</el-button>
         </el-col>
       </el-row>
     </el-form>
@@ -28,6 +28,7 @@
             size="medium"
             class="userTable"
             @selection-change="getRowDatas"
+            :header-cell-style="tableHeaderColor"
           >
             <!-- <el-table-column type="selection" width="55"></el-table-column> -->
             <el-table-column prop="uid" width="120" label="用户ID" v-if="false"></el-table-column>
@@ -49,8 +50,12 @@
             <el-table-column prop="options" width="150" label="操作" align="center">
               <template slot-scope="scope">
                 <!-- <el-button @click="disableUser(scope.row)" type="text" size="medium">禁用</el-button> -->
-                <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
-                <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
+                <el-button @click="editRow(scope.row)" type="text" size="medium" title="编辑">
+                  <i class="el-icon-edit"></i>
+                </el-button>
+                <el-button @click="delRow(scope.row)" type="text" size="medium" title="删除">
+                  <i class="el-icon-delete"></i>
+                </el-button>
                 <!-- <el-button @click="resetPwd(scope.row)" type="text" size="medium">重置密码</el-button> -->
               </template>
             </el-table-column>
@@ -65,7 +70,7 @@
                 @click="search(1,10)"
               >刷新</el-button> -->
               <el-button
-                type="primary"
+                type="success"
                 round
                 size="small"
                 icon="el-icon-plus"
@@ -103,7 +108,7 @@
             <el-col :span="24">
               <el-form-item label="用户名:" prop="username">
                 <el-input v-if="!ifUpdate" v-model="dialogForm.username" placeholder="请输入用户名"></el-input>
-                <span v-if="ifUpdate">{{dialogForm.username}}</span>
+                <span v-if="ifUpdate" style="float:left">{{dialogForm.username}}</span>
               </el-form-item>
             </el-col>
           </el-row>
@@ -117,7 +122,8 @@
           <el-row>
             <el-col :span="24" v-if="!ifUpdate">
               <el-form-item label="租户:" prop="tenantid">
-                <el-select v-model="dialogForm.tenantid" :placeholder="tenantArr.title">
+                <el-select v-model="dialogForm.tenantid" :placeholder="tenantArr.title"
+                style="float:left">
                   <el-option
                     v-for="item in tenantArr.options"
                     :key="item.tenantId"
@@ -128,14 +134,14 @@
               </el-form-item>
             </el-col>
             <el-col :span="24" v-if="ifUpdate">
-              <el-form-item label="租户ID:">
+              <el-form-item label="租户ID:" style="float:left">
                 <span>{{dialogForm.tenantid}}</span>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="24">
-              <el-form-item label="用户类型" prop="usertype">
+              <el-form-item label="用户类型" prop="usertype" style="float:left">
                 <el-radio v-model="dialogForm.usertype" label="0">普通</el-radio>
                 <el-radio v-model="dialogForm.usertype" label="1">管理员</el-radio>
               </el-form-item>
@@ -240,6 +246,7 @@ export default {
     },
     add(formName) {
       this.dialogTitle = "新增用户";
+      this.ifUpdate = false;
       this.dialogFormVisible = true;
       this.$nextTick(() => {
         this.$refs[formName].resetFields();
@@ -341,6 +348,11 @@ export default {
     },
     handleCurrentChange(val) {
       this.search(val);
+    },
+    tableHeaderColor({ row, column, rowIndex, columnIndex }) {
+      if (rowIndex === 0) {
+        return "color: #353B40;font-weight: bold;background: #f5fafa;padding: 5px 0;";
+      }
     }
   }
 };
@@ -350,5 +362,8 @@ export default {
 .userTable {
   max-height: 500px;
   overflow: auto;
+}
+.userTable .el-button--text{
+ color: #11a7b8;
 }
 </style>

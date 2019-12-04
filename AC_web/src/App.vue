@@ -79,9 +79,11 @@ a:visited{
   margin-left: 10px;
 }
 .acForm .el-form-item__label {
-  background-color: rgb(239, 243, 248) !important;
+  background-color: #ecf2f6 !important;
   height: 100%;
   text-align: center;
+  color: #353B40;
+  font-weight: bold;
 }
 .acForm .el-form-item {
   height: 100%;
@@ -103,5 +105,24 @@ a:visited{
 }
 .searchForm .el-col{
   margin:0px 5px;
+}
+.el-pagination.is-background .el-pager li:not(.disabled).active{
+  background-color:#11a7b8;
+}
+.el-select-dropdown__item.selected{
+  color: #11a7b8;
+}
+.el-card__header {
+  padding: 10px 15px;
+}
+.el-card__header .clearfix {
+  background-color: #eee;
+}
+.el-card__header .el-divider--vertical {
+  width: 4px;
+  height: 28px;
+  background-color: #0099fa;
+  margin-right: 8px;
+  margin-left: 0px;
 }
 </style>

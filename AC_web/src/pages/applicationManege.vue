@@ -5,12 +5,12 @@
       <el-row>
         <el-col :span="6">
           <el-form-item label="微应用名称" prop="name">
-            <el-input v-model="searchItem.name" placeholder="请输入微应用名称"></el-input>
+            <el-input v-model="searchItem.name" size="small" placeholder="请输入微应用名称"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6">
           <el-form-item label="微应用类型" prop="type">
-            <el-select v-model="searchItem.type" :placeholder="appTypeArr.title">
+            <el-select v-model="searchItem.type" size="small" :placeholder="appTypeArr.title">
               <el-option
                 v-for="item in appTypeArr.options"
                 :key="item.ItemCode"
@@ -21,8 +21,8 @@
           </el-form-item>
         </el-col>
         <el-col :span="6" :offset="1">
-          <el-button type="primary" @click="search(1)">查询</el-button>
-          <el-button type="default" @click="reset('searchItem')">重置</el-button>
+          <el-button type="primary" size="small" @click="search(1)" style="background-color: #11a7b8;">查询</el-button>
+          <el-button type="default" size="small" @click="reset('searchItem')">重置</el-button>
         </el-col>
       </el-row>
     </el-form>
@@ -35,6 +35,7 @@
             size="medium"
             class="applicationTable"
             @selection-change="getRowDatas"
+            :header-cell-style="tableHeaderColor"
           >
             <!-- <el-table-column type="selection" width="55"></el-table-column> -->
             <el-table-column prop="appId" width="120" label="微应用ID" align="center">
@@ -64,7 +65,7 @@
           </el-table>
           <el-row style="margin:20px 0px">
             <el-button
-              type="primary"
+              type="success"
               round
               icon="el-icon-plus"
               size="small"
@@ -241,6 +242,7 @@
         <el-col :span="15">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
+              <el-divider direction="vertical"></el-divider>
               <span>容器库</span>
             </div>
             <div>
@@ -258,6 +260,7 @@
                   lazy
                   :load="load"
                   :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+                  :header-cell-style="tableHeaderColor"
                 >
                   <el-table-column type="selection" width="55"></el-table-column>
                   <el-table-column prop="deviceId" label="终端ID" width="200"></el-table-column>
@@ -289,13 +292,14 @@
         <el-col :span="8" :offset="1">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
+              <el-divider direction="vertical"></el-divider>
               <span>已选容器</span>
             </div>
             <div style="max-height:300px;overflow: auto;">
               <ul>
                 <li v-for="(item,index) in multipleSelectionAll" :key="index">
-                  <span v-if="!ifGetInstalled">{{item.parentId}}——{{item.name}}</span>
-                  <span v-if="ifGetInstalled">{{item.deviceId}}——{{item.containerName}}</span>
+                  <span v-if="!ifGetInstalled"><i class="el-icon-d-arrow-right"></i>{{item.parentId}}——{{item.name}}</span>
+                  <span v-if="ifGetInstalled"><i class="el-icon-d-arrow-right"></i>{{item.deviceId}}——{{item.containerName}}</span>
                   <el-button type="text" @click="removeSelected(item)">
                     <i class="el-icon-close"></i>
                   </el-button>
@@ -308,7 +312,8 @@
       <!-- 应用Url选择 -->
       <el-row v-show="urlSelectVisible">
         <el-row style="max-height: 300px;overflow:auto;">
-          <el-table :data="urlList" tooltip-effect="dark" style="width: 100%">
+          <el-table :data="urlList" tooltip-effect="dark" class="urlTable" style="width: 100%"
+          :header-cell-style="tableHeaderColor">
             <el-table-column prop="fileName" label="名称" align="center">
               <template slot-scope="scope">
                 <el-button
@@ -1131,6 +1136,11 @@ export default {
     },
     urlCurrentChange(val) {
       this.getUrls(val);
+    },
+    tableHeaderColor({ row, column, rowIndex, columnIndex }) {
+      if (rowIndex === 0) {
+        return "color: #353B40;font-weight: bold;background: #f5fafa;padding: 5px 0;";
+      }
     }
   }
 };
@@ -1140,6 +1150,9 @@ export default {
 .applicationTable {
   max-height: 500px;
   overflow: auto;
+}
+.applicationTable .el-button--text,.deviceTable .el-button--text,.urlTable .el-button--text{
+  color: #11a7b8;
 }
 </style>
 <style>

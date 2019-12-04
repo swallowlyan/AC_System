@@ -3,30 +3,25 @@
     <el-row class="searchTables" style="padding:20px 0px">
       <el-col :span="22" :offset="1">
         <el-card class="box-card">
-          <div slot="header" class="clearfix" style="height: 10px">
-            <el-col :span="2" :offset="1">
-              <span>排序：</span>
-            </el-col>
-            <el-col :span="2">
-              <el-button type="text" @click="getSoft()">默认</el-button>
-            </el-col>
-            <el-col :span="2">
-              <el-button type="text" @click="getSoft()">
+          <div slot="header" class="clearfix" style="height: 30px;background-color:#ffffff">
+            
+            <el-col :span="8" :offset="16">
+              <span style="font-weight: bold;font-size: 14px;">排序：</span>
+              <el-button-group>
+              <el-button size="small" @click="getSoft()">默认</el-button>
+              <el-button size="small" @click="getSoft()">
                 下载量
                 <i class="el-icon-top"></i>
               </el-button>
-            </el-col>
-            <el-col :span="3">
-              <el-button type="text" @click="getSoft()">
+              <el-button size="small" @click="getSoft()">
                 上架时间
                 <i class="el-icon-top"></i>
               </el-button>
-            </el-col>
-            <el-col :span="2">
-              <el-button type="text" @click="getSoft()">
+              <el-button size="small" @click="getSoft()">
                 评分
                 <i class="el-icon-top"></i>
               </el-button>
+              </el-button-group>
             </el-col>
           </div>
           <div class="softContent">
@@ -395,8 +390,7 @@ export default {
 .softContent a {
   color: #000000;
 }
-.searchTypes button,
-.el-card__header button {
+.searchTypes button{
   padding: 0px;
 }
 .el-card__header .el-col {

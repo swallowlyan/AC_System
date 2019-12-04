@@ -3,24 +3,28 @@
     <!-- 总览数据 -->
     <el-row>
       <el-col :span="5" v-for="(item,index) in allDataArr" :key="index" style="margin:0px 10px">
-        <el-card class="box-card allCard" shadow="hover" :body-style="{ padding:'15px'}">
-          <div slot="header" class="clearfix">
-            <span>{{item.title}}</span>
-            <span class="pull-right" :class="item.color">{{item.timeTitle}}</span>
+        <el-card class="box-card allCard" :body-style="{ padding:'10px'}">
+          <div>
+            <el-row>
+              <el-col :span="17">
+                <router-link tag="a" :to="{path:'/terminalManege',query:{status:item.param}}">
+                  <h1>{{item.count}}</h1>
+                </router-link>
+                <h3>
+                  {{item.title}}
+                  <span class="pull-right" :class="item.color">{{item.timeTitle}}</span>
+                </h3>
+              </el-col>
+              <el-col :span="5" :offset="1">
+                <img :src="item.img" style="width:100%;margin-top: 10px;" />
+              </el-col>
+            </el-row>
           </div>
-          <router-link tag="a" :to="{path:'/terminalManege',query:{status:item.param}}">
-            <h1 style="margin-left:20px">{{item.count}}</h1>
-          </router-link>
-          <!-- <small>{{item.smallTitle}}</small> -->
-          <!-- <div class="stat-percent" :class="item.color">
-                {{item.percent}}
-                <i :class="item.icon"></i>
-          </div>-->
         </el-card>
       </el-col>
     </el-row>
     <!-- 总览地图 -->
-    <el-row>
+    <el-row style="margin-top:15px;">
       <el-col :span="20" :offset="2">
         <div id="mapChart" style="height:350px"></div>
       </el-col>
@@ -42,7 +46,8 @@ export default {
           percent: "0%",
           icon: "fa fa-long-arrow-up",
           color: "blue",
-          param: ""
+          param: "",
+          img: require("../assets/img/main_ico01.png")
         },
         {
           title: "在线终端总数",
@@ -52,7 +57,8 @@ export default {
           percent: "0%",
           icon: "fa fa-long-arrow-up",
           color: "green",
-          param: ""
+          param: "",
+          img: require("../assets/img/main_ico02.png")
         },
         {
           title: "已激活终端总数",
@@ -62,7 +68,8 @@ export default {
           percent: "0%",
           icon: "fa fa-long-arrow-up",
           color: "greenAll",
-          param: ""
+          param: "",
+          img: require("../assets/img/main_ico03.png")
         },
         {
           title: "未激活终端总数",
@@ -72,7 +79,8 @@ export default {
           percent: "0%",
           icon: "fa fa-long-arrow-up",
           color: "orange",
-          param: ""
+          param: "",
+          img: require("../assets/img/main_ico04.png")
         }
       ],
       geoCoordMap: {
@@ -126,7 +134,7 @@ export default {
       this.$axios
         .post(baseUrl + "/admin/snapshoot/queryTerminalStatistic")
         .then(res => {
-          if (res.data.errcode==="0") {
+          if (res.data.errcode === "0") {
             this.allDataArr[0].count = res.data.data.terminalNum_total;
             this.allDataArr[1].count = res.data.data.terminalNum_online;
             this.allDataArr[2].count = res.data.data.terminalNum_active;
@@ -143,25 +151,25 @@ export default {
         });
     },
     //获取地图数据
-    getMapData(){
+    getMapData() {
       this.$axios
         .post(baseUrl + "/admin/terminal/groubByTenantId")
         .then(res => {
-          if (res.data.errcode==="0") {
-            if(res.data.data.length>0){
-              res.data.data.forEach((item)=>{
-                this.mapData.forEach((map)=>{
-                  if(map.name===item.name){
-                    if(item.num===null)map.num=0
-                    else map.num=item.num;
-                    if(item.total===null)map.value=0
-                    else map.value=item.total;
-                    map.tenantId=item.tenantId;
+          if (res.data.errcode === "0") {
+            if (res.data.data.length > 0) {
+              res.data.data.forEach(item => {
+                this.mapData.forEach(map => {
+                  if (map.name === item.name) {
+                    if (item.num === null) map.num = 0;
+                    else map.num = item.num;
+                    if (item.total === null) map.value = 0;
+                    else map.value = item.total;
+                    map.tenantId = item.tenantId;
                   }
                 });
               });
             }
-            } else {
+          } else {
             this.$message({
               message: "查询失败",
               type: "error"
@@ -184,12 +192,16 @@ export default {
         tooltip: {
           trigger: "item",
           formatter: function(params) {
-            if(params.data.num!==undefined){
-              return params.name 
-              +"<br>激活终端："+params.data.num
-              +"<br>终端总数："+params.data.value;
-            }else{
-              return  params.name +"<br>激活终端：---"+"<br>终端总数：---";
+            if (params.data.num !== undefined) {
+              return (
+                params.name +
+                "<br>激活终端：" +
+                params.data.num +
+                "<br>终端总数：" +
+                params.data.value
+              );
+            } else {
+              return params.name + "<br>激活终端：---" + "<br>终端总数：---";
             }
           }
         },
@@ -197,7 +209,7 @@ export default {
           orient: "vertical",
           y: "bottom",
           x: "right",
-          show:false,
+          show: false,
           textStyle: {
             color: "#fff"
           }
@@ -211,7 +223,7 @@ export default {
           calculable: true,
           seriesIndex: [1],
           inRange: {
-            color: ["#04387b", "#467bc0"] // 蓝绿
+            color: ["#0687AB", "#69C5E1"]
           }
         },
         geo: {
@@ -220,7 +232,7 @@ export default {
           label: {
             normal: {
               show: true,
-              color: "#F4E925",
+              color: "#ffffff",
               formatter: "{b}",
               position: "right"
             },
@@ -229,14 +241,14 @@ export default {
             }
           },
           roam: true,
-          zoom:1.25,
+          zoom: 1.25,
           itemStyle: {
             normal: {
               areaColor: "#023677",
               borderColor: "#3fdaff"
             },
             emphasis: {
-              areaColor: "#4499d0"
+              areaColor: "#11a7b8"
             }
           }
         },
@@ -363,10 +375,15 @@ export default {
 .allCard {
   border: 1px solid #eee !important;
 }
-.allCard a>h1 {
+.allCard a > h1 {
   font-size: 36px;
-  margin-bottom: 5px;
-  color:black;
+  color: #687b8f;
+  margin-left: 5px;
+}
+.allCard h3 {
+  color: #687b8f;
+  font-size: 14px;
+  font-weight: normal;
 }
 .el-card__header {
   padding: 10px 20px !important;
@@ -376,28 +393,20 @@ export default {
   font-weight: 600;
   float: right;
 }
-.el-card__header .blue {
+.el-card__body .blue {
   background-color: #1c84c6;
 }
-.el-card__header .green {
+.el-card__body .green {
   background-color: #23c6c8;
 }
-.el-card__header .greenAll {
+.el-card__body .greenAll {
   background-color: #1ab394;
 }
-.el-card__header .orange {
+.el-card__body .orange {
   background-color: rgba(240, 155, 119, 1);
 }
-.el-card__body .blue {
-  color: #1c84c6;
-}
-.el-card__body .green {
-  color: #23c6c8;
-}
-.el-card__body .greenAll {
-  color: #1ab394;
-}
-.el-card__body .orange {
-  color: rgba(240, 155, 119, 1);
+.pull-right {
+  float: none;
+  color: #ffffff;
 }
 </style>

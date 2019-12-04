@@ -3,16 +3,18 @@
     <el-container>
       <el-header class="header">
         <el-row>
-          <el-col :span="1" :offset="1">
-            <img src="../assets/img/logo.png" height="50" width="50" />
-          </el-col>
           <el-col :span="4">
-            <h1>物联管理系统</h1>
+            <img
+              src="../assets/img/logo_top.png"
+              height="100%"
+              width="100%"
+              style="margin-top:10px"
+            />
           </el-col>
-          <el-col :span="1" style="float: right;margin-top:10px">
+          <el-col :span="1" style="float: right;margin-top:25px">
             <el-dropdown trigger="click">
-              <span class="el-dropdown-link dropdownArea" style="font-size:30px;">
-                <i class="el-icon-s-unfold"></i>
+              <span class="el-dropdown-link dropdownArea" style="font-size:15px;">
+                Admin<i class="el-icon-caret-bottom"></i>
               </span>
               <el-dropdown-menu slot="dropdown" class="dropMenu">
                 <el-dropdown-item icon="el-icon-circle-check-outline">
@@ -26,7 +28,7 @@
                   </router-link>
                 </el-dropdown-item>
                 <el-dropdown-item icon="el-icon-circle-check-outline">
-                  <el-button type="text" @click="loginOut" style="color:#ffffff">
+                  <el-button type="text" @click="loginOut" style="color:#11a7b8">
                     <i class="fa fa-power-off" aria-hidden="true"></i>登出
                   </el-button>
                 </el-dropdown-item>
@@ -36,9 +38,9 @@
           <el-col
             :span="1"
             class="dropdownArea"
-            style="float: right;margin-top:10px;font-size:25px;"
+            style="float: right;margin-top:20px;font-size:25px;"
           >
-            <i class="fa fa-bell" aria-hidden="true"></i>
+            <i class="el-icon-bell" aria-hidden="true"></i>
           </el-col>
         </el-row>
       </el-header>
@@ -47,14 +49,13 @@
           <el-row>
             <el-col :span="24">
               <el-menu
-                style="height:550px;text-align:center"
+                style="height:650px;text-align:center"
                 :default-active="currentIndex"
                 class="el-menu-vertical-demo"
                 @open="handleOpen"
                 @close="handleClose"
-                background-color="rgb(240,240,240)"
-                text-color="#000000"
-                active-text-color="#0b54c1"
+                background-color="#16394c"
+                text-color="#909399"
               >
                 <div v-for="(button, index) in buttons" :key="index">
                   <router-link
@@ -125,7 +126,7 @@ export default {
       ifChildTitle: false,
       childTitle: "",
       buttons: [
-         {
+        {
           title: "首页",
           index: "1",
           url: "/",
@@ -189,7 +190,7 @@ export default {
           icon: "el-icon-s-tools",
           child: [
             { title: "租户管理", index: "1", url: "/tenantManage", icon: "" },
-            { title: "用户管理", index: "2", url: "/userManage", icon: "" },
+            { title: "用户管理", index: "2", url: "/userManage", icon: "" }
             // { title: "用户总览", index: "3", url: "/userOverview", icon: "" }
           ]
         }
@@ -245,24 +246,38 @@ export default {
 </script>
 
 <style scoped>
-.header,
 .dropMenu {
-  background-color: rgb(75, 131, 178);
-  color: #ffffff;
+  background-color: #ffffff;
+}
+.dropMenu a:link,.dropMenu a:visited{
+color: #11a7b8;
 }
 .dropMenu li:hover {
-  background-color: rgb(102, 167, 219);
+  background-color: #2aa9b865;
+}
+.el-header {
+  background-color: #ffffff;
+  box-shadow: 5px 0px 10px rgba(0, 0, 0, 0.3);
 }
 .header h1 {
-  padding: 10px;
+  padding: 10px 0px;
 }
 .dropdownArea {
-  color: #ffffff;
+  color: #11a7b8;
   cursor: pointer;
 }
 .el-menu-item,
 .childMenu span {
   font-size: 16px;
+}
+.el-menu-item.is-active {
+  color: #ffffff;
+  background-color: #11a7b8 !important;
+  border-bottom: 0px solid #e5e5e5;
+  border-radius: 15px 0 15px 0;
+}
+.el-menu-item {
+  height: 66px;
 }
 .childMenu .el-menu-item {
   font-size: 14px;

@@ -5,17 +5,17 @@
       <el-form :model="searchItem" ref="searchItem" label-width="auto" class="searchForm">
         <el-col :span="4">
           <el-form-item label="终端ID" prop="deviceId">
-            <el-input v-model="searchItem.deviceId" placeholder="终端ID"></el-input>
+            <el-input size="small" v-model="searchItem.deviceId" placeholder="终端ID"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="4">
           <el-form-item prop="name" label="终端名称">
-            <el-input v-model="searchItem.name" placeholder="设备名称"></el-input>
+            <el-input size="small" v-model="searchItem.name" placeholder="设备名称"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="4">
           <el-form-item prop="deviceType" label="终端类型">
-            <el-select v-model="searchItem.deviceType" :placeholder="typeArr.title">
+            <el-select size="small" v-model="searchItem.deviceType" :placeholder="typeArr.title">
               <el-option
                 v-for="item in typeArr.options"
                 :key="item.deviceType"
@@ -27,7 +27,7 @@
         </el-col>
         <el-col :span="4">
           <el-form-item prop="status" label="终端状态">
-            <el-select v-model="searchItem.status" :placeholder="statusArr.title">
+            <el-select size="small" v-model="searchItem.status" :placeholder="statusArr.title">
               <el-option
                 v-for="item in statusArr.options"
                 :key="item.value"
@@ -38,15 +38,27 @@
           </el-form-item>
         </el-col>
         <el-col :span="4" :offset="1">
-          <el-button type="primary" @click="search(1)">查询</el-button>
-          <el-button type="default" @click="reset('searchItem')">重置</el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-search"
+            size="small"
+            @click="search(1)"
+            style="background-color: #11a7b8;"
+          >查询</el-button>
+          <el-button type="default" size="small" @click="reset('searchItem')">重置</el-button>
         </el-col>
       </el-form>
     </el-row>
     <el-row>
       <el-col :span="24">
         <div>
-          <el-table :data="tableData" border size="medium" class="terminalTable">
+          <el-table
+            :data="tableData"
+            border
+            size="medium"
+            class="terminalTable"
+            :header-cell-style="tableHeaderColor"
+          >
             <!-- <el-table-column type="selection" width="55"></el-table-column> -->
             <el-table-column prop="deviceId" label="终端ID" align="center" width="170">
               <template slot-scope="scope">
@@ -71,8 +83,12 @@
             <el-table-column prop="mac" label="mac地址" align="center" width="135"></el-table-column>
             <el-table-column prop="options" label="操作" align="center" width="100">
               <template slot-scope="scope">
-                <el-button @click="editRow(scope.row)" type="text" size="medium">编辑</el-button>
-                <el-button @click="delRow(scope.row)" type="text" size="medium">删除</el-button>
+                <el-button @click="editRow(scope.row)" type="text" size="medium" title="编辑">
+                  <i class="el-icon-edit"></i>
+                </el-button>
+                <el-button @click="delRow(scope.row)" type="text" size="medium" title="删除">
+                  <i class="el-icon-delete"></i>
+                </el-button>
                 <!-- <el-button @click="restart(scope.row)" type="text" size="medium">重启</el-button>
                 <el-button @click="maintenance(scope.row)" type="text" size="medium">进入维护状态</el-button>
                 <el-button @click="pairRow(scope.row)" type="text" size="medium">对时</el-button>-->
@@ -83,7 +99,7 @@
             <el-col :span="4">
               <!-- <el-button type="success" size="small" icon="el-icon-refresh" @click="search(1,10)">刷新</el-button> -->
               <el-button
-                type="primary"
+                type="success"
                 size="small"
                 icon="el-icon-plus"
                 @click="add('dialogForm')"
@@ -96,13 +112,7 @@
                 :on-change="importExcel"
                 :auto-upload="false"
               >
-                <el-button
-                  slot="trigger"
-                  icon="el-icon-upload"
-                  size="small"
-                  type="primary"
-                  plain
-                >批量导入</el-button>
+                <el-button slot="trigger" icon="el-icon-upload" size="small" plain>批量导入</el-button>
               </el-upload>
             </el-col>
             <el-col :span="20">
@@ -150,7 +160,6 @@
                   style="width:80%;float:left"
                 ></el-input>
                 <el-button
-                  type="primary"
                   plain
                   size="mini"
                   v-if="ifDialogDetail"
@@ -158,7 +167,6 @@
                   @click="maintenance(dialogForm)"
                 >进入维护状态</el-button>
                 <el-button
-                  type="primary"
                   plain
                   size="mini"
                   v-if="ifDialogDetail"
@@ -196,7 +204,7 @@
             </el-col>
             <el-col :span="12" v-if="ifDialogDetail">
               <el-form-item label="终端版本">
-                <span style="float:left">{{dialogForm.version}}</span>
+                <span>{{dialogForm.version}}</span>
                 <!-- <el-button
                   type="primary"
                   plain
@@ -231,14 +239,12 @@
               <el-form-item label="终端时间">
                 <span style="float:left;">{{dialogForm.terminalTime}}</span>
                 <el-button
-                  type="primary"
                   plain
                   size="mini"
                   style="float:left;margin:5px;"
                   @click="getTerminalTime(dialogForm)"
                 >获取终端时间</el-button>
                 <el-button
-                  type="primary"
                   plain
                   size="mini"
                   style="float:left;margin:5px;"
@@ -302,8 +308,85 @@
             style="padding: 10px 0px;overflow: auto;"
           >
             <el-row>
-              <el-col :span="24" style="height:auto;width:auto">
-                <el-form-item label="容器" class="container" style="height:65px;">
+              <el-col :span="24" style="height:auto;width:auto;white-space: nowrap;border: none;">
+                <!-- 容器&应用 -->
+                <div class="rongqibox" v-for="(item,index) in dialogForm.containerArr" :key="index">
+                  <div class="rq-title">
+                    <span class="layui-bg-blue">
+                      <i class="el-icon-set-up"></i>
+                    </span> 容器
+                  </div>
+                  <ul>
+                    <li>
+                      <i class="el-icon-d-arrow-right"></i>
+                      {{item.name}}
+                    </li>
+                    <li>
+                      <i class="el-icon-d-arrow-right"></i>
+                      {{item.containerName}}
+                      <el-button
+                        v-if="dialogForm.status===1&&ifDialogEdit"
+                        type="text"
+                        size="mini"
+                        icon="el-icon-delete"
+                        @click="uninstallContainer(item)"
+                        title="卸载"
+                        style="color:red"
+                      ></el-button>
+                    </li>
+                  </ul>
+                  <hr />
+                  <div class="rq-title">
+                    <span class="layui-bg-orange">
+                      <i class="el-icon-menu"></i>
+                    </span> 应用
+                  </div>
+                  <ul>
+                    <li v-for="(app,appIndex) in item.appList" :key="appIndex">
+                      <i class="el-icon-d-arrow-right"></i>
+                      {{app.appName}}
+                      <el-button
+                        v-if="dialogForm.status===1&&ifDialogEdit"
+                        type="text"
+                        size="mini"
+                        icon="el-icon-delete"
+                        @click="uninstallApp(item,app)"
+                        title="卸载"
+                        style="color:red"
+                      ></el-button>
+                    </li>
+                    <li v-if="dialogForm.status===1&&ifDialogEdit">
+                      <el-button
+                        style="margin: 0px 45%;"
+                        type="text"
+                        title="添加应用"
+                        icon="el-icon-plus"
+                        @click="chooseFile('app',item.name)"
+                      ></el-button>
+                    </li>
+                  </ul>
+                </div>
+                <div v-if="dialogForm.status===1&&ifDialogEdit" class="rongqibox">
+                  <div class="rq-title">
+                    <span class="layui-bg-blue">
+                      <i class="el-icon-set-up"></i>
+                    </span> 容器
+                  </div>
+                  <ul>
+                    <li>
+                      <div style="text-align: center;">
+                        <el-button
+                          circle
+                          icon="el-icon-plus"
+                          title="添加容器"
+                          @click="chooseFile('container')"
+                        ></el-button>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+                <!--  -->
+                <!-- <el-form-item label="容器" class="container" style="height:65px;">
                   <el-row type="flex">
                     <div
                       class="el-col addConfig"
@@ -330,7 +413,11 @@
                         @click="uninstallContainer(item)"
                       ></el-button>
                     </div>
-                    <div v-if="dialogForm.status===1&&ifDialogEdit" class="el-col addConfig" style="height:65px;">
+                    <div
+                      v-if="dialogForm.status===1&&ifDialogEdit"
+                      class="el-col addConfig"
+                      style="height:65px;"
+                    >
                       <el-button
                         round
                         size="mini"
@@ -340,10 +427,10 @@
                       ></el-button>
                     </div>
                   </el-row>
-                </el-form-item>
+                </el-form-item>-->
               </el-col>
             </el-row>
-            <el-row v-if="dialogForm.containerArr!==undefined&&dialogForm.containerArr.length>0">
+            <!-- <el-row v-if="dialogForm.containerArr!==undefined&&dialogForm.containerArr.length>0">
               <el-col :span="24" style="height:auto;width:auto">
                 <el-form-item label="应用" class="application" style="height:200px;">
                   <el-row type="flex">
@@ -390,7 +477,7 @@
                   </el-row>
                 </el-form-item>
               </el-col>
-            </el-row>
+            </el-row>-->
           </div>
         </el-form>
       </el-row>
@@ -399,6 +486,7 @@
         <el-col :span="17">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
+              <el-divider direction="vertical"></el-divider>
               <span>{{addTitle}}</span>
             </div>
             <div>
@@ -459,10 +547,15 @@
                   <el-header>
                     <el-row>
                       <el-col :span="16">
-                        <el-input v-model="searchFileItem" placeholder="请输入名称进行查询"></el-input>
+                        <el-input v-model="searchFileItem" size="small" placeholder="请输入名称进行查询"></el-input>
                       </el-col>
                       <el-col :span="2" :offset="1">
-                        <el-button type="primary" icon="el-icon-search" @click="searchFile()">搜索</el-button>
+                        <el-button
+                          type="primary"
+                          size="small"
+                          icon="el-icon-search"
+                          @click="searchFile()"
+                        >搜索</el-button>
                       </el-col>
                     </el-row>
                   </el-header>
@@ -476,6 +569,7 @@
                         style="width: 100%"
                         @select="rowChange"
                         @select-all="selecteAll"
+                        :header-cell-style="tableHeaderColor"
                       >
                         <el-table-column type="selection"></el-table-column>
                         <!-- 容器column -->
@@ -510,13 +604,14 @@
         <el-col :span="6" :offset="1">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
+              <el-divider direction="vertical"></el-divider>
               <span>{{addSelectTitle}}</span>
             </div>
             <div style="max-height:300px;overflow: auto;">
               <!-- 已选容器 -->
               <ul v-if="addTitle!=='应用库'">
                 <li v-for="(item,index) in fileSelectedList" :key="index">
-                  {{item.name}}
+                  <i class="el-icon-d-arrow-right"></i>{{item.name}}
                   <el-button type="text" @click="removeSelected(item)">
                     <i class="el-icon-close"></i>
                   </el-button>
@@ -525,7 +620,7 @@
               <!-- 已选应用 -->
               <ul v-if="addTitle==='应用库'">
                 <li v-for="(item,index) in fileSelectedList" :key="index">
-                  {{item.appName}}
+                  <i class="el-icon-d-arrow-right"></i>{{item.appName}}
                   <el-button type="text" @click="removeSelected(item)">
                     <i class="el-icon-close"></i>
                   </el-button>
@@ -600,7 +695,7 @@ export default {
       activeTab: "allView",
       tableSize: 0,
       tableLimit: 10,
-      currentPage:1,
+      currentPage: 1,
       selectedRow: [],
       searchItem: {
         deviceId: "",
@@ -723,7 +818,7 @@ export default {
           param
         )
         .then(res => {
-          this.currentPage=page;
+          this.currentPage = page;
           this.tableSize = res.data.data.totalRecord;
           this.tableData = res.data.data.data;
           return false;
@@ -799,7 +894,7 @@ export default {
               params: { devices: row.deviceId }
             })
             .then(res => {
-              if (res.data.errcode==="0") {
+              if (res.data.errcode === "0") {
                 this.$message({
                   type: "success",
                   message: "删除成功!"
@@ -836,33 +931,33 @@ export default {
           this.dialogForm.containerArr = [];
           if (res.data.data !== null && res.data.data.length > 0) {
             //找寻已安装的app并放置数据
-            this.$axios.post(
-              baseUrl +
-                "/admin/app/findInstalledApp?deviceId=" +
-                row.deviceId
-            ).then(apps => {
-              let appArr = apps.data.data;
-              res.data.data.forEach(item => {
-                let container = {
-                  containerName: item.containerConfig.containerName,
-                  name: item.containerInfo.name,
-                  status: item.containerDeployStatus.deployStatus,
-                  appList: []
-                };
-                if (appArr!==null&&appArr.length > 0) {
-                  appArr.forEach((app, index) => {
-                    if (
-                      app.containerName === item.containerConfig.containerName
-                    ) {
-                      container.appList=Object.assign([],app.appList);
-                    }
-                  });
-                }
-                this.dialogForm.containerArr.push(container);
+            this.$axios
+              .post(
+                baseUrl + "/admin/app/findInstalledApp?deviceId=" + row.deviceId
+              )
+              .then(apps => {
+                let appArr = apps.data.data;
+                res.data.data.forEach(item => {
+                  let container = {
+                    containerName: item.containerConfig.containerName,
+                    name: item.containerInfo.name,
+                    status: item.containerDeployStatus.deployStatus,
+                    appList: []
+                  };
+                  if (appArr !== null && appArr.length > 0) {
+                    appArr.forEach((app, index) => {
+                      if (
+                        app.containerName === item.containerConfig.containerName
+                      ) {
+                        container.appList = Object.assign([], app.appList);
+                      }
+                    });
+                  }
+                  this.dialogForm.containerArr.push(container);
+                });
+                console.info(this.dialogForm.containerArr);
+                this.$forceUpdate(); //v-for页面重新渲染
               });
-              console.info(this.dialogForm.containerArr);
-              this.$forceUpdate(); //v-for页面重新渲染
-            });
           }
           if (this.ifAddContainer) this.ifAddContainer = false;
           this.dialogFormVisible = true;
@@ -1060,7 +1155,7 @@ export default {
                   editData
               )
               .then(res => {
-                if (res.data.errcode==="0") {
+                if (res.data.errcode === "0") {
                   this.dialogFormVisible = false;
                   this.$message({
                     message: "修改成功",
@@ -1121,7 +1216,7 @@ export default {
       this.$axios
         .post(baseUrl + url)
         .then(res => {
-          if (res.data.errcode==="0") {
+          if (res.data.errcode === "0") {
             this.addDialogTypes = res.data.data;
           }
         })
@@ -1283,11 +1378,15 @@ export default {
           type: "warning"
         });
       } else {
-        this.$confirm("是否卸载卸载容器——'" + item.containerName + "'?", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
+        this.$confirm(
+          "是否卸载卸载容器——'" + item.containerName + "'?",
+          "提示",
+          {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          }
+        )
           .then(() => {
             let containers = [
               {
@@ -1645,6 +1744,11 @@ export default {
       this.previewExcel = convertedData;
       this.excelShow = true;
       console.info(convertedData);
+    },
+    tableHeaderColor({ row, column, rowIndex, columnIndex }) {
+      if (rowIndex === 0) {
+        return "color: #353B40;font-weight: bold;background: #f5fafa;padding: 5px 0;";
+      }
     }
   }
 };
@@ -1654,6 +1758,9 @@ export default {
 .terminalTable {
   /* max-height: 500px; */
   overflow: auto;
+}
+.terminalTable .el-button--text {
+  color: #11a7b8;
 }
 .acForm .el-col {
   border-color: rgb(151, 195, 221);
@@ -1709,6 +1816,88 @@ export default {
 }
 .previewTable > thead {
   background-color: #eff2f7;
+}
+/* 容器&应用 */
+.rongqibox {
+  width: 250px;
+  height: 240px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 5px;
+  background: rgb(248, 248, 248);
+  border-width: 1px;
+  border-style: dotted;
+  border-color: rgb(221, 221, 221);
+  border-image: initial;
+  border-radius: 5px;
+  padding: 10px 0px;
+  display: inline-table;
+  margin: 0px 5px;
+  text-align: left;
+}
+.rq-title {
+  height: 24px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 24px;
+  margin-bottom: 8px;
+}
+.rq-title i {
+  color: #ffffff;
+}
+.rq-title span {
+  display: inline-block;
+  width: 24px;
+  text-align: center;
+  font-size: 16px;
+  margin-right: 8px;
+}
+.layui-bg-blue {
+  background-color: #1e9fff !important;
+}
+.rongqibox ul {
+  margin-bottom: 10px;
+  padding: 0px 36px;
+  list-style: none;
+  max-height: 100px;
+  overflow: auto;
+}
+.rongqibox ul li {
+  font-size: 14px;
+  line-height: 1.8em;
+  color: rgb(102, 102, 102);
+}
+.rongqibox hr {
+  margin-bottom: 0px;
+}
+hr {
+  background-color: #e6e6e6;
+  height: 1px;
+  margin: 10px 0;
+  border: 0;
+  clear: both;
+}
+.layui-bg-orange {
+  background-color: #ffb800 !important;
+}
+.el-menu-item {
+  border-radius: 8px;
+  padding: 15px 20px;
+  font-size: 15px;
+  line-height: 24px;
+  background: #f2fcff;
+  margin-bottom: 15px;
+  border: 1px solid #aed1ff;
+  cursor: pointer;
+  color: #0099fa;
+}
+.el-menu-item i{
+  color: #0099fa;
+}
+.el-menu-item.is-active{
+  background: #0099fa;
+  color: #ffffff;
+}
+.el-menu-item.is-active i{
+  color: #ffffff;
 }
 </style>
 
