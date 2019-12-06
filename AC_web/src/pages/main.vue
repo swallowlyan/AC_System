@@ -17,7 +17,7 @@
                 Admin<i class="el-icon-caret-bottom"></i>
               </span>
               <el-dropdown-menu slot="dropdown" class="dropMenu">
-                <el-dropdown-item icon="el-icon-circle-check-outline">
+                <!-- <el-dropdown-item icon="el-icon-circle-check-outline">
                   <router-link to="/">
                     <i class="fa fa-key" aria-hidden="true"></i>修改密码
                   </router-link>
@@ -26,7 +26,7 @@
                   <router-link to="/">
                     <i class="fa fa-user" aria-hidden="true"></i>个人信息
                   </router-link>
-                </el-dropdown-item>
+                </el-dropdown-item> -->
                 <el-dropdown-item icon="el-icon-circle-check-outline">
                   <el-button type="text" @click="loginOut" style="color:#11a7b8">
                     <i class="fa fa-power-off" aria-hidden="true"></i>登出

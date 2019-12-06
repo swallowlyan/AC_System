@@ -1062,7 +1062,7 @@ export default {
         .put(baseUrl + "/admin/terminal/devices/clock/" + row.deviceId)
         .then(res => {
           if (res.data.errcode === "0") {
-            this.dialogForm.terminalTime = this.dateFormate(res.data.data);
+            this.dialogForm.terminalTime = this.dateFormate(res.data.data.deviceCurrentTime);
             this.$forceUpdate();
           } else {
             this.$message({
