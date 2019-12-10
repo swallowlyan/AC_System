@@ -832,7 +832,7 @@ export default {
           "是否确定卸载设备——'" +
             optionNameArr +
             "'中的容器'" +
-            item.containerName +
+            this.currentContainer.name +
             "'?",
           "提示",
           {
